@@ -1,0 +1,7 @@
+^README\.Rmd$
+^LICENSE\.md$
+^seglm\.Rproj$
+^\.Rproj\.user$
+man-roxygen/*
+^pkg_internal_notes\.*
+^multiDiff\.Rproj$
