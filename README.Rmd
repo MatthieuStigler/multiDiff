@@ -13,20 +13,20 @@ knitr::opts_chunk$set(
 )
 ```
 
-# DiffDiff
+# multiDiff
 
+This R package implements the multi-period diff-diff as discussed in Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
 
 ## Installation
 
-todo
 
 ``` r
-library(remotes)
-install_github("MatthieuStigler/DiffDiff")
+devtools::install_github("MatthieuStigler/multiDiff")
 ```
 
 ## Example
 
-TODO 
+Main funciton is `DD()`, but might change name...
+
 
 
