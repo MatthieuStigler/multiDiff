@@ -8,13 +8,13 @@ DD(y_var = "y", data, time.index = "Time", treat = "tr",
   unit.index = "unit")
 }
 \arguments{
-\item{y_var}{y_var}
+\item{y_var}{The name of the y variable}
 
 \item{data}{data}
 
 \item{time.index}{time.index}
 
-\item{treat}{treat}
+\item{treat}{treatment variable}
 
 \item{unit.index}{unit.index}
 }

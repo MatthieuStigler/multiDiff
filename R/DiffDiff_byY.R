@@ -2,10 +2,10 @@
 
 #' Compute Diff diff by period
 #'
-#' @param y_var y_var
+#' @param y_var The name of the y variable
 #' @param data data
 #' @param time.index time.index
-#' @param treat treat
+#' @param treat treatment variable
 #' @param unit.index unit.index
 #' @export
 #' @examples

@@ -65,7 +65,9 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, seed=NULL) {
                       err = rnorm(N*Time)) %>%
     group_by(.data$unit) %>%
     mutate(lag_1 =dplyr::lag(.data$tr),
-           lag_2 =dplyr::lag(.data$tr, n = 2)) %>%
+           lag_2 =dplyr::lag(.data$tr, n = 2),
+           lead_1= dplyr::lead(.data$tr, n = 1),
+           lead_2= dplyr::lead(.data$tr, n = 2)) %>%
     ungroup() %>%
     mutate(lag_one_noNA = dplyr::if_else(is.na(.data$lag_1), 0L, .data$lag_1)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + .data$err,
