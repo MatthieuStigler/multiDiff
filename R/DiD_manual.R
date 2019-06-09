@@ -3,7 +3,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit"){
   groups <- df %>%
     select(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat)) %>%
     spread(!!enquo(time.index), !!enquo(treat)) %>%
-    tidyr::unite(.group, -!!enquo(unit.index))
+    tidyr::unite(".group", -!!enquo(unit.index))
   df %>%
     left_join(groups %>%
                 select(.data$unit, .data$.group), by = "unit")
@@ -11,7 +11,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit"){
 
 util_add_total_row <- function(df, fun=sum) {
   df %>%
-    bind_rows(summarise_all(df, list(~if(is.numeric(.)) fun(., na.rm=TRUE) else if(is.logical(.)) NA else "Total")))
+    bind_rows(summarise_all(df, list(~if(is.numeric(.)) fun(., na.rm=TRUE) else if(is.logical(.)) NA else "Diff Time")))
 }
 
 #' Diff Diff manual table
@@ -31,9 +31,10 @@ util_add_total_row <- function(df, fun=sum) {
 DD_manu <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                      control_gr="0_0", treat_gr="0_1", time_per=NULL) {
 
-  # time.index = quo("Time")
-  # treat = quo("tr")
-  # unit.index = quo("unit")
+  time.index = quo("Time")
+  treat = quo("tr")
+  unit.index = quo("unit")
+  y_var= "y"
 
   gr_treat <- paste("group", treat_gr, sep="_")
   gr_cntrl <- paste("group", control_gr, sep="_")
@@ -50,12 +51,17 @@ DD_manu <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.in
     data2 <- data2 %>%
       filter_at(vars(!!time.index), all_vars(. %in% time_per))
   }
-  data2 %>%
+  data3 <- data2 %>%
     spread(.data$.group, !!enquo(y_var)) %>%
     mutate(diff = !!rlang::sym(gr_treat) - !!rlang::sym(gr_cntrl))%>%
-    mutate_at(vars(!!enquo(time.index)), as.character) %>%
-    util_add_total_row(fun=diff) %>%
-    mutate(diff_check = !!sym(gr_treat) - !!sym(gr_cntrl))
+    mutate_at(vars(!!enquo(time.index)), as.character)
+
+  if(nrow(data3)==2) {
+    data3 <-  data3 %>%
+      util_add_total_row(fun=diff)
+  }
+    data3 %>%
+      mutate(diff_check = !!sym(gr_treat) - !!sym(gr_cntrl))
 }
 
 if(FALSE) {

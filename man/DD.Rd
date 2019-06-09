@@ -24,6 +24,6 @@ Compute Diff diff by period
 \examples{
 data <- sim_dat(N=100)
 DD_out <- DD(data=data)
-aggreg_DID(x=DD_out, by_DiD = FALSE)
-aggreg_DID(x=DD_out, by_DiD = TRUE)
+DiD_aggreg(x=DD_out, by_DiD = FALSE)
+DiD_aggreg(x=DD_out, by_DiD = TRUE)
 }

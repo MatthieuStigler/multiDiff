@@ -11,8 +11,8 @@
 #' @examples
 #' data <- sim_dat(N=100)
 #' DD_out <- DD(data=data)
-#' aggreg_DID(x=DD_out, by_DiD = FALSE)
-#' aggreg_DID(x=DD_out, by_DiD = TRUE)
+#' DiD_aggreg(x=DD_out, by_DiD = FALSE)
+#' DiD_aggreg(x=DD_out, by_DiD = TRUE)
 
 
 DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="unit") {
@@ -78,6 +78,24 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
 
 }
 
+#' Count the treated/control
+#'
+#' @export
+#' @rdname DiD_aggreg
+DiD_count <- function(x) {
+
+  x %>%
+    select(.data$time, .data$DiD, .data$n_treat, .data$n_control) %>%
+    gather("group", n, .data$n_treat, .data$n_control) %>%
+    mutate(group= stringr::str_remove(.data$group, "n_")) %>%
+    left_join(x %>% distinct(.data$DiD, .data$treat, .data$control), by = "DiD") %>%
+    mutate(group = if_else(.data$group=="treat", .data$treat, .data$control)) %>%
+    arrange(.data$time) %>%
+    distinct(.data$time, .data$group, .data$n) %>%
+    group_by(.data$time) %>%
+    mutate(Tot = sum(.data$n)) %>%
+    ungroup()
+}
 
 #' Aggreg results
 #'
@@ -86,9 +104,16 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
 #' @param by_DiD DiD specific?
 #' @param \ldots grouping vars... time
 #' @export
-aggreg_DID <- function(x, DiD_keep=c(1,4), by_DiD=FALSE, ...) {
+#' @examples
+#' data <- sim_dat(N=100)
+#' DD_out <- DD(data=data)
+#' DiD_aggreg(x=DD_out, by_DiD = FALSE)
+#' DiD_aggreg(x=DD_out, by_DiD = TRUE)
+#' DiD_count(x=DD_out)
 
-  if(by_DiD) x <- dplyr::grouped_df(x, "DiD")
+DiD_aggreg <- function(x, DiD_keep=c(1,4), by_DiD=FALSE, ...) {
+
+  if(by_DiD) x <- dplyr::grouped_df(x,  c("DiD", "treat", "control"))
   x %>%
     filter(.data$DiD %in% DiD_keep) %>%
     # group_by(!!!enquos(...)) %>%
@@ -103,6 +128,7 @@ aggreg_DID <- function(x, DiD_keep=c(1,4), by_DiD=FALSE, ...) {
 
 
 if(FALSE) {
+  dat_sim_1 <- sim_dat(N=5000, Time = 5)
   res_out <- DD(data = dat_sim_1, time.index = "Time")
   res_out_asym <- DD(data = dat_sim_1, y_var = "y_asym",  time.index = "Time")
 
@@ -110,15 +136,17 @@ if(FALSE) {
     filter(time==2) %>%
     select(time, DiD, treat, control, estimate)
 
+  res_out %>%
+    DiD_aggreg()
 
   res_out %>%
-    aggreg_DID()
+    DiD_aggreg(DiD_keep=1:4, by_DiD=TRUE)
 
-  res_out %>%
-    aggreg_DID(DiD_keep=1:4, DiD, treat, control)
+
+
 
   res_out_asym %>%
-    aggreg_DID(DiD_keep=1:4, DiD, treat, control)
+    DiD_aggreg(DiD_keep=1:4, DiD, treat, control)
 
   ## compare
   mod.did <- wfe(y~ tr, data = dat_sim_1, treat = "tr",
@@ -133,7 +161,7 @@ if(FALSE) {
   mod.did2
 
   res_out %>%
-    aggreg_DID(DiD_keep=1:4, DiD, treat, control) %>%
+    DiD_aggreg(DiD_keep=1:4, DiD, treat, control) %>%
     filter(DiD==1) %>%
     as.data.frame()
 
