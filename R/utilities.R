@@ -1,3 +1,30 @@
+
+#' Overwrite seq with value from given period (default to max)
+#'
+#' @param df data
+#' @param time.val Time period to filter for. Default to max
+#' @param time.index,unit.index usual suspects
+#' @param treat_seq_var The variable with treatment
+#' @noRd
+#' @examples
+#' dat <- sim_dat(Time =4, N=3, seed=1234)[, c("unit", "Time", "tr", "lag_1")]
+#' dat$seq = paste(dat$lag_1, dat$tr, sep="_")
+#' dat
+#' multiDiff:::overwrite_seq(dat, treat_seq_var="seq")
+#' multiDiff:::overwrite_seq(dat, time.val = 3, treat_seq_var="seq")
+
+overwrite_seq <- function(df, time.val=NULL, time.index = "Time", treat_seq_var = "tr", unit.index="unit"){
+
+  if(is.null(time.val)) time.val <- max(df %>% pull(!!enquo(time.index)))
+
+  df %>%
+    select(-!!enquo(treat_seq_var)) %>%
+    left_join(df %>%
+                filter_at(vars(!!time.index), all_vars(. ==time.val)) %>%
+                select(!!enquo(unit.index), !!enquo(treat_seq_var)), by = unit.index)
+}
+
+
 # time_var=quo(year)
 # lag_var=quo(value)
 
