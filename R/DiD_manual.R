@@ -31,9 +31,9 @@ util_add_total_row <- function(df, fun=sum) {
 DD_manu <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                      control_gr="0_0", treat_gr="0_1", time_per=NULL) {
 
-  time.index = quo("Time")
+  # time.index = quo("Time")
   treat = quo("tr")
-  unit.index = quo("unit")
+  # unit.index = quo("unit")
   y_var= "y"
 
   gr_treat <- paste("group", treat_gr, sep="_")

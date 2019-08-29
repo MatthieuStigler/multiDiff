@@ -71,3 +71,4 @@ plm(y~ 1, data=filter(data_pre, Time %in% c(3,4)) %>%
       pdata.frame(index = c("unit", "Time")), model = "fd")
 
 felm(y~ group |Time, data=filter(data_pre, Time %in% c(3,4)))
+

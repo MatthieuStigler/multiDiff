@@ -46,10 +46,11 @@
 #' @param Time number of distinct time
 #' @param beta coef
 #' @param seed seed
+#' @param prob_treat Probability of treatment
 #' @export
 #' @examples
 #' sim_dat()
-sim_dat <- function(N = 1000, Time = 15, beta =1, seed=NULL) {
+sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25) {
 
   if(!is.null(seed)) set.seed(seed)
   ## individual and firm
@@ -61,7 +62,7 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, seed=NULL) {
                       Time = rep(1:Time, times=N),
                       unit_fe = ind_fe,
                       time_fe = time_fe,
-                      tr = rbinom(N*Time, size = 1, 0.25),
+                      tr = rbinom(N*Time, size = 1, prob_treat),
                       err = rnorm(N*Time)) %>%
     group_by(.data$unit) %>%
     mutate(lag_1 =dplyr::lag(.data$tr),
@@ -71,7 +72,7 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, seed=NULL) {
     ungroup() %>%
     mutate(lag_one_noNA = dplyr::if_else(is.na(.data$lag_1), 0L, .data$lag_1)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + .data$err,
-           y_asym = beta* .data$tr + 0.5 * .data$lag_one_noNA*(1-.data$tr) + .data$unit_fe + .data$time_fe +.data$err )
+           y_asym = beta* .data$tr + gamma * .data$lag_one_noNA*(1-.data$tr) + .data$unit_fe + .data$time_fe +.data$err )
 
 
 }
