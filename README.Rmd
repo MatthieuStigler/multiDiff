@@ -26,7 +26,51 @@ devtools::install_github("MatthieuStigler/multiDiff")
 
 ## Example
 
-Main funciton is `DD()`, but might change name...
+Main function is `DD()` (name might change!), with following arguments
+
+- `y_var` The name of the y variable
+- `treat treatment` The name of the treatment variable
+- `time.index` The name of the *time* dimension variable
+- `unit.index` The name of the *unit* dimension variable
+- `data` The dataset
+
+```{r}
+library(multiDiff)
+suppressMessages(library(tidyverse))
+data <- sim_dat(N=100)
+DD_out <- DD(data=data)
+
+## Main output is:
+knitr::kable(DD_out[1:5,])
+```
+
+Plot the year-by-year treatment:
+
+```{r}
+DD_out %>% 
+  filter(DiD %in% c(1,4)) %>% 
+  mutate(case = paste("Treat: ", treat, ", Control: ", control, sep = "")) %>% 
+  ggplot(aes(x=time, y = estimate, color = case)) +
+  geom_ribbon(aes(ymin = .data$conf.low, 
+                    ymax = .data$conf.high,
+                  group = case),
+              fill = "grey", alpha = I(0.4),
+              linetype = 2) +
+  geom_line(size = 1) +
+  theme(legend.position = "bottom") +
+  geom_hline(yintercept =1, linetype = 2) +
+  ggtitle("Diff-diff by year and identification case")
+```
+
+
+Aggregate the results over time:
+
+```{r}
+DiD_aggreg(x=DD_out, by_DiD = FALSE)
+DiD_aggreg(x=DD_out, by_DiD = TRUE)
+```
+
+
 
 
 
