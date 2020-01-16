@@ -39,19 +39,26 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
     filter(!is.na(!!enquo(lag_var)))
 }
 
-#' Lag by group
+#' Lag a variable by group
+#'
+#' Take the lag of a variable for each group.
+#' Will check also that there is no missing years.
 #'
 #' @param df data frame
-#' @param group_var group_var
-#' @param time_var time_var
-#' @param lag_var lag_var
-#' @param lagamount lag
+#' @param group_var The grouping variable
+#' @param time_var The time variable.
+#' This is necessary as the function makes sure there are no missing years.
+#' @param lag_var The variable to lag over
+#' @param lagamount The amount of lag
 #' @export
 #' @examples
 #' df_test <- data.frame(group = rep(c("a", "b"), each=6),
-#' year = rep(2000:2005, 2),
-#' value = (0:11) ^ 2)
+#'                       year = rep(2000:2005, 2),
+#'                       value = (0:11) ^ 2)
 #' lag_group(df_test, group, time_var=year, lag_var=value)
+#'
+#' ## Behaviour with missing years
+#' lag_group(df_test[c(1,2,4,5, 6, 7, 8),], group, time_var=year, lag_var=value)
 
 lag_group <- function(df, group_var, time_var, lag_var, lagamount=1){
   cl <- class(pull(head(df, 1), !!enquo(lag_var)))

@@ -2,27 +2,32 @@
 % Please edit documentation in R/utilities.R
 \name{lag_group}
 \alias{lag_group}
-\title{Lag by group}
+\title{Lag a variable by group}
 \usage{
 lag_group(df, group_var, time_var, lag_var, lagamount = 1)
 }
 \arguments{
 \item{df}{data frame}
 
-\item{group_var}{group_var}
+\item{group_var}{The grouping variable}
 
-\item{time_var}{time_var}
+\item{time_var}{The time variable.
+This is necessary as the function makes sure there are no missing years.}
 
-\item{lag_var}{lag_var}
+\item{lag_var}{The variable to lag over}
 
-\item{lagamount}{lag}
+\item{lagamount}{The amount of lag}
 }
 \description{
-Lag by group
+Take the lag of a variable for each group.
+Will check also that there is no missing years.
 }
 \examples{
 df_test <- data.frame(group = rep(c("a", "b"), each=6),
-year = rep(2000:2005, 2),
-value = (0:11) ^ 2)
+                      year = rep(2000:2005, 2),
+                      value = (0:11) ^ 2)
 lag_group(df_test, group, time_var=year, lag_var=value)
+
+## Behaviour with missing years
+lag_group(df_test[c(1,2,4,5, 6, 7, 8),], group, time_var=year, lag_var=value)
 }
