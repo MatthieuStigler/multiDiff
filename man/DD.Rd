@@ -28,5 +28,5 @@ DiD_aggreg(x=DD_out, by_DiD = FALSE)
 DiD_aggreg(x=DD_out, by_DiD = TRUE)
 }
 \seealso{
-\code{\link{DiD_aggreg}} for aggregating the output of \code{DD} o  ver years.
+\code{\link{DiD_aggreg}} for aggregating the output of \code{DD} over years.
 }

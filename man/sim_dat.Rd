@@ -16,6 +16,10 @@ sim_dat(N = 1000, Time = 15, beta = 1, gamma = 0.7, seed = NULL,
 
 \item{beta}{coef}
 
+\item{gamma}{To generate the series \code{y_asym}, which has longer dynamics.
+Gamma is the coefficients for observations that were not treated (0) the previous period,
+while the standard beta will apply for values currently treated.}
+
 \item{seed}{seed}
 
 \item{prob_treat}{Probability of treatment}

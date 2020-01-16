@@ -46,6 +46,9 @@
 #' @param Time number of distinct time
 #' @param beta coef
 #' @param seed seed
+#' @param gamma To generate the series \code{y_asym}, which has longer dynamics.
+#' Gamma is the coefficients for observations that were not treated (0) the previous period,
+#' while the standard beta will apply for values currently treated.
 #' @param prob_treat Probability of treatment
 #' @export
 #' @examples
