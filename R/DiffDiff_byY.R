@@ -1,6 +1,6 @@
 
 
-#' Compute Diff diff by period
+#' Compute the diff-and-diff by period
 #'
 #' @param y_var The name of the y variable
 #' @param data data
@@ -8,6 +8,7 @@
 #' @param treat treatment variable
 #' @param unit.index unit.index
 #' @export
+#' @seealso \code{\link{DiD_aggreg}} for aggregating the output of \code{DD} over years.
 #' @examples
 #' data <- sim_dat(N=100)
 #' DD_out <- DD(data=data)

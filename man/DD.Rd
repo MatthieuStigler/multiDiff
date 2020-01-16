@@ -2,7 +2,7 @@
 % Please edit documentation in R/DiffDiff_byY.R
 \name{DD}
 \alias{DD}
-\title{Compute Diff diff by period}
+\title{Compute the diff-and-diff by period}
 \usage{
 DD(y_var = "y", data, time.index = "Time", treat = "tr",
   unit.index = "unit")
@@ -19,11 +19,14 @@ DD(y_var = "y", data, time.index = "Time", treat = "tr",
 \item{unit.index}{unit.index}
 }
 \description{
-Compute Diff diff by period
+Compute the diff-and-diff by period
 }
 \examples{
 data <- sim_dat(N=100)
 DD_out <- DD(data=data)
 DiD_aggreg(x=DD_out, by_DiD = FALSE)
 DiD_aggreg(x=DD_out, by_DiD = TRUE)
+}
+\seealso{
+\code{\link{DiD_aggreg}} for aggregating the output of \code{DD} o  ver years.
 }

@@ -4,11 +4,15 @@
 \name{multiDiff}
 \alias{multiDiff}
 \alias{multiDiff-package}
-\title{multiDiff: Internal functions I use}
+\title{multiDiff: multi-perio diff-and-diff}
 \description{
-to do... can I get a list of functions? Just document them!
+This R package implements the multi-period diff-diff as discussed in
+Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
 }
 \details{
-Should run:
-remotes::install_github("MatthieuStigler/multiDiff", upgrade = "never")
+Main functions are \code{\link{DD}}, and \code{\link{DiD_aggreg}}.
+Function \code{\link{sim_dat}} simulates a dataset for the example.
+
+To install:
+devtools::install_github("MatthieuStigler/multiDiff", upgrade = "never")
 }

@@ -6,7 +6,8 @@
 
 SImulate}
 \usage{
-sim_dat(N = 1000, Time = 15, beta = 1, seed = NULL)
+sim_dat(N = 1000, Time = 15, beta = 1, gamma = 0.7, seed = NULL,
+  prob_treat = 0.25)
 }
 \arguments{
 \item{N}{number of distinct units}
@@ -16,6 +17,8 @@ sim_dat(N = 1000, Time = 15, beta = 1, seed = NULL)
 \item{beta}{coef}
 
 \item{seed}{seed}
+
+\item{prob_treat}{Probability of treatment}
 }
 \description{
 NEW

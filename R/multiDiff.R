@@ -1,9 +1,13 @@
-#' multiDiff: Internal functions I use
+#' multiDiff: multi-perio diff-and-diff
 #'
-#' to do... can I get a list of functions? Just document them!
+#' This R package implements the multi-period diff-diff as discussed in
+#' Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
 #'
-#' Should run:
-#' remotes::install_github("MatthieuStigler/multiDiff", upgrade = "never")
+#' Main functions are \code{\link{DD}}, and \code{\link{DiD_aggreg}}.
+#' Function \code{\link{sim_dat}} simulates a dataset for the example.
+#'
+#' To install:
+#' devtools::install_github("MatthieuStigler/multiDiff", upgrade = "never")
 #'
 #'
 #' @docType package
