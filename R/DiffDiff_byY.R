@@ -7,6 +7,7 @@
 #' @param time.index time.index
 #' @param treat treatment variable
 #' @param unit.index unit.index
+#' @param min_obs_required the minimum number of either treat or control needed to run a regresion
 #' @export
 #' @seealso \code{\link{DiD_aggreg}} for aggregating the output of \code{DD} over years.
 #' @examples
@@ -16,7 +17,8 @@
 #' DiD_aggreg(x=DD_out, by_DiD = TRUE)
 
 
-DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="unit") {
+DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="unit",
+               min_obs_required = 2) {
 
   # time.index = quo("Time")
   # treat = quo("tr")
@@ -59,7 +61,7 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
       left_join(cnt %>%
                   rename(control=seq, n_control=n), by = c("control")) %>%
       mutate(n_min = pmin(.data$n_treat, .data$n_control),
-             miss_data = .data$n_min<2)
+             miss_data = .data$n_min<min_obs_required)
 
     DiD_tab_here %>%
       mutate(reg_out = map2(all, .data$miss_data,  ~if(.y) NA else felm(lf_formula,
