@@ -21,4 +21,4 @@ Imports:
     magrittr,
     purrr
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 6.1.1
+RoxygenNote: 7.1.0

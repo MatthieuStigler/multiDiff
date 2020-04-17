@@ -4,9 +4,16 @@
 \alias{DD_manu}
 \title{Diff Diff manual table}
 \usage{
-DD_manu(data, y_var = "y", time.index = "Time", treat = "tr",
-  unit.index = "unit", control_gr = "0_0", treat_gr = "0_1",
-  time_per = NULL)
+DD_manu(
+  data,
+  y_var = "y",
+  time.index = "Time",
+  treat = "tr",
+  unit.index = "unit",
+  control_gr = "0_0",
+  treat_gr = "0_1",
+  time_per = NULL
+)
 }
 \arguments{
 \item{data}{data}

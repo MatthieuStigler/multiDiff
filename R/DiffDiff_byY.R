@@ -72,8 +72,14 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
     mutate(data = map(.data$time, ~filter(data3, .data$.time%in% c(., .-1))),
            reg_out = map(data, get_all)) %>%
     select(-.data$data) %>%
-    unnest(.data$reg_out) %>%
-    select(-.data$term, -.data$all)
+    unnest(.data$reg_out)
+
+  if(all(res$miss_data)) {
+    warning("No variation in treatment found!?")
+  } else {
+    res <-  res %>%
+      select(-.data$term, -.data$all)
+  }
   res
 
 

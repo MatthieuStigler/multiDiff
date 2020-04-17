@@ -2,12 +2,19 @@
 % Please edit documentation in R/dat_sim.R
 \name{sim_dat}
 \alias{sim_dat}
-\title{NEW
+\title{\subsection{NEW}{
 
-SImulate}
+SImulate
+}}
 \usage{
-sim_dat(N = 1000, Time = 15, beta = 1, gamma = 0.7, seed = NULL,
-  prob_treat = 0.25)
+sim_dat(
+  N = 1000,
+  Time = 15,
+  beta = 1,
+  gamma = 0.7,
+  seed = NULL,
+  prob_treat = 0.25
+)
 }
 \arguments{
 \item{N}{number of distinct units}
@@ -25,9 +32,10 @@ while the standard beta will apply for values currently treated.}
 \item{prob_treat}{Probability of treatment}
 }
 \description{
-NEW
+\subsection{NEW}{
 
 SImulate
+}
 }
 \examples{
 sim_dat()

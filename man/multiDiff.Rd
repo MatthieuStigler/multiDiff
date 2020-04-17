@@ -3,7 +3,6 @@
 \docType{package}
 \name{multiDiff}
 \alias{multiDiff}
-\alias{multiDiff-package}
 \title{multiDiff: multi-perio diff-and-diff}
 \description{
 This R package implements the multi-period diff-diff as discussed in

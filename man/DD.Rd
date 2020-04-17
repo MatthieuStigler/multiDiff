@@ -4,8 +4,7 @@
 \alias{DD}
 \title{Compute the diff-and-diff by period}
 \usage{
-DD(y_var = "y", data, time.index = "Time", treat = "tr",
-  unit.index = "unit")
+DD(y_var = "y", data, time.index = "Time", treat = "tr", unit.index = "unit")
 }
 \arguments{
 \item{y_var}{The name of the y variable}
