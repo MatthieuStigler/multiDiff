@@ -48,7 +48,9 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
                     all = paste(treat, .data$control, sep="|"))
 
   get_all <- function(df) {
-    cnt <- count(df, seq) %>%
+    cnt <- df %>%
+      filter(.data$.time==max(.data$.time)) %>%
+      count(seq) %>%
       tidyr::complete(seq = c("0_1", "1_0", "0_0", "1_1"), fill = list(n=0))
 
     DiD_tab_here <- DiD_tab %>%
@@ -65,6 +67,13 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
                                     dplyr::semi_join(filter(df, .time==max(.time) & stringr::str_detect(.data$seq, .x)), by = ".unit")) %>%
                               broom::tidy(conf.int=TRUE))) %>%
       unnest(.data$reg_out)
+  }
+
+  ## internal test
+  if(FALSE) {
+    time_one <- years_df$time[2]
+    dat_inner <- filter(data3, .data$.time%in% c(time_one, time_one-1))
+    get_all(dat_inner)
   }
 
   ## For each year
