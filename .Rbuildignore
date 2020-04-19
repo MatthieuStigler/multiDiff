@@ -5,3 +5,4 @@
 man-roxygen/*
 ^pkg_internal_notes\.*
 ^multiDiff\.Rproj$
+^data_raw$
