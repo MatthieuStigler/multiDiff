@@ -60,18 +60,23 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
              miss_data = .data$n_min<min_obs_required)
 
     DiD_tab_here %>%
-      mutate(reg_out = map2(all, .data$miss_data,  ~if(.y) tibble(estimate=NA) else felm(lf_formula,
-                                  data = df %>%
-                                    dplyr::semi_join(filter(df, .time==max(.time) & stringr::str_detect(.data$seq, .x)), by = ".unit")) %>%
-                              broom::tidy(conf.int=TRUE))) %>%
+      mutate(data = map(all, ~df %>%
+                          dplyr::semi_join(filter(df, .time==max(.time) & stringr::str_detect(.data$seq, .x)), by = ".unit")),
+             reg_out = map2(data, .data$miss_data,  ~if(.y) tibble(estimate=NA) else felm(lf_formula, data = .x) %>%
+                              broom::tidy(conf.int=TRUE)),
+             D_var = map_dbl(data, ~var(.$.treat)),
+             n_vals=map_int(data, nrow)) %>%
+      select(-.data$data) %>%
       unnest(.data$reg_out)
   }
 
   ## internal test
+  # data3 <<- data3
+  # years_df <<- years_df
   if(FALSE) {
     time_one <- years_df$time[2]
     dat_inner <- filter(data3, .data$.time%in% c(time_one, time_one-1))
-    get_all(dat_inner)
+    get_all(df=dat_inner)
   }
 
   ## For each year
@@ -143,7 +148,15 @@ DiD_aggreg <- function(x, DiD_keep=c(1,4), by_DiD=FALSE, ...) {
 
 if(FALSE) {
   dat_sim_1 <- sim_dat(N=5000, Time = 5)
+  coef(lfe::felm(y~tr|Time+unit, data = dat_sim_1))
   res_out <- DD(data = dat_sim_1, time.index = "Time")
+
+  ## weighting?
+  nrow(dat_sim_1)
+  sum(res_out$n_vals)
+  with(res_out, weighted.mean(estimate, D_var*(n_vals-2)))
+
+  ##
   res_out_asym <- DD(data = dat_sim_1, y_var = "y_asym",  time.index = "Time")
 
   res_out %>%

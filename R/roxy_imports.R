@@ -19,7 +19,7 @@ NULL
 #' @importFrom lfe felm
 NULL
 
-#' @importFrom purrr map map2
+#' @importFrom purrr map map2 map_int map_dbl
 NULL
 
 #' @importFrom utils head tail

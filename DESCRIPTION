@@ -22,4 +22,7 @@ Imports:
     stringr,
     magrittr,
     purrr,
-    ggplot2
+    ggplot2,
+    tidyselect
+Suggests: 
+    tidyverse
