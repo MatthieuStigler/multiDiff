@@ -60,7 +60,7 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
              miss_data = .data$n_min<min_obs_required)
 
     DiD_tab_here %>%
-      mutate(reg_out = map2(all, .data$miss_data,  ~if(.y) NA else felm(lf_formula,
+      mutate(reg_out = map2(all, .data$miss_data,  ~if(.y) tibble(estimate=NA) else felm(lf_formula,
                                   data = df %>%
                                     dplyr::semi_join(filter(df, .time==max(.time) & stringr::str_detect(.data$seq, .x)), by = ".unit")) %>%
                               broom::tidy(conf.int=TRUE))) %>%
