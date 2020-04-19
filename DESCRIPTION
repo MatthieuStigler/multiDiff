@@ -1,5 +1,5 @@
 Package: multiDiff
-Title: What the Package Does (One Line, Title Case)
+Title: Multi-year diff-diff and FE decompositions
 Version: 0.1.0
 Authors@R: 
     person(given = "Matthieu",
