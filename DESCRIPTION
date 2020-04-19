@@ -1,6 +1,6 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.1.0
+Version: 0.1.0.9000
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",
