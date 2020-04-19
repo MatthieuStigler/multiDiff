@@ -18,6 +18,3 @@ data2 <- data %>%
   mutate(tr = if_else(Time %in% c(1,2), 0L, tr))
 DD_out <- DD(data=data2)
 DD_out
-
-DD_out %>%
-  filter(!is.na(reg_out))

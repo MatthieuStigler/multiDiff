@@ -2,14 +2,16 @@ Package: multiDiff
 Title: What the Package Does (One Line, Title Case)
 Version: 0.0.0.9000
 Authors@R: 
-    person(given = "First",
-           family = "Last",
+    person(given = "Matthieu",
+           family = "Stigler",
            role = c("aut", "cre"),
-           email = "first.last@example.com")
+           email = "Matthieu.Stigler@gmail.com")
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
+Roxygen: list(markdown = TRUE)
+RoxygenNote: 7.1.0
 Imports: 
     tidyr,
     broom,
@@ -21,7 +23,3 @@ Imports:
     magrittr,
     purrr,
     ggplot2
-Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.0
-Depends: 
-    R (>= 2.10)

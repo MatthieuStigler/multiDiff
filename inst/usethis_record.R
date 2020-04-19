@@ -18,6 +18,10 @@ use_package("magrittr", "Imports")
 use_package("purrr", "Imports")
 use_package("ggplot2", "Imports")
 
+## DESC
+use_description(fields = list(`Authors@R` = 'person(given="Matthieu", family="Stigler", email = "Matthieu.Stigler@gmail.com", role = c("aut", "cre"))'))
+use_mit_license("Matthieu Stigler")
+
 ## for the example
 use_roxygen_md()
 
@@ -26,6 +30,6 @@ use_readme_md()
 
 use_git()
 
-use_mit_license("multiDiff")
+
 
 use_build_ignore("data_raw", escape = TRUE)
