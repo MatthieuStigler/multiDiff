@@ -1,5 +1,6 @@
 library(multiDiff)
-library(tidyverse, warn.conflicts=FALSE)
+# library(tidyverse, warn.conflicts=FALSE)
+library(dplyr)
 data <- sim_dat(N=100)
 
 ## TEST standard
