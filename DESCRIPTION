@@ -19,7 +19,8 @@ Imports:
     rlang,
     stringr,
     magrittr,
-    purrr
+    purrr,
+    ggplot2
 Roxygen: list(markdown = TRUE)
 RoxygenNote: 7.1.0
 Depends: 

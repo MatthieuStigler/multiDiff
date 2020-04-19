@@ -16,6 +16,7 @@ use_package("rlang", "Imports")
 use_package("stringr", "Imports")
 use_package("magrittr", "Imports")
 use_package("purrr", "Imports")
+use_package("ggplot2", "Imports")
 
 ## for the example
 use_roxygen_md()

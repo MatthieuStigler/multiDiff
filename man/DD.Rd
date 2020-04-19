@@ -16,13 +16,14 @@ DD(
 \arguments{
 \item{y_var}{The name of the y variable}
 
-\item{data}{data}
+\item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
+\code{unit.index}}
 
-\item{time.index}{time.index}
+\item{time.index}{The name of the variable describing the time index (date, year, etc)}
 
-\item{treat}{treatment variable}
+\item{treat}{The name of the treatment variable.}
 
-\item{unit.index}{unit.index}
+\item{unit.index}{The name of the units (individual, county, household, etc).}
 
 \item{min_obs_required}{the minimum number of either treat or control needed to run a regresion}
 }

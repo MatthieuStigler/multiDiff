@@ -25,8 +25,11 @@ NULL
 #' @importFrom utils head tail
 NULL
 
-#' @importFrom rlang .data := enquo enquos sym quo
+#' @importFrom rlang .data := enquo enquos sym quo ensym
 NULL
 
 #' @importFrom stringr str_extract str_replace str_replace_all
+NULL
+
+#' @importFrom ggplot2 ggplot aes
 NULL

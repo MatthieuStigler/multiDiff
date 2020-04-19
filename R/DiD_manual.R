@@ -16,11 +16,7 @@ util_add_total_row <- function(df, fun=sum) {
 
 #' Diff Diff manual table
 #'
-#' @param y_var The name of the y variable
-#' @param data data
-#' @param time.index time.index
-#' @param treat treatment variable
-#' @param unit.index unit.index
+#' @template param_all
 #' @param control_gr The control group of interest
 #' @param treat_gr The treatment group of interest
 #' @param time_per The restriction of time period (if gave more than 2 periods)

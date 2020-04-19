@@ -13,7 +13,11 @@
 #' data(GentzkowData)
 #' GentzkowData
 #'
-#' ## The FE is
+#' ## The FE from R is slightly different,
+#' ## they use some strange formulation of fixed effects in their STATA areg code
+#' library(lfe)
+#' reg_FE_lfe <- felm(prestout ~numdailies|cnty90 + styr, data = GentzkowData)
+#' reg_FE_lfe
 "GentzkowData"
 
 

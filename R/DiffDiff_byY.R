@@ -2,11 +2,7 @@
 
 #' Compute the diff-and-diff by period
 #'
-#' @param y_var The name of the y variable
-#' @param data data
-#' @param time.index time.index
-#' @param treat treatment variable
-#' @param unit.index unit.index
+#' @template param_all
 #' @param min_obs_required the minimum number of either treat or control needed to run a regresion
 #' @export
 #' @seealso \code{\link{DiD_aggreg}} for aggregating the output of \code{DD} over years.
