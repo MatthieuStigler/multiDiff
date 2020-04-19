@@ -4,7 +4,14 @@
 \alias{DD}
 \title{Compute the diff-and-diff by period}
 \usage{
-DD(y_var = "y", data, time.index = "Time", treat = "tr", unit.index = "unit")
+DD(
+  y_var = "y",
+  data,
+  time.index = "Time",
+  treat = "tr",
+  unit.index = "unit",
+  min_obs_required = 2
+)
 }
 \arguments{
 \item{y_var}{The name of the y variable}
@@ -16,6 +23,8 @@ DD(y_var = "y", data, time.index = "Time", treat = "tr", unit.index = "unit")
 \item{treat}{treatment variable}
 
 \item{unit.index}{unit.index}
+
+\item{min_obs_required}{the minimum number of either treat or control needed to run a regresion}
 }
 \description{
 Compute the diff-and-diff by period
