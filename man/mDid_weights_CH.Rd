@@ -17,7 +17,7 @@ mDid_weights_CH(
 
 \method{print}{FE_weights_CH}(x, ...)
 
-\method{plot}{FE_weights_CH}(x, by = c("year", "unit"), ...)
+\method{plot}{FE_weights_CH}(x, by = c("time", "unit"), ...)
 
 weights_CH_smry(data)
 }

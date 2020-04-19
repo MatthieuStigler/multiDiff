@@ -78,11 +78,11 @@ print.FE_weights_CH <- function(x, ...) {
 #'@export
 #'@param by Which kind of plot to draw
 #'@rdname mDid_weights_CH
-plot.FE_weights_CH <- function(x, by = c("year", "unit"), ...) {
+plot.FE_weights_CH <- function(x, by = c("time", "unit"), ...) {
 
   ## prepare vars
   by <- match.arg(by)
-  by_index <- switch(by, year="time.index", unit = "unit.index")
+  by_index <- switch(by, time="time.index", unit = "unit.index")
   by_var_quo <- intrnl_attr_to_quo(x, by_index)
 
   ## summarize
@@ -92,7 +92,7 @@ plot.FE_weights_CH <- function(x, by = c("year", "unit"), ...) {
     ungroup()
 
   ##
-  if(by =="year") {
+  if(by =="time") {
     pl <- data_mean %>%
       ggplot2::ggplot(ggplot2::aes(x = {{by_var_quo}}, y = .data$weight)) +
       ggplot2::geom_line()
@@ -123,6 +123,10 @@ weights_CH_smry <- function(data) {
   c(n_treat=n_treat, n_pos=n_pos, n_neg = n_neg, w_neg_mean=w_neg_mean)
 
 }
+
+################################
+#'## Test
+################################
 
 if(FALSE) {
   # data(GentzkowData)
