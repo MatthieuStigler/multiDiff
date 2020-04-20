@@ -26,3 +26,5 @@ Imports:
     tidyselect
 Suggests: 
     tidyverse
+Depends: 
+    R (>= 2.10)
