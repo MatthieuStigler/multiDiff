@@ -28,7 +28,7 @@ NULL
 #' @importFrom rlang .data := enquo enquos sym quo ensym
 NULL
 
-#' @importFrom stringr str_extract str_replace str_replace_all
+#' @importFrom stringr str_extract str_replace str_replace_all str_detect
 NULL
 
 #' @importFrom ggplot2 ggplot aes
