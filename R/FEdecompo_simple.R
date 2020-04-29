@@ -2,6 +2,8 @@
 #'
 #' @template param_all
 #' @param by over which dimension to do it?
+#' @param fixed_effects The fixed effects to include, either time, unit ot both.
+#' This will use the values indicated in \code{time.index} and \code{unit.index}
 #' @examples
 #' library(lfe)
 #'  dat_sim_1 <- sim_dat(N=100, Time = 5)
@@ -9,11 +11,13 @@
 #' coef_FE_unit <- coef(felm(y~tr|unit, data = dat_sim_1))
 #'
 #' coefs_by_Y <- FE_decompo(data=dat_sim_1,
-#' treat = "tr",
-#'                       by = "time")
+#'                          treat = "tr",
+#'                          by = "Time",
+#'                          fixed_effects = "time")
 #' coefs_by_U <- FE_decompo(data=dat_sim_1,
-#'               treat = "tr",
-#'                       by = "unit")
+#'                          treat = "tr",
+#'                          by = "unit",
+#'                          fixed_effects = "unit")
 #' with(coefs_by_Y, weighted.mean(treat_coef, treat_weight))
 #' coef_FE_time
 
@@ -22,28 +26,6 @@
 #'
 #'@export
 FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                       by = c("time", "unit", "both")) {
-  by <-  match.arg(by)
-  by_index <- switch(by, time=time.index, unit = unit.index, both = c(unit.index, time.index))
-  treat_quo <- rlang::ensym(treat)
-
-  formu <- as.formula(paste(y_var, "~", treat))
-
-  data %>%
-    dplyr::group_by_at(by_index) %>%
-    dplyr::group_modify(~bind_cols(summarise(.x, n_vals = n()),
-                            broom::tidy(lm(formu, data=.x), quick=TRUE) %>%
-                              filter(str_detect(term, treat))%>%
-                              spread(term, .data$estimate) %>%
-                              rename(treat_coef = {{treat_quo}}),
-                            summarise(.x, treat_var = var({{treat_quo}})))) %>%
-    ungroup() %>%
-    mutate(treat_weight=.data$treat_var*(.data$n_vals-1),
-           treat_weight= .data$treat_weight/sum(.data$treat_weight))
-
-}
-
-FE_decompo_new <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                            fixed_effects =c("time", "unit", "both"),
                            by = unit.index) {
   fixed_effects <-  match.arg(fixed_effects)
@@ -89,6 +71,28 @@ FE_decompo_new <- function(data, y_var="y", time.index = "Time", treat = "tr", u
     select(tidyselect::one_of(by), .data$n_vals, tidyselect::everything())
 
   dat_coefs_w
+
+}
+
+FE_decompo_old <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+                           by = c("time", "unit", "both")) {
+  by <-  match.arg(by)
+  by_index <- switch(by, time=time.index, unit = unit.index, both = c(unit.index, time.index))
+  treat_quo <- rlang::ensym(treat)
+
+  formu <- as.formula(paste(y_var, "~", treat))
+
+  data %>%
+    dplyr::group_by_at(by_index) %>%
+    dplyr::group_modify(~bind_cols(summarise(.x, n_vals = n()),
+                                   broom::tidy(lm(formu, data=.x), quick=TRUE) %>%
+                                     filter(str_detect(term, treat))%>%
+                                     spread(term, .data$estimate) %>%
+                                     rename(treat_coef = {{treat_quo}}),
+                                   summarise(.x, treat_var = var({{treat_quo}})))) %>%
+    ungroup() %>%
+    mutate(treat_weight=.data$treat_var*(.data$n_vals-1),
+           treat_weight= .data$treat_weight/sum(.data$treat_weight))
 
 }
 

@@ -10,7 +10,8 @@ FE_decompo(
   time.index = "Time",
   treat = "tr",
   unit.index = "unit",
-  by = c("time", "unit", "both")
+  fixed_effects = c("time", "unit", "both"),
+  by = unit.index
 )
 }
 \arguments{
@@ -25,6 +26,9 @@ FE_decompo(
 
 \item{unit.index}{The name of the units (individual, county, household, etc).}
 
+\item{fixed_effects}{The fixed effects to include, either time, unit ot both.
+This will use the values indicated in \code{time.index} and \code{unit.index}}
+
 \item{by}{over which dimension to do it?}
 }
 \description{
@@ -37,11 +41,13 @@ coef_FE_time <- coef(felm(y~tr|Time, data = dat_sim_1))
 coef_FE_unit <- coef(felm(y~tr|unit, data = dat_sim_1))
 
 coefs_by_Y <- FE_decompo(data=dat_sim_1,
-treat = "tr",
-                      by = "time")
+                         treat = "tr",
+                         by = "Time",
+                         fixed_effects = "time")
 coefs_by_U <- FE_decompo(data=dat_sim_1,
-              treat = "tr",
-                      by = "unit")
+                         treat = "tr",
+                         by = "unit",
+                         fixed_effects = "unit")
 with(coefs_by_Y, weighted.mean(treat_coef, treat_weight))
 coef_FE_time
 with(coefs_by_U, weighted.mean(treat_coef, treat_weight))
