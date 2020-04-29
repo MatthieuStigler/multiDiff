@@ -6,6 +6,10 @@ NULL
 NULL
 #' @importFrom dplyr group_by ungroup summarise summarise_all desc pull funs vars left_join inner_join n if_else distinct
 NULL
+#' @importFrom dplyr select_at group_modify mutate_all group_by_at
+NULL
+
+
 
 #' @importFrom tidyr gather spread nest unnest
 NULL
