@@ -43,8 +43,63 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
 
 }
 
+FE_decompo_new <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+                           fixed_effects =c("time", "unit", "both"),
+                           by = unit.index) {
+  fixed_effects <-  match.arg(fixed_effects)
+  fixed_effects_index <- switch(fixed_effects, time=time.index, unit = unit.index, both = c(unit.index, time.index))
+  treat_quo <- rlang::ensym(treat)
+
+  formu <- as.formula(paste(y_var, "~", treat, "-1"))
+
+  ## demeanlist wants a list of factor
+  fixed_effects_list <- data %>%
+    select_at(fixed_effects_index) %>%
+    mutate_all(as.factor) %>%
+    as.list()
+
+  ## Demean data Y and D
+  dat_demeaned <- lfe::demeanlist(data %>%
+                                    select_at(c(y_var, treat)),
+                                  fixed_effects_list) %>%
+    as_tibble() %>%
+    dplyr::bind_cols(select_at(data, c(fixed_effects_index, by)))
+
+  ## add dim in case
+  if(!all(by %in% fixed_effects_index)) warning("Check")
+
+  ## Estimate specific betas
+  dat_coefs <- dat_demeaned %>%
+    group_by_at(by) %>%
+    group_modify(~bind_cols(broom::tidy(lm(formu, data=.x), quick=TRUE),
+                            summarise(.x,
+                                      treat_var = var({{treat_quo}}),
+                                      n_vals = n()))) %>%
+    ungroup() %>%
+    select(-.data$term) %>%
+    rename(treat_coef = .data$estimate)
+
+  ## check only 1 vals?
+  if(any(dat_coefs$n_vals==1)) warning("Cells (", sum(dat_coefs$n_vals==1), ") with only one observation")
+
+  ## add weights
+  dat_coefs_w <- dat_coefs %>%
+    mutate(treat_weight=.data$treat_var*(.data$n_vals-1),
+           treat_weight= .data$treat_weight/sum(.data$treat_weight)) %>%
+    select(tidyselect::one_of(by), .data$n_vals, tidyselect::everything())
+
+  dat_coefs_w
+
+}
+
 
 if(FALSE){
+  intrnl_ave <-  function(df) with(df, weighted.mean(treat_coef, treat_weight))
+  intrnl_check <-  function(df, reg) {
+    me <- with(df, weighted.mean(treat_coef, treat_weight))
+    all.equal(me, coef(reg), check.attributes=FALSE)
+  }
+
   library(multiDiff)
   library(tidyverse)
   #data(GentzkowData)
@@ -61,8 +116,11 @@ if(FALSE){
   reg_FE_lfe <- felm(prestout ~treat|cnty90 + year, data = GentzkowData2)
   reg_FE1_time <- felm(prestout ~treat|year, data = GentzkowData2)
   reg_FE1_unit <- felm(prestout ~treat|cnty90, data = GentzkowData2)
-  reg_FE1_state_year <- felm(prestout ~treat|state+year,
-                             data = filter(GentzkowData2, n_state_year>4))
+  reg_FE2 <- felm(prestout ~treat|cnty90+year, data = GentzkowData2)
+  reg_FE2_n2 <- felm(prestout ~treat|cnty90+year,
+                     data = filter(GentzkowData2, n_state_year>1))
+  reg_FE2_state_year <- felm(prestout ~treat|state+year,
+                             data = filter(GentzkowData2, n_state_year>1))
   reg_FE_lfe
 
   ## by Time
@@ -72,27 +130,76 @@ if(FALSE){
                            treat = "treat",
                            unit.index="cnty90",
                            by = "time")
-
+  coefs_by_Y_new <- FE_decompo_new(data=GentzkowData2,
+                           y_var="prestout",
+                           time.index = "year",
+                           treat = "treat",
+                           unit.index="cnty90",
+                           by = "year",
+                           fixed_effects = "time")
   coefs_by_Y
+  coefs_by_Y_new
 
-  reg_FE1_time_w <- with(coefs_by_Y, weighted.mean(treat_coef, treat_weight))
-  all.equal(reg_FE1_time_w, coef(reg_FE1_time),check.attributes=FALSE)
-  reg_FE1_time
+  intrnl_check(coefs_by_Y, reg_FE1_time)
+  intrnl_check(coefs_by_Y_new, reg_FE1_time)
 
-  ## by time and unit (higher unit)
-  coefs_by_YC <- GentzkowData2 %>%
-    filter(n_state_year>4) %>%
-    # arrange(n_state_year)
-    FE_decompo(y_var="prestout",
+  ## By unit
+  coefs_by_unit <- FE_decompo_new(data=GentzkowData2,
+                                   y_var="prestout",
+                                   time.index = "year",
+                                   treat = "treat",
+                                   unit.index="cnty90",
+                                   by = "cnty90",
+                                  fixed_effects = "unit")
+  intrnl_check(coefs_by_unit, reg_FE1_unit)
+
+  ## by time
+  coefs_by_Y_FE2 <- GentzkowData2 %>%
+    FE_decompo_new(y_var="prestout",
                time.index = "year",
                treat = "treat",
-               unit.index="state",
-               by = "both")
-  sum(coefs_by_YC$n_vals)
+               unit.index="cnty90",
+               fixed_effects = "both",
+               by = "year")
 
-  reg_FE1_state_year
-  reg_FE1_state_year_w <- with(coefs_by_YC, weighted.mean(treat_coef, treat_weight))
-  all.equal(reg_FE1_state_year_w, coef(reg_FE1_state_year),check.attributes=FALSE)
+  coefs_by_N_FE2 <- GentzkowData2 %>%
+    FE_decompo_new(y_var="prestout",
+                   time.index = "year",
+                   treat = "treat",
+                   unit.index="cnty90",
+                   fixed_effects = "both",
+                   by = "cnty90")
+
+  intrnl_check(coefs_by_Y_FE2, reg_FE2)
+  intrnl_check(coefs_by_N_FE2, reg_FE2)
+
+  ## higher FEs? Yes for 1!
+  coefs_by_YS_FE2 <- GentzkowData2 %>%
+    # filter(n_state_year>1) %>%
+    FE_decompo_new(y_var="prestout",
+                   time.index = "year",
+                   treat = "treat",
+                   unit.index="cnty90",
+                   fixed_effects = "both",
+                   by = c("state")) #
+
+  coefs_by_YS_FE2 %>%
+    full_join(coefs_by_N_FE2 %>%
+                left_join(GentzkowData2 %>%
+                            distinct(state, cnty90)) %>%
+                group_by(state) %>%
+                summarise(treat_coef = weighted.mean(treat_coef, treat_weight),
+                          n_vals_2 = sum(n_vals)),
+              by = "state")
+
+
+  intrnl_check(coefs_by_YS_FE2, reg_FE2)
+  # intrnl_check(coefs_by_YS_FE2, reg_FE2_n2)
+
+
+  reg_FE2_state_year
+  reg_FE2_state_year_w <- with(coefs_by_YC, weighted.mean(treat_coef, treat_weight))
+  all.equal(reg_FE2_state_year_w, coef(reg_FE2_state_year),check.attributes=FALSE)
 
   coefs_by_C <- FE_decompo(data=GentzkowData2,
                            y_var="prestout",
