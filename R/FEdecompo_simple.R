@@ -32,8 +32,8 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
                        by = unit.index) {
   fixed_effects <-  match.arg(fixed_effects)
   fixed_effects_index <- switch(fixed_effects, time=time.index, unit = unit.index, both = c(unit.index, time.index))
-  treat_quo <- rlang::ensym(treat)
-  y_var_quo <- rlang::ensym(y_var)
+  # treat_quo <- rlang::ensym(treat)
+  # y_var_quo <- rlang::ensym(y_var)
 
   formu <- as.formula(paste(y_var, "~", treat, "-1"))
 
@@ -76,8 +76,8 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
   y_var_resid <- residuals(felm(y_formu, data=data, nostats = TRUE))[,1]
   tr_var_resid <- residuals(felm(tr_formu, data=data, nostats = TRUE))[,1]
   dat_demeaned <-  data %>%
-    mutate({{treat_quo}}:=tr_var_resid,
-           {{y_var_quo}}:=y_var_resid) %>%
+    mutate({{treat}}:=tr_var_resid,
+           {{y_var}}:=y_var_resid) %>%
     select_at(c(treat, y_var, by))
 
   ## Estimate specific betas
@@ -85,7 +85,7 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
     group_by_at(by) %>%
     group_modify(~bind_cols(broom::tidy(lm(formu, data=.x), quick=TRUE),
                             summarise(.x,
-                                      treat_var = var({{treat_quo}}),
+                                      treat_var = var({{treat}}),
                                       n_vals = n()))) %>%
     ungroup() %>%
     select(-.data$term) %>%
