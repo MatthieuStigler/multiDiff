@@ -85,7 +85,7 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
     group_by_at(by) %>%
     group_modify(~bind_cols(broom::tidy(lm(formu, data=.x), quick=TRUE),
                             summarise(.x,
-                                      treat_var = var({{treat}}),
+                                      treat_var = var(!!rlang::sym(treat)),
                                       n_vals = n()))) %>%
     ungroup() %>%
     select(-.data$term) %>%

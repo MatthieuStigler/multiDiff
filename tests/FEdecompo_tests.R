@@ -129,3 +129,17 @@ reg_FE1_time_noY1 <- felm(y ~tr|Time, data = data_sim %>%
                             filter(Time!=1))
 intrnl_check(coefs_FE1_byY%>%
                filter(Time!=1), reg_FE1_time_noY1)
+
+##########################################
+#'## Works also with external argumetns?
+##########################################
+
+tr_var <- "x"
+time_var <- "Time"
+fixed_var <- "unit"
+by_var <- "unit"
+coefs_FE1_byN_trX <- FE_decompo(data=data_sim,
+                                treat = tr_var,
+                                time.index = time_var,
+                                fixed_effects = fixed_var,
+                                by = by_var)
