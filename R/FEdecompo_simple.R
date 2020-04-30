@@ -3,6 +3,7 @@
 #' @template param_all
 #' @param by over which dimension to do it?
 #' @param fixed_effects The fixed effects to include, either time, unit ot both.
+#' @param covar covariate to include
 #' This will use the values indicated in \code{time.index} and \code{unit.index}
 #' @examples
 #' library(lfe)
@@ -26,29 +27,58 @@
 #'
 #'@export
 FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                           fixed_effects =c("time", "unit", "both"),
-                           by = unit.index) {
+                       covar = NULL,
+                       fixed_effects =c("time", "unit", "both"),
+                       by = unit.index) {
   fixed_effects <-  match.arg(fixed_effects)
   fixed_effects_index <- switch(fixed_effects, time=time.index, unit = unit.index, both = c(unit.index, time.index))
   treat_quo <- rlang::ensym(treat)
+  y_var_quo <- rlang::ensym(y_var)
 
   formu <- as.formula(paste(y_var, "~", treat, "-1"))
 
-  ## demeanlist wants a list of factor
-  fixed_effects_list <- data %>%
-    select_at(fixed_effects_index) %>%
-    mutate_all(as.factor) %>%
-    as.list()
 
-  ## Demean data Y and D
-  dat_demeaned <- lfe::demeanlist(data %>%
-                                    select_at(c(y_var, treat)),
-                                  fixed_effects_list) %>%
-    as_tibble() %>%
-    dplyr::bind_cols(select_at(data, c(fixed_effects_index, by)))
+  ## OLD CODE: faster but does not work with covar!
+  # covars: residualise (Frish Waugh)
+  # if(!is.null(covar) & FALSE) {
+  #   covar_list <-  paste(covar, collapse = "+")
+  #   y_var_resid <- residuals(lm(paste(y_var, "~", covar_list), data))
+  #   tr_var_resid <- residuals(lm(paste(treat, "~", covar_list), data))
+  #   data <-  data %>%
+  #     mutate(treat_quo:=tr_var_resid,
+  #            y_var_quo:=y_var_resid)
+  # }
+  #
+  # ## prep demeanlist: wants a list of factor
+  # fixed_effects_list <- data %>%
+  #   select_at(fixed_effects_index) %>%
+  #   mutate_all(as.factor) %>%
+  #   as.list()
+  #
+  # ## Demean data Y and D
+  # dat_demeaned <- lfe::demeanlist(data %>%
+  #                                   select_at(c(y_var, treat)),
+  #                                 fixed_effects_list) %>%
+  #   as_tibble() %>%
+  #   dplyr::bind_cols(select_at(data, c(fixed_effects_index, by)))
 
-  ## add dim in case
-  if(!all(by %in% fixed_effects_index)) warning("Check")
+
+  ## New code: simpler, more general, but slower?
+
+  ## get formulas
+  cov <- if(is.null(covar)) "1" else paste(covar, collapse = "+")
+  formu_gen <- paste(" ~", cov  ,
+                     "|",  paste(fixed_effects_index, collapse = "+"))
+  y_formu <- as.formula(paste(y_var, formu_gen))
+  tr_formu <- as.formula(paste(treat, formu_gen))
+
+  ## residualize
+  y_var_resid <- residuals(felm(y_formu, data=data, nostats = TRUE))[,1]
+  tr_var_resid <- residuals(felm(tr_formu, data=data, nostats = TRUE))[,1]
+  dat_demeaned <-  data %>%
+    mutate({{treat_quo}}:=tr_var_resid,
+           {{y_var_quo}}:=y_var_resid) %>%
+    select_at(c(treat, y_var, by))
 
   ## Estimate specific betas
   dat_coefs <- dat_demeaned %>%

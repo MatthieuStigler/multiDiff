@@ -10,6 +10,7 @@ FE_decompo(
   time.index = "Time",
   treat = "tr",
   unit.index = "unit",
+  covar = NULL,
   fixed_effects = c("time", "unit", "both"),
   by = unit.index
 )
@@ -26,8 +27,10 @@ FE_decompo(
 
 \item{unit.index}{The name of the units (individual, county, household, etc).}
 
-\item{fixed_effects}{The fixed effects to include, either time, unit ot both.
+\item{covar}{covariate to include
 This will use the values indicated in \code{time.index} and \code{unit.index}}
+
+\item{fixed_effects}{The fixed effects to include, either time, unit ot both.}
 
 \item{by}{over which dimension to do it?}
 }

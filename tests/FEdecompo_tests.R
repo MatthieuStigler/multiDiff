@@ -5,12 +5,14 @@ library(lfe)
 
 
 ### DATA SIMUL ####
+set.seed(123)
 data_sim <- sim_dat(N=500, Time = 15) %>%
   mutate(state = cut(unit, 10,
                      labels = paste("state", letters[1:10], sep = "_"))) %>%
   group_by(unit) %>%
   sample_n(size = sample(c(14, 15))) %>%
-  ungroup()
+  ungroup() %>%
+  mutate(x = rnorm(n()))
 
 data_sim %>%
   count(unit) %>%
@@ -26,6 +28,10 @@ reg_FE1_unit <- felm(y ~tr|unit, data = data_sim)
 reg_FE2 <- felm(y ~tr|unit+Time, data = data_sim)
 reg_FE2_state_Time <- felm(y ~tr|state+Time, data = data_sim)
 
+## covars
+reg_FE1_time_X <- felm(y ~tr + x|Time, data = data_sim)
+reg_FE1_unit_X <- felm(y ~tr + x|unit, data = data_sim)
+
 
 ################################
 #'## Now with FE_decomp
@@ -34,7 +40,7 @@ reg_FE2_state_Time <- felm(y ~tr|state+Time, data = data_sim)
 intrnl_ave <-  function(df) with(df, weighted.mean(treat_coef, treat_weight))
 intrnl_check <-  function(df, reg) {
   me <- with(df, weighted.mean(treat_coef, treat_weight))
-  all.equal(me, coef(reg), check.attributes=FALSE)
+  all.equal(me, coef(reg)[1], check.attributes=FALSE)
 }
 
 ## TEST  FE1
@@ -85,3 +91,31 @@ compr
 all.equal(compr$treat_coef_byS, compr$treat_coef)
 all.equal(compr$n_vals_byS, compr$n_vals)
 all.equal(compr$treat_weight_byS, compr$treat_weight)
+
+
+
+################################
+#'## 2 vars
+################################
+
+coefs_FE1_byN_cov <- FE_decompo(data=data_sim,
+                                time.index = "Time",
+                                fixed_effects = "unit",
+                                by = "unit",
+                                covar = "x")
+intrnl_check(coefs_FE1_byN_cov, reg_FE1_unit_X)
+
+################################
+#'## X contiunous
+################################
+
+reg_FE1_time_trX <- felm(y ~x|Time, data = data_sim)
+reg_FE1_unit_trX <- felm(y ~x|unit, data = data_sim)
+
+coefs_FE1_byN_trX <- FE_decompo(data=data_sim,
+                                treat = "x",
+                                time.index = "Time",
+                                fixed_effects = "unit",
+                                by = "unit")
+intrnl_check(coefs_FE1_byN_trX, reg_FE1_unit_trX)
+
