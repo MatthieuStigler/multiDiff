@@ -119,3 +119,13 @@ coefs_FE1_byN_trX <- FE_decompo(data=data_sim,
                                 by = "unit")
 intrnl_check(coefs_FE1_byN_trX, reg_FE1_unit_trX)
 
+################################
+#'## Effect removing a state?
+################################
+
+intrnl_check(coefs_FE1_byY, reg_FE1_time)
+
+reg_FE1_time_noY1 <- felm(y ~tr|Time, data = data_sim %>%
+                            filter(Time!=1))
+intrnl_check(coefs_FE1_byY%>%
+               filter(Time!=1), reg_FE1_time_noY1)
