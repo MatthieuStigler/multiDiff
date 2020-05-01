@@ -2,9 +2,12 @@
 % Please edit documentation in R/utilities.R
 \name{lag_group}
 \alias{lag_group}
+\alias{lag_group_many}
 \title{Lag a variable by group}
 \usage{
 lag_group(df, group_var, time_var, lag_var, lagamount = 1)
+
+lag_group_many(df, group_var, time_var, lagamount = 1, ...)
 }
 \arguments{
 \item{df}{data frame}
@@ -17,6 +20,8 @@ This is necessary as the function makes sure there are no missing years.}
 \item{lag_var}{The variable to lag over}
 
 \item{lagamount}{The amount of lag}
+
+\item{\ldots}{variables to lag}
 }
 \description{
 Take the lag of a variable for each group.
