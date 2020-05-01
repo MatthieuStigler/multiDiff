@@ -42,7 +42,7 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' Lag a variable by group
 #'
 #' Take the lag of a variable for each group.
-#' Will check also that there is no missing years.
+#' Will check also that there are no missing years.
 #'
 #' @param df data frame
 #' @param group_var The grouping variable
@@ -54,11 +54,16 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' @examples
 #' df_test <- data.frame(group = rep(c("a", "b"), each=6),
 #'                       year = rep(2000:2005, 2),
-#'                       value = (0:11) ^ 2)
+#'                       value = (0:11) ^ 2,
+#'                       value2 = rnorm(12))
 #' lag_group(df_test, group, time_var=year, lag_var=value)
 #'
 #' ## Behaviour with missing years
 #' lag_group(df_test[c(1,2,4,5, 6, 7, 8),], group, time_var=year, lag_var=value)
+#'
+#' ## Many lags and many variables:
+#'
+#' lag_group_many(df_test[-4,], group, time_var=year, lagamount = 1:2, value, value2)
 
 lag_group <- function(df, group_var, time_var, lag_var, lagamount=1){
   # cl <- class(pull(head(df, 1), !!enquo(lag_var)))
@@ -97,7 +102,7 @@ lag_manyXN <- function(df_mini, .lagamount=1, .time_var, ...) {
   time <- pull(df_mini, !!rlang::enquo(.time_var))
   df_mini %>%
     bind_cols(purrr::imap_dfc(df_mini %>%
-                                select(!!!enquos(...)), ~set_names(map(.lagamount, function(i) lag_robust(x=.x, time, lagamount=i)),
+                                select(!!!enquos(...)), ~magrittr::set_names(map(.lagamount, function(i) lag_robust(x=.x, time, lagamount=i)),
                                  paste0(.y, ifelse(.lagamount>0, '_lag','_lead'), abs(.lagamount)))))
 }
 
@@ -107,9 +112,9 @@ lag_manyXN <- function(df_mini, .lagamount=1, .time_var, ...) {
 lag_group_many <- function(df, group_var, time_var, lagamount=1, ...){
   df %>%
     nest(data = -!!enquo(group_var)) %>%
-    mutate(lags = map(.data$data, ~lag_manyVar_manuVal(.,
-                                                 .lagamount=lagamount,
-                                                 .time_var=!!enquo(time_var), !!!enquos(...)) %>%
+    mutate(lags = map(.data$data, ~lag_manyXN(.,
+                                              .lagamount=lagamount,
+                                              .time_var=!!enquo(time_var), !!!enquos(...)) %>%
                         select(matches("(lead|lag)[0-9]$")))) %>%
     unnest(c(.data$data, .data$lags))
 }
@@ -127,8 +132,9 @@ if(FALSE){
 if(FALSE) {
 
   df_test <- tibble(group = rep(c("a", "b"), each=6),
-                        year = rep(2000:2005, 2),
-                        value = (0:11) ^ 2)
+                    year = rep(2000:2005, 2),
+                    value = (0:11) ^ 2,
+                    value2 = rnorm(12))
 
   df_test[4,3] <- NA
 
@@ -139,7 +145,7 @@ if(FALSE) {
   df_test %>%
     filter(!is.na(value)) %>%
     filter(group=="a") %>%
-    lag_group2(time_var=year, lag_var=value)
+    lag_group_many(time_var=year, lag_var=value)
 
   df_test %>%
     filter(!is.na(value)) %>%

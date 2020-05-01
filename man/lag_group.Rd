@@ -25,14 +25,19 @@ This is necessary as the function makes sure there are no missing years.}
 }
 \description{
 Take the lag of a variable for each group.
-Will check also that there is no missing years.
+Will check also that there are no missing years.
 }
 \examples{
 df_test <- data.frame(group = rep(c("a", "b"), each=6),
                       year = rep(2000:2005, 2),
-                      value = (0:11) ^ 2)
+                      value = (0:11) ^ 2,
+                      value2 = rnorm(12))
 lag_group(df_test, group, time_var=year, lag_var=value)
 
 ## Behaviour with missing years
 lag_group(df_test[c(1,2,4,5, 6, 7, 8),], group, time_var=year, lag_var=value)
+
+## Many lags and many variables:
+
+lag_group_many(df_test[-4,], group, time_var=year, lagamount = 1:2, value, value2)
 }
