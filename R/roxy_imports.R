@@ -33,7 +33,7 @@ NULL
 #' @importFrom rlang .data := enquo enquos sym quo ensym
 NULL
 
-#' @importFrom stringr str_extract str_replace str_replace_all str_detect
+#' @importFrom stringr str_extract str_replace str_replace_all str_detect str_remove
 NULL
 
 #' @importFrom ggplot2 ggplot aes
