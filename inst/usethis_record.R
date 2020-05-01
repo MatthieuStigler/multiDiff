@@ -41,3 +41,5 @@ use_git()
 
 
 use_build_ignore("data_raw", escape = TRUE)
+
+use_news_md()
