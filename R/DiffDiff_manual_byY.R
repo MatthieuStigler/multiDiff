@@ -1,3 +1,12 @@
+#' Multi-year diff and diff, manually
+#'
+#' This function computes the year-to-year Did. This is useful mainly for visualisation, in
+#'  particular for the pre-trends (settng lag>1), but has no inference for the DiD effect itself.
+#'
+#' @template param_all
+#' @param lag How many lags to look at? Lag=1 will consider 0_1 sequences, lag 2: 0_1_1 etc
+#' @param format_long Should it format in long or wide?
+#' @export
 DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="unit",
                          lag=1, format_long=TRUE) {
 
@@ -84,17 +93,34 @@ if(FALSE) {
   with(res_out, weighted.mean(estimate, D_var*(n_vals-2)))
 
   ##
-  out <- DD_manu_many(data = dat_sim_1,
+  out_w <- DD_manu_many(data = dat_sim_1,
                       y_var = "y",
                       time.index = "Time",
-                      unit.index = "unit", lag = 2)
+                      unit.index = "unit", lag = 1,
+                      format_long = FALSE)
 
-  out
+  out_l <- DD_manu_many(data = dat_sim_1,
+                        y_var = "y",
+                        time.index = "Time",
+                        unit.index = "unit", lag = 2)
+
+
+  ## compute
+  out_w %>%
+    mutate(diff_y = .yvar - .yvar_lag_1) %>%
+    filter(seq%in%c("0_0", "0_1")) %>%
+    select(.time, seq, diff_y) %>%
+    pivot_wider(names_from = seq, values_from=diff_y,
+                names_prefix = "seq_") %>%
+    mutate(Did = seq_0_1 - seq_0_0)
 
   ## Check got right
   out_DD <- DD(data = dat_sim_1,
                       y_var = "y",
                       time.index = "Time")
+  out_DD %>%
+    filter(DiD==1)
+
 
   ## plot
   out %>%
