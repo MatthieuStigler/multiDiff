@@ -39,18 +39,20 @@ DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", uni
   # data_treat
 
   data_treat <- data2 %>%
-    select(.data$.time, .data$.treat, .data$.unit, .data$.yvar)
-  for(i in seq_len(lag)) {
-    tr_lag_name <- rlang::sym(paste0(".treat_lag_", i))
-    y_lag_name <- rlang::sym(paste0(".yvar_lag_", i))
-    data_treat <-  data_treat %>%
-      lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.treat, lagamount = i) %>%
-      rename(!!tr_lag_name:=lag) %>%
-      lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.yvar, lagamount = i) %>%
-      rename(!!y_lag_name:=lag)
-  }
-  data_treat <- data_treat %>%
-    tidyr::unite(seq, c(paste0(".treat_lag_", seq_len(lag)), ".treat"), sep="_", remove=FALSE)
+    select(.data$.time, .data$.treat, .data$.unit, .data$.yvar) %>%
+    lag_group(group_var=".unit", time_var=".time",
+              value_var= c(".treat",".yvar"), lagamount = seq_len(lag))%>%
+    tidyr::unite(seq, c(paste0(".treat_lag", seq_len(lag)), ".treat"), sep="_", remove=FALSE)
+  # for(i in seq_len(lag)) {
+  #   tr_lag_name <- rlang::sym(paste0(".treat_lag_", i))
+  #   y_lag_name <- rlang::sym(paste0(".yvar_lag_", i))
+  #   data_treat <-  data_treat %>%
+  #     lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.treat, lagamount = i) %>%
+  #     rename(!!tr_lag_name:=lag) %>%
+  #     lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.yvar, lagamount = i) %>%
+  #     rename(!!y_lag_name:=lag)
+  # }
+  # data_treat <- data_treat
 
   ## compute mean for each seq/time
   out <- data_treat %>%

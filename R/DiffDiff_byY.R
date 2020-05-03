@@ -32,8 +32,9 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
   ## Data treratment
   data_treat <- data2 %>%
     select(.data$.time, .data$.treat, .data$.unit) %>%
-    lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.treat) %>%
-    tidyr::unite(seq, c("lag", ".treat"), sep="_")
+    lag_group(group_var=".unit", time_var=".time", value_var=".treat") %>%
+    # lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.treat) %>%
+    tidyr::unite(seq, c(".treat_lag1", ".treat"), sep="_")
 
   ## add to big
   data3 <- data2 %>%

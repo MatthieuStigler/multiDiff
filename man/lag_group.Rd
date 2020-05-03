@@ -2,26 +2,21 @@
 % Please edit documentation in R/utilities.R
 \name{lag_group}
 \alias{lag_group}
-\alias{lag_group_many}
 \title{Lag a variable by group}
 \usage{
-lag_group(df, group_var, time_var, lag_var, lagamount = 1)
-
-lag_group_many(df, group_var, time_var, lagamount = 1, ...)
+lag_group(df, group_var, value_var, time_var, lagamount = 1)
 }
 \arguments{
 \item{df}{data frame}
 
 \item{group_var}{The grouping variable}
 
+\item{value_var}{The variable to lag over}
+
 \item{time_var}{The time variable.
 This is necessary as the function makes sure there are no missing years.}
 
-\item{lag_var}{The variable to lag over}
-
 \item{lagamount}{The amount of lag}
-
-\item{\ldots}{variables to lag}
 }
 \description{
 Take the lag of a variable for each group.
@@ -32,12 +27,12 @@ df_test <- data.frame(group = rep(c("a", "b"), each=6),
                       year = rep(2000:2005, 2),
                       value = (0:11) ^ 2,
                       value2 = rnorm(12))
-lag_group(df_test, group, time_var=year, lag_var=value)
+lag_group(df_test, "group", time_var="year", value_var="value", lagamount = -1:2)
 
 ## Behaviour with missing years
-lag_group(df_test[c(1,2,4,5, 6, 7, 8),], group, time_var=year, lag_var=value)
+lag_group(df_test[-4,], "group", time_var="year", value_var="value", lagamount = -1:2)
 
 ## Many lags and many variables:
 
-lag_group_many(df_test[-4,], group, time_var=year, lagamount = 1:2, value, value2)
+lag_group(df_test[-4,], "group", time_var="year", lagamount = 1:2, value_var = c("value", "value2"))
 }
