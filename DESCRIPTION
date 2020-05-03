@@ -23,7 +23,8 @@ Imports:
     magrittr,
     purrr,
     ggplot2,
-    tidyselect
+    tidyselect,
+    data.table
 Suggests: 
     tidyverse
 Depends: 
