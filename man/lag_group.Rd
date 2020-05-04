@@ -4,7 +4,14 @@
 \alias{lag_group}
 \title{Lag a variable by group}
 \usage{
-lag_group(df, group_var, value_var, time_var, lagamount = 1)
+lag_group(
+  df,
+  group_var,
+  value_var,
+  time_var,
+  lagamount = 1,
+  complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by = 1)
+)
 }
 \arguments{
 \item{df}{data frame}
@@ -17,6 +24,8 @@ lag_group(df, group_var, value_var, time_var, lagamount = 1)
 This is necessary as the function makes sure there are no missing years.}
 
 \item{lagamount}{The amount of lag}
+
+\item{complete_time}{Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.}
 }
 \description{
 Take the lag of a variable for each group.

@@ -54,6 +54,7 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' This is necessary as the function makes sure there are no missing years.
 #' @param value_var The variable to lag over
 #' @param lagamount The amount of lag
+#' @param complete_time Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.
 #' @export
 #' @examples
 #' df_test <- data.frame(group = rep(c("a", "b"), each=6),
@@ -68,13 +69,14 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' ## Many lags and many variables:
 #'
 #' lag_group(df_test[-4,], "group", time_var="year", lagamount = 1:2, value_var = c("value", "value2"))
-lag_group <- function(df, group_var, value_var, time_var, lagamount=1) {
+lag_group <- function(df, group_var, value_var, time_var,
+                      lagamount=1, complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by=1)) {
 
   ## complete
   time_range <- range(pull(df, {{time_var}}))
   df_complete <- tidyr::complete(df,
                                  !!rlang::sym(group_var),
-                                 !!enquo(time_var):=time_range[1]:time_range[2])
+                                 !!enquo(time_var):=complete_time)
 
   ##
   N_var <- length(value_var)
