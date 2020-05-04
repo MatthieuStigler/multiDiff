@@ -109,7 +109,7 @@ DD_manu_many_diffs <- function(df) {
 DD_manu_many_dids <- function(df) {
   diffs <- DD_manu_many_diffs(df)
   diffs %>%
-    select(.data$.time, .data$seq, .data$diff_l1_l0) %>%
+    select(.data$.time, .data$seq, .data$diff_l0_l1) %>%
     mutate(seq = paste0("seq_", seq) %>%
              str_replace_all("->", "_")) %>%
     filter(!str_detect(seq, "NA")) %>%
