@@ -64,18 +64,59 @@ DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", uni
 
   ## long?
   if(format_long){
-    out <-  out %>%
-      gather("variable", "value", starts_with(".yvar"), starts_with(".treat")) %>%
-      mutate(lag = if_else(str_detect(.data$variable, "lag"), str_extract(.data$variable, "[0-9]+$"), "0") %>%
-               as.integer,
-             variable = str_remove(.data$variable, "_lag_[0-9]+")) %>%
-      spread(.data$variable, .data$value) %>%
-      mutate(actual_time = .data$.time-.data$lag,
-             seq_unique = paste(.data$.time, seq, sep=": "))
+    out <- DD_manu_many_tolong(out)
   }
   out
 }
 
+DD_manu_many_tolong <- function(df) {
+  df %>%
+    gather("variable", "value", starts_with(".yvar"), starts_with(".treat")) %>%
+    mutate(lag = if_else(str_detect(.data$variable, "lag"),
+                         str_extract(.data$variable, "[0-9]+$"),
+                         "0") %>%
+             as.integer,
+           variable = str_remove(.data$variable, "_lag[0-9]+")) %>%
+    spread(.data$variable, .data$value) %>%
+    mutate(actual_time = .data$.time-.data$lag,
+           seq_unique = paste(.data$.time, seq, sep=": "))
+}
+
+
+DD_manu_many_diffs <- function(df) {
+  lag_max <-  max(df$lag)
+  res <- df %>%
+    select(.data$.time, .data$seq, .data$lag, .data$.yvar) %>%
+    mutate(lag = factor(paste0("lag_", .data$lag),
+                        levels = paste0("lag_", rev(unique(.data$lag))))) %>%
+    spread(.data$lag, .data$.yvar) %>%
+    mutate(diff_l0_l1 = .data$lag_0 -.data$lag_1)
+
+  if(lag_max>1) {
+    add_diff <- function(i) {
+      var_out <- paste0("diff_l", i, "_l", i-1)
+      var_in <- rlang::sym(paste0("lag_", i))
+      var_in_minus1 <- rlang::sym(paste0("lag_", i-1))
+      dplyr::transmute(res, !!var_out:= !!var_in- !!var_in_minus1)
+    }
+
+    res <- res %>%
+      bind_cols(purrr::map_dfc(2:lag_max, add_diff))
+  }
+  res
+}
+
+DD_manu_many_dids <- function(df) {
+  diffs <- DD_manu_many_diffs(df)
+  diffs %>%
+    select(.data$.time, .data$seq, .data$diff_l1_l0) %>%
+    mutate(seq = paste0("seq_", seq) %>%
+             str_replace_all("->", "_")) %>%
+    filter(!str_detect(seq, "NA")) %>%
+    spread(seq, .data$diff_l1_l0) %>%
+    mutate(did_01_vs_00 = .data$seq_0_1-.data$seq_0_0,
+           did_10_vs_11 = .data$seq_1_0-.data$seq_1_1 )
+}
 
 ################################
 #'## TEST
@@ -101,17 +142,22 @@ if(FALSE) {
                       unit.index = "unit", lag = 1,
                       format_long = FALSE)
 
-  out_l <- DD_manu_many(data = dat_sim_1,
+  out_l1 <- DD_manu_many(data = dat_sim_1,
+                        y_var = "y",
+                        time.index = "Time",
+                        unit.index = "unit", lag = 1)
+  out_l2 <- DD_manu_many(data = dat_sim_1,
                         y_var = "y",
                         time.index = "Time",
                         unit.index = "unit", lag = 2)
 
 
-  ## compute
+  ## compute Did
   out_w %>%
-    mutate(diff_y = .yvar - .yvar_lag_1) %>%
-    filter(seq%in%c("0_0", "0_1")) %>%
+    mutate(diff_y = .yvar - .yvar_lag1) %>%
+    filter(seq%in%c("0->0", "0->1")) %>%
     select(.time, seq, diff_y) %>%
+    mutate(seq=str_replace_all(seq, "->", "_")) %>%
     pivot_wider(names_from = seq, values_from=diff_y,
                 names_prefix = "seq_") %>%
     mutate(Did = seq_0_1 - seq_0_0)
@@ -121,16 +167,33 @@ if(FALSE) {
                       y_var = "y",
                       time.index = "Time")
   out_DD %>%
-    filter(DiD==1)
+    filter(DiD%in% c(1, 4)) %>%
+    select(time, DiD, treat, control, estimate) %>%
+    spread(DiD, estimate)
+
+  DD_manu_many_dids(out_l1)
 
 
   ## plot
-  out %>%
+  out_l2 %>%
     filter(seq %in% c("0_0_0", "0_0_1")) %>%
     filter(.time %in% c(3, 5)) %>%
     ggplot(aes(x = actual_time, y = .yvar, color = factor(.time), linetype = seq)) +
     geom_line()
 
   out
+
+  ##
+  DD_manu_many_diffs(df=out_l1)
+  DD_manu_many_diffs(out_l2)
+  out_l %>%
+    # .[c( 19, 20, 21),]
+    # select(-n_obs, -actual_time) %>%
+    select(.time, seq, lag, .yvar) %>%
+    mutate(lag = factor(paste0("lag_", lag),
+                        levels = paste0("lag_", rev(unique(lag))))) %>%
+    spread(lag, .yvar) %>%
+    mutate(diff_l1_l0 = lag_0 -lag_1,
+           diff_l2_l1 = lag_1 -lag_2)
 
 }
