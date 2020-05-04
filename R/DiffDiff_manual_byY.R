@@ -42,7 +42,7 @@ DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", uni
     select(.data$.time, .data$.treat, .data$.unit, .data$.yvar) %>%
     lag_group(group_var=".unit", time_var=".time",
               value_var= c(".treat",".yvar"), lagamount = seq_len(lag))%>%
-    tidyr::unite(seq, c(paste0(".treat_lag", seq_len(lag)), ".treat"), sep="_", remove=FALSE)
+    tidyr::unite(seq, c(paste0(".treat_lag", rev(seq_len(lag))), ".treat"), sep="->", remove=FALSE)
   # for(i in seq_len(lag)) {
   #   tr_lag_name <- rlang::sym(paste0(".treat_lag_", i))
   #   y_lag_name <- rlang::sym(paste0(".yvar_lag_", i))
@@ -66,9 +66,9 @@ DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", uni
   if(format_long){
     out <-  out %>%
       gather("variable", "value", starts_with(".yvar"), starts_with(".treat")) %>%
-      mutate(lag = if_else(str_detect(.data$variable, "lag"), str_extract(.data$variable, "[0-9]$"), "0") %>%
+      mutate(lag = if_else(str_detect(.data$variable, "lag"), str_extract(.data$variable, "[0-9]+$"), "0") %>%
                as.integer,
-             variable = str_remove(.data$variable, "_lag_[0-9]")) %>%
+             variable = str_remove(.data$variable, "_lag_[0-9]+")) %>%
       spread(.data$variable, .data$value) %>%
       mutate(actual_time = .data$.time-.data$lag,
              seq_unique = paste(.data$.time, seq, sep=": "))
