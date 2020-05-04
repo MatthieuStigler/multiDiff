@@ -113,7 +113,7 @@ DD_manu_many_dids <- function(df) {
     mutate(seq = paste0("seq_", seq) %>%
              str_replace_all("->", "_")) %>%
     filter(!str_detect(seq, "NA")) %>%
-    spread(seq, .data$diff_l1_l0) %>%
+    spread(seq, .data$diff_l0_l1) %>%
     mutate(did_01_vs_00 = .data$seq_0_1-.data$seq_0_0,
            did_10_vs_11 = .data$seq_1_0-.data$seq_1_1 )
 }
