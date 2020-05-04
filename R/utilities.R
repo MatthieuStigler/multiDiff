@@ -55,6 +55,7 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' @param value_var The variable to lag over
 #' @param lagamount The amount of lag
 #' @param complete_time Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.
+#' @param default Default value for missing? NA by default.
 #' @export
 #' @examples
 #' df_test <- data.frame(group = rep(c("a", "b"), each=6),
@@ -70,7 +71,8 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #'
 #' lag_group(df_test[-4,], "group", time_var="year", lagamount = 1:2, value_var = c("value", "value2"))
 lag_group <- function(df, group_var, value_var, time_var,
-                      lagamount=1, complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by=1)) {
+                      lagamount=1, complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by=1),
+                      default = NA) {
 
   ## complete
   time_range <- range(pull(df, {{time_var}}))
@@ -90,7 +92,7 @@ lag_group <- function(df, group_var, value_var, time_var,
   new_names <- paste0(rep(value_var, each = N_lags),
                       lags_name,
                       abs(lags_vec))
-  df_complete[,  matrix(new_names, nrow=N_var) := shift(.SD, lagamount), by = group_var, .SDcols = value_var][]
+  df_complete[,  matrix(new_names, nrow=N_var) := shift(.SD, lagamount, fill=default), by = group_var, .SDcols = value_var][]
   setDF(df_complete) ## maybe unnecessary?
   setattr(df_complete, "class", old_class)
 

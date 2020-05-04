@@ -10,7 +10,8 @@ lag_group(
   value_var,
   time_var,
   lagamount = 1,
-  complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by = 1)
+  complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by = 1),
+  default = NA
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ This is necessary as the function makes sure there are no missing years.}
 \item{lagamount}{The amount of lag}
 
 \item{complete_time}{Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.}
+
+\item{default}{Default value for missing? NA by default.}
 }
 \description{
 Take the lag of a variable for each group.
