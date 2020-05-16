@@ -41,7 +41,7 @@
 #'## NEW
 ################################
 
-#' SImulate
+#' Simulate data
 #' @param  N number of distinct units
 #' @param Time number of distinct time
 #' @param beta coef
@@ -56,6 +56,7 @@
 sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25) {
 
   if(!is.null(seed)) set.seed(seed)
+
   ## individual and firm
   ind_fe <- rep(rnorm(N), each=Time)
   time_fe <- rep(as.numeric(arima.sim(model=list(ar=0.8), n=Time)), N)
@@ -76,11 +77,60 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
     mutate(lag_one_noNA = dplyr::if_else(is.na(.data$lag_1), 0L, .data$lag_1)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + .data$err,
            y_asym = beta* .data$tr + gamma * .data$lag_one_noNA*(1-.data$tr) + .data$unit_fe + .data$time_fe +.data$err )
-
+  dat_sim_1
 
 }
 
+#'@param perc_never,perc_always,perc_treat \emph{Staggered:} Percentage of (during-sample) treated, never and always
+#'@param timing_treatment \emph{Staggered:} In what periods can treatment start?
+#'@rdname sim_dat
+#'@export
+sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL,
+                              perc_never = 0.2, perc_treat = 0.8, perc_always = 1-perc_treat-perc_never,
+                              timing_treatment = 2:Time) {
 
+  if(!is.null(seed)) set.seed(seed)
+
+  ## individual and firm
+  ind_fe <- rep(rnorm(N), each=Time)
+  time_fe <- rep(as.numeric(arima.sim(model=list(ar=0.8), n=Time)), N)
+  N_treat <- round(perc_treat*N)
+  N_always <- round(perc_always*N)
+  N_never <- N-N_treat-N_always
+  type <- rep(c("treat", "always", "never"), c(N_treat, N_always, N_never))
+  if(length(timing_treatment)==1) {
+    starts <- rep(timing_treatment, N_treat)
+  } else {
+    starts <- sample(timing_treatment, N_treat, replace=TRUE)
+  }
+
+  ## timings
+  fill_here <- function(t, Total) {
+    x <- rep(0, Total)
+    if(is.finite(t)& !is.na(t)&t<=Total) {
+      x[seq_len(Total)>=t] <- 1
+    }
+    tibble(Time = seq_len(Total),
+           tr=x, length_treat= cumsum(x))
+  }
+  timings <- tibble(unit = 1:N,
+                    type = type,
+                    timing_treat = c(starts, rep(1, N_always), rep(Inf, N_never)))
+
+  timings_all <- timings %>%
+    mutate(treat = map(.data$timing_treat, ~fill_here(., Time))) %>%
+    unnest(.data$treat)
+
+  ## Data
+  tibble(unit = rep(1:N, each=Time),
+         Time = rep(1:Time, times=N),
+         unit_fe = ind_fe,
+         time_fe = time_fe,
+         error = rnorm(N*Time)) %>%
+    dplyr::full_join(timings_all, by = c("unit", "Time")) %>%
+    select(.data$unit, .data$type, .data$timing_treat, .data$Time, tidyselect::everything()) %>%
+    mutate(y = beta* .data$tr + gamma* .data$length_treat + .data$unit_fe + .data$time_fe + .data$error)
+}
 
 
 if(FALSE){
@@ -90,6 +140,15 @@ if(FALSE){
     count(n) %>%
     mat_add_total_row()
 
+
+  ## Standard 2 x2: 2 groups, 2 time periods
+  sim_dat_staggered(Time=2, timing_treatment=2)%>%
+    count(type, Time, tr)
+
+  ## Long 2 x 2: two  groups, 5 before, 5 after
+  sim_dat_staggered(Time=10, timing_treatment=5) %>%
+    distinct(type, Time, tr) %>%
+    spread(Time, tr)
 }
 
 

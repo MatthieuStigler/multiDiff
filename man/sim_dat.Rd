@@ -2,9 +2,10 @@
 % Please edit documentation in R/dat_sim.R
 \name{sim_dat}
 \alias{sim_dat}
+\alias{sim_dat_staggered}
 \title{\subsection{NEW}{
 
-SImulate
+Simulate data
 }}
 \usage{
 sim_dat(
@@ -14,6 +15,18 @@ sim_dat(
   gamma = 0.7,
   seed = NULL,
   prob_treat = 0.25
+)
+
+sim_dat_staggered(
+  N = 1000,
+  Time = 15,
+  beta = 1,
+  gamma = 0,
+  seed = NULL,
+  perc_never = 0.2,
+  perc_treat = 0.8,
+  perc_always = 1 - perc_treat - perc_never,
+  timing_treatment = 2:Time
 )
 }
 \arguments{
@@ -30,11 +43,15 @@ while the standard beta will apply for values currently treated.}
 \item{seed}{seed}
 
 \item{prob_treat}{Probability of treatment}
+
+\item{perc_never, perc_always, perc_treat}{\emph{Staggered:} Percentage of (during-sample) treated, never and always}
+
+\item{timing_treatment}{\emph{Staggered:} In what periods can treatment start?}
 }
 \description{
 \subsection{NEW}{
 
-SImulate
+Simulate data
 }
 }
 \examples{
