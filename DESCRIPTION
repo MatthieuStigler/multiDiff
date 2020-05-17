@@ -25,7 +25,8 @@ Imports:
     purrr,
     ggplot2,
     tidyselect,
-    data.table
+    data.table,
+    collapse
 Suggests: 
     tidyverse
 Depends: 

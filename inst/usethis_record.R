@@ -23,7 +23,7 @@ use_package("purrr", "Imports")
 use_package("ggplot2", "Imports")
 use_package("tidyselect", "Imports")
 use_package("data.table", "Imports")
-
+use_package("collapse", "Imports")
 
 use_package("tidyverse", "Suggests")
 # tidyselect
