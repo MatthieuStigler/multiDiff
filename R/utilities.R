@@ -65,6 +65,7 @@ if(FALSE){
 #' dat <- sim_dat()
 #' intrnl_is_balanced_col(dat)
 #' intrnl_is_balanced_col(dat[-3,])
+#' @noRd
 intrnl_is_balanced_dplyr <- function(df, unit.index="unit") {
   co <- count(df, !!rlang::sym(unit.index)) %>%
     count(n)

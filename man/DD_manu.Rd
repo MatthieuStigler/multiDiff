@@ -12,7 +12,8 @@ DD_manu(
   unit.index = "unit",
   control_gr = "0_0",
   treat_gr = "0_1",
-  time_per = NULL
+  time_subset = NULL,
+  subperiod = NULL
 )
 }
 \arguments{
@@ -31,12 +32,29 @@ DD_manu(
 
 \item{treat_gr}{The treatment group of interest}
 
-\item{time_per}{The restriction of time period (if gave more than 2 periods)}
+\item{time_subset}{The restriction of time period (if gave more than 2 periods)}
+
+\item{subperiod}{A variable indicating}
 }
 \description{
 Diff Diff manual table
 }
 \examples{
-data <- sim_dat(N=100, Time =2)
-DD_manu(data=data)
+dat_DiD_1 <- sim_dat_staggered(Time=2, timing_treatment=2)
+DD_manu(data=dat_DiD_1)
+
+## Compare with felm
+library(lfe)
+felm(y~tr|unit+Time, data=dat_DiD_1)
+
+## DiD for longer sequences
+dat_DiD_long <- sim_dat_staggered(Time=10, timing_treatment=6)
+DD_manu(data=dat_DiD_long,  control_gr=paste(rep(0, 10), collapse = "_"),
+        treat_gr=paste(c(rep(0, 5), rep(1,5)), collapse = "_"),
+        subperiod= rep(c("pre", "post"), each=5))
+DD_manu(data=dat_DiD_long,  control_gr=paste(rep(0, 10), collapse = "_"),
+        treat_gr=paste(c(rep(0, 5), rep(1,5)), collapse = "_"),
+        subperiod= rep(c("placebo", "pre", "post", "dynamic"), c(4,1,1,4)))
+felm(y~tr|unit+Time, data=dat_DiD_long)
+
 }

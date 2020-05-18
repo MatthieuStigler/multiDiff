@@ -37,7 +37,8 @@ dat_45 <- data_pre %>% filter(Time %in% c(4,5))
 felm(y~ tr |unit+Time, data=filter(data_pre, Time %in% c(4,5)))
 
 DD_manu(data=dat_45, treat_gr = "0_1", control_gr="0_0")
-DD_manu(data=dat_345, treat_gr = "0_0_1", control_gr="0_0_0", time_per = c(4,5))
+DD_manu(data=dat_345, treat_gr = "0_0_1", control_gr="0_0_0",
+        subperiod = c(NA,1,2))
 
 ################################
 #'## Placebo DiD
@@ -47,7 +48,8 @@ DD_manu(data=dat_345, treat_gr = "0_0_1", control_gr="0_0_0", time_per = c(4,5))
 ### LAG 1 ###
 
 ## manual
-DD_manu(data=dat_345, treat_gr = "0_0_1", control_gr="0_0_0", time_per = c(3,4))
+DD_manu(data=dat_345, treat_gr = "0_0_1", control_gr="0_0_0",
+        subperiod = c(1,2,NA))
 
 ## with reg
 felm(y~ lead_1 |unit+Time, data=dat_34)
@@ -56,7 +58,9 @@ felm(y~ lead_1 |unit+Time, data=dat_34)
 
 ## lag 2 manu
 DD_manu(data=data_pre %>%
-          filter(Time %in% c(2, 3, 4, 5)), treat_gr = "0_0_0_1", control_gr="0_0_0_0", time_per = c(2,3))
+          filter(Time %in% c(2, 3, 4, 5)),
+        treat_gr = "0_0_0_1", control_gr="0_0_0_0",
+        subperiod = c(1,2,NA, NA))
 
 ##felm
 felm(y~ lead_2 |unit+Time, data=data_pre %>% filter(Time %in% c(2, 3, 4)))
