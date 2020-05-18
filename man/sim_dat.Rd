@@ -55,5 +55,18 @@ Simulate data
 }
 }
 \examples{
-sim_dat()
+## Standard 2 x2: 2 groups, 2 time periods
+dat_DiD_1 <- sim_dat_staggered(Time=2, timing_treatment=2)
+DD_manu(data=dat_DiD_1)
+
+## estimate with panel
+library(lfe)
+felm(y~tr|unit+Time, data=dat_DiD_1)
+
+## Long 2 x 2: two  groups, 5 before, 5 after
+dat_DiD_2 <- sim_dat_staggered(Time=10, timing_treatment=5)
+felm(y~tr|unit+Time, data=dat_DiD_2)
+
+## Did with variation in treatment
+dat_DiD_3 <- sim_dat_staggered(Time=10, timing_treatment=c(2, 10))
 }
