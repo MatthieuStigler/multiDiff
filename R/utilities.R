@@ -1,3 +1,93 @@
+## check one manually
+add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit"){
+  groups <- df %>%
+    select(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat)) %>%
+    spread(!!enquo(time.index), !!enquo(treat)) %>%
+    tidyr::unite(".group", -!!enquo(unit.index))
+  df %>%
+    left_join(groups %>%
+                select(.data$unit, .data$.group), by = "unit")
+}
+
+
+#' df of sequences 0_0_1
+#'@examples
+#' get_sequences(sim_dat())
+#' get_sequences(sim_dat()[-3,])
+#'@noRd
+get_sequences <- function(df, time.index = "Time", treat = "tr", unit.index="unit") {
+  df %>%
+    select(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat)) %>%
+    spread(!!enquo(time.index), !!enquo(treat)) %>%
+    tidyr::unite("seq", -!!enquo(unit.index))
+}
+
+get_sequences_slower <- function(df, time.index = "Time", treat = "tr", unit.index="unit") {
+  df %>%
+    # rename(.treat={{treat}}) %>%
+    rename(.treat=!!rlang::sym(treat)) %>%
+    dplyr::arrange_at(c(unit.index, time.index)) %>%
+    dplyr::group_by_at(unit.index) %>%
+    summarise(seq = paste(.data$.treat, collapse = "_")) %>% #!!enquo(
+    ungroup()
+}
+
+
+
+
+if(FALSE){
+  library(tidyverse)
+  library(multiDiff)
+  sim_dat() %>%
+    get_sequences()
+  treat <- "tr"
+  sim_dat() %>%
+    get_sequences(treat = treat )
+
+  ## with NA
+  dat_NA <- sim_dat()[-3,]
+  get_sequences(dat_NA)
+  get_sequences_2(dat_NA)
+
+  ## benchmark
+  dat <- sim_dat() %>%
+    slice(sample(1:nrow(.), size = nrow(.)))
+  microbenchmark(smry = get_sequences(dat),
+                 sprd = get_sequences_2(dat),
+                 times = 50, check="equal")
+  ## with NA
+}
+
+
+##
+#'@examples
+#' library(multiDiff)
+#' dat <- sim_dat()
+#' intrnl_is_balanced_col(dat)
+#' intrnl_is_balanced_col(dat[-3,])
+intrnl_is_balanced_dplyr <- function(df, unit.index="unit") {
+  co <- count(df, !!rlang::sym(unit.index)) %>%
+    count(n)
+  if(nrow(co)>1) FALSE  else TRUE
+}
+
+intrnl_is_balanced_col <- function(df, unit.index="unit") {
+  collapse::fNdistinct(collapse::fNobs(df[[unit.index]],
+                                       g=df[[unit.index]]))==1
+}
+
+intrnl_is_balanced <- function(df, unit.index="unit") {
+  collapse::fNdistinct(collapse::fNdistinct(df[[unit.index]],
+                                            g=df[[unit.index]]))==1
+}
+
+if(FALSE){
+  library(microbenchmark)
+  microbenchmark(dp = intrnl_is_balanced_dplyr(dat[-3,]),
+                 col=intrnl_is_balanced(dat[-3,]),
+                 col2=intrnl_is_balanced_col2(dat[-3,]))
+}
+
 
 #' Overwrite seq with value from given period (default to max)
 #'
