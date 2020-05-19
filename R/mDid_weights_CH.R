@@ -15,6 +15,7 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #' Weights from Chaisemartin and Hautefeuille
 #'
 #'@template param_all
+#'@param return_details Return additional details on weights?
 #'@examples
 #'examp_df <- data.frame(unit = rep(c(1, 2), each=3),
 #'                       time = rep(1:3, 2),
@@ -22,7 +23,8 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'mDid_weights_CH(examp_df, treat = "treat",
 #'                time.index = "time")
 #'@export
-mDid_weights_CH <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit") {
+mDid_weights_CH <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+                            return_details=FALSE) {
 
   treat_quo <- rlang::ensym(treat)
 
@@ -44,10 +46,17 @@ mDid_weights_CH <- function(data, y_var="y", time.index = "Time", treat = "tr", 
            nat_weight_mat = {{treat_quo}} /N_D,
            ave_resid_D1 = weighted.mean(.data$residuals[.data$D_1],
                                         w = .data$nat_weight_mat[.data$D_1]),
-           weight = .data$nat_weight_mat * .data$residuals /.data$ave_resid_D1) %>%
+           weight = .data$nat_weight_mat * .data$residuals /.data$ave_resid_D1)
+
+  res <- res %>%
     select(rlang::ensym(treat),
            rlang::ensym(time.index),
-           rlang::ensym(unit.index), .data$weight)
+           rlang::ensym(unit.index), .data$weight,
+           .data$residuals, .data$nat_weight_mat, .data$D_1)
+  if(!return_details) {
+    res <- res %>%
+      select(-.data$residuals, -.data$nat_weight_mat, -.data$D_1)
+  }
 
   ##
   attr(res, "class") <-  c("FE_weights_CH", "FE_weights", class(res))

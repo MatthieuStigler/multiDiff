@@ -12,7 +12,8 @@ mDid_weights_CH(
   y_var = "y",
   time.index = "Time",
   treat = "tr",
-  unit.index = "unit"
+  unit.index = "unit",
+  return_details = FALSE
 )
 
 \method{print}{FE_weights_CH}(x, ...)
@@ -32,6 +33,8 @@ weights_CH_smry(data)
 \item{treat}{The name of the treatment variable.}
 
 \item{unit.index}{The name of the units (individual, county, household, etc).}
+
+\item{return_details}{Return additional details on weights?}
 
 \item{x}{Output from \code{mDid_weights_CH}}
 
