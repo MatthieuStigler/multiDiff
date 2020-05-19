@@ -34,7 +34,7 @@ DD_manu(
 
 \item{time_subset}{The restriction of time period (if gave more than 2 periods)}
 
-\item{subperiod}{A variable indicating}
+\item{subperiod}{A variable indicating how to group, exclude time periods. See details.}
 }
 \description{
 Diff Diff manual table
