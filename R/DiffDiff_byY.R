@@ -1,6 +1,6 @@
 
 
-#' Compute the diff-and-diff by period
+#' Compute the diff-and-diff by period. \lifecycle{experimental}
 #'
 #' @template param_all
 #' @param min_obs_required the minimum number of either treat or control needed to run a regresion

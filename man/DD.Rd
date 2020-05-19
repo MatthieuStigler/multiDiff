@@ -2,7 +2,7 @@
 % Please edit documentation in R/DiffDiff_byY.R
 \name{DD}
 \alias{DD}
-\title{Compute the diff-and-diff by period}
+\title{Compute the diff-and-diff by period. \lifecycle{experimental}}
 \usage{
 DD(
   y_var = "y",
@@ -28,7 +28,7 @@ DD(
 \item{min_obs_required}{the minimum number of either treat or control needed to run a regresion}
 }
 \description{
-Compute the diff-and-diff by period
+Compute the diff-and-diff by period. \lifecycle{experimental}
 }
 \examples{
 data <- sim_dat(N=100)
