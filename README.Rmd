@@ -24,6 +24,14 @@ This R package implements the multi-period diff-diff as discussed in Imai and Ki
 devtools::install_github("MatthieuStigler/multiDiff")
 ```
 
+## Main functions:
+
+- `DD()`: period-by-period diff-diff (DiD)
+- `DD_manu()`: DiD the manual way: showing the four means
+- `DD_manu_many()`: period-by-period manual DiD
+- `FE_decompo()`: FE decomposition following Gibbons et al 
+- `mDid_weights_CH()`: Weights from Chaisemartin and Hautefeuille (2020)
+
 ## Example
 
 Main function is `DD()` (name might change!), with following arguments
