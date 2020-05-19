@@ -41,3 +41,6 @@ NULL
 
 #' @importFrom ggplot2 ggplot aes
 NULL
+
+#' @importFrom lifecycle deprecate_soft
+NULL
