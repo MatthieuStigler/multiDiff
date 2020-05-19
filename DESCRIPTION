@@ -26,8 +26,10 @@ Imports:
     ggplot2,
     tidyselect,
     data.table,
-    collapse
+    collapse,
+    lifecycle
 Suggests: 
     tidyverse
 Depends: 
     R (>= 2.10)
+RdMacros: lifecycle

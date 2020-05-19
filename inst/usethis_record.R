@@ -29,6 +29,10 @@ use_package("tidyverse", "Suggests")
 # tidyselect
 
 
+## lifecycle
+usethis::use_lifecycle()
+usethis::use_lifecycle_badge("experimental")
+
 ## for the example
 use_roxygen_md()
 

@@ -15,6 +15,10 @@ knitr::opts_chunk$set(
 
 # multiDiff
 
+<!-- badges: start -->
+  [![Lifecycle: experimental](https://img.shields.io/badge/lifecycle-experimental-orange.svg)](https://www.tidyverse.org/lifecycle/#experimental)
+<!-- badges: end -->
+
 This R package implements the multi-period diff-diff as discussed in Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
 
 ## Installation
