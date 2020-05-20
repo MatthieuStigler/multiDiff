@@ -23,10 +23,18 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'mDid_weights_CH(examp_df, treat = "treat",
 #'                time.index = "time")
 #'@export
-mDid_weights_CH <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+mDid_weights_CH <- function(data, y_var="y", time.index = "Time",
+                            treat = "tr", unit.index="unit",
                             return_details=FALSE) {
 
   treat_quo <- rlang::ensym(treat)
+
+  ## Check saturated FEs?
+  count_time <- count(data, !!rlang::ensym(time.index)) %>%
+    arrange(.data$n)
+  if(any(count_time$n==1)) {
+    warning("Some time-FE only for one variable, will give perfect prediction and weight of 0 even if treated")
+  }
 
   ## rename vars data internally
   data2 <- intrnl_data_format(data, y_var= ensym(y_var),
@@ -77,6 +85,7 @@ print.FE_weights_CH <- function(x, ...) {
 
 
   cat(smry["n_pos"], "ATTs receive a positive weight, and",  smry["n_neg"], "receive a negative weight.\n")
+  if(smry["n_treat_zero"]>0) cat(smry["n_treat_zero"], "Treated cases have 0 weights (saturated FEs?)\n")
   cat("The sum of the negative weights is equal to", smry["w_neg_mean"], ".\n")
 
   cat("\nData:\n")
@@ -126,10 +135,12 @@ weights_CH_smry <- function(data) {
     mutate(is_pos = .data$weight>0)
 
   n_treat <- nrow(data_treat)
-  n_pos <- sum(data_treat$is_pos)
-  n_neg <- sum(!data_treat$is_pos)
+  n_pos <- sum(data_treat$weight>0)
+  n_neg <- sum(data_treat$weight<0)
+  n_treat_zero <- sum(data_treat$weight==0)
   w_neg_mean <- sum(data_treat$weight[!data_treat$is_pos])
-  c(n_treat=n_treat, n_pos=n_pos, n_neg = n_neg, w_neg_mean=w_neg_mean)
+  c(n_treat=n_treat, n_pos=n_pos, n_neg = n_neg, w_neg_mean=w_neg_mean,
+    n_treat_zero=n_treat_zero)
 
 }
 
@@ -142,6 +153,8 @@ if(FALSE) {
   library(multiDiff)
   library(tidyverse)
   library(lfe)
+  # environment(mDid_weights_CH) <-  environment(DD)
+  # environment(print.FE_weights_CH) <-  environment(DD)
   data_W_CH <- mDid_weights_CH(data=GentzkowData,
                                y_var="prestout",
                                time.index = "year",
@@ -151,5 +164,12 @@ if(FALSE) {
   plot(data_W_CH, by = "unit")
   plot(data_W_CH, by = "time")
 
+  ## styr
+  data_W_CH_styr <- mDid_weights_CH(data=GentzkowData,
+                               y_var="prestout",
+                               time.index = "styr",
+                               treat = "numdailies",
+                               unit.index="cnty90")
+  data_W_CH_styr
 }
 
