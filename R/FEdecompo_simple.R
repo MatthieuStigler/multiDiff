@@ -97,7 +97,7 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
   ## add weights
   dat_coefs_w <- dat_coefs %>%
     mutate(treat_weight=.data$treat_var*(.data$n_vals-1),
-           treat_weight= .data$treat_weight/sum(.data$treat_weight)) %>%
+           treat_weight= .data$treat_weight/sum(.data$treat_weight, na.rm = TRUE)) %>%
     select(tidyselect::one_of(by), .data$n_vals, tidyselect::everything())
 
   dat_coefs_w
