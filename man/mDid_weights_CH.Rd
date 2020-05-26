@@ -42,6 +42,13 @@ weights_CH_smry(data)
 
 \item{\ldots}{Unused arguments}
 }
+\value{
+A enhanced \code{tibble} of class \emph{FE_weights_CH}
+\describe{
+\item{w}{The weight w}
+\item{weight}{The weight w multiplied by \code{obs_weight}} \%\%$N_{g,t}$
+}
+}
 \description{
 Weights from Chaisemartin and Hautefeuille
 }

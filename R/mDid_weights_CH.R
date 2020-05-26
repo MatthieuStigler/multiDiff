@@ -16,6 +16,11 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'
 #'@template param_all
 #'@param return_details Return additional details on weights?
+#'@return A enhanced \code{tibble} of class \emph{FE_weights_CH}
+#'\describe{
+#'   \item{w}{The weight w}
+#'   \item{weight}{The weight w multiplied by \code{obs_weight}} %%$N_{g,t}$
+#'}
 #'@examples
 #'examp_df <- data.frame(unit = rep(c(1, 2), each=3),
 #'                       time = rep(1:3, 2),
@@ -50,20 +55,21 @@ mDid_weights_CH <- function(data, y_var="y", time.index = "Time",
   N_D <- sum(treat_var)
   res <- data %>%
     mutate(residuals = stats::residuals(reg)[,1],
-           D_1 = treat_quo!=0,
-           nat_weight_mat = {{treat_quo}} /N_D,
-           ave_resid_D1 = weighted.mean(.data$residuals[.data$D_1],
-                                        w = .data$nat_weight_mat[.data$D_1]),
-           weight = .data$nat_weight_mat * .data$residuals /.data$ave_resid_D1)
+           is_treated = {{treat_quo}}!=0,
+           obs_weight = {{treat_quo}} /N_D,
+           ave_resid_D1 = weighted.mean(.data$residuals[.data$is_treated],
+                                        w = .data$obs_weight[.data$is_treated]),
+           w = .data$residuals /.data$ave_resid_D1, # as in paper
+           weight = .data$obs_weight * .data$w) #N/N1 * w
 
   res <- res %>%
     select(rlang::ensym(treat),
            rlang::ensym(time.index),
            rlang::ensym(unit.index), .data$weight,
-           .data$residuals, .data$nat_weight_mat, .data$D_1)
+           .data$residuals, .data$obs_weight, .data$is_treated, .data$w)
   if(!return_details) {
     res <- res %>%
-      select(-.data$residuals, -.data$nat_weight_mat, -.data$D_1)
+      select(-.data$residuals, -.data$obs_weight, -.data$is_treated)
   }
 
   ##
@@ -88,8 +94,11 @@ print.FE_weights_CH <- function(x, ...) {
   if(smry["n_treat_zero"]>0) cat(smry["n_treat_zero"], "Treated cases have 0 weights (saturated FEs?)\n")
   cat("The sum of the negative weights is equal to", smry["w_neg_mean"], ".\n")
 
-  cat("\nData:\n")
-  print.data.frame(head(x))
+  cat("\nOverview of data:\n")
+  x <-  head(as_tibble(x))
+  NextMethod()
+  # print(x)
+  # print.data.frame(head(x))
   invisible(x)
 }
 
