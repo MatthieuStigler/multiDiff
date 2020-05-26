@@ -32,3 +32,17 @@ stat_all %>%
                                               n_neg = ~sum(.<0),
                                               w_neg = ~sum(.[.<0]))) %>%
   as.data.frame()
+
+
+################################
+#'## average weight?
+################################
+
+stata_year %>%
+  filter(nat_weight!=0) %>%
+  summarise(mean = mean(weight),
+            mean2 = mean(W),
+            mean_w = mean(nat_weight),
+            s=sum(weight),
+            s3=sum(nat_weight),
+            s2 = sum(W))

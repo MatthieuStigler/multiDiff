@@ -31,18 +31,58 @@ GentzkowData %>%
 
 
 ################################
-#'## Clean data
+#'## Explo data
 ################################
 
+## but state 10 (Delaware?) has only one county!
+GentzkowData %>%
+  count(st, cnty90) %>%
+  count(st) %>%
+  arrange(n)
+
+## stata solution? Uses 666 st-yr FEs, on top of county and year
+Gentzkowraw %>%
+  select(matches("st(yr)?[0-9]")) %>%
+  colnames() %>%
+  enframe() %>%
+  mutate(styr=str_remove(value, "styr|st") %>%  as.integer(),
+         type = str_extract(value, "st(yr)?")) %>%
+  count(type) %>%
+  mat_add_total_row()
+
+## clean data: 10 receives only one FE!
 GentzkowData_c <- GentzkowData %>%
-  mutate(state_year = paste(st, year, sep="_"),
+  add_count(styr, year) %>%
+  mutate(state_year = if_else(st==10,
+                              "10",
+                              paste(st, year, sep="_")),
+         state_year2 = if_else(n==1,
+                              as.character(year),
+                              paste(st, year, sep="_")),
          cnty90_fac = factor(cnty90),
          styr_fac = factor(styr),
          year_fac = factor(year))
 
-## there are 683 state-year
+## there are 683 state-year, yet 668 FEs
 GentzkowData_c %>%
-  count(styr, state_year)
+  summarise_at(c("styr", "state_year", "state_year2"), n_distinct)
+
+styr_df <- GentzkowData_c %>%
+  count(st, year, styr, state_year, state_year2) %>%
+  arrange(styr)
+
+styr_df %>%
+  count(state_year2) %>%
+  mutate(is_styr = str_detect(state_year2, "_")) %>%
+  filter(!is_styr)
+  count(is_styr)
+
+styr_df %>%
+  arrange(n) %>%
+  filter(n==1) %>%
+  filter(st!=10)
+
+styr <- unique(styr_df$styr)
 
 ## there are 16 year
 GentzkowData_c %>%
@@ -72,12 +112,19 @@ reg_FE_lfe_v2 <- felm(prestout ~numdailies|cnty90_fac + styr_fac + year, data = 
 reg_FE_lfe_v2
 reg_FE_lfe
 
-## super manual
+## delaware
+reg_FE_lfe_v2 <- felm(prestout ~numdailies|cnty90 + state_year, data = GentzkowData_c)
+reg_FE_lfe_v2
+
+## super manual, uses 666 st-yr+9 year + intercept = 676
 if(FALSE) {
   lm_all <- lm(prestout ~.,
                data = select(Gentzkowraw, prestout, numdailies, matches("styr[0-9]{1,3}"),
                              cnty90_fac, year_fac))
-
+  ## possible covars
+  broom::tidy(lm_all) %>%
+    mutate(term_type = str_extract(term, "styr|st|cnt|year_fac|numdailies|Intercept")) %>%
+    count(term_type)
   round(coef(lm_all)["numdailies"], 8)== stata_FE[1]
 }
 
@@ -96,17 +143,72 @@ reg_plm_DF <- plm(changeprestout ~changedailies, data = gent_plm, effect = "twow
 #'## Decomposition
 ################################
 
+## simplest
+data_W_CH_bin <- mDid_weights_CH(data=GentzkowData %>%
+                               mutate(numdaily_bin = numdailies>0),
+                             y_var="prestout",
+                             time.index = "year",
+                             treat = "numdaily_bin",
+                             unit.index="cnty90", return_details = TRUE)
+data_W_CH_bin %>%
+  as_tibble() %>%
+  filter(is_treated)%>%
+  summarise(w_1 = weighted.mean(weight, numdaily_bin),
+            w=mean(weight),
+            s = sum(weight))
+
 ## FE2 is year
 data_W_CH <- mDid_weights_CH(data=GentzkowData,
                              y_var="prestout",
                              time.index = "year",
                              treat = "numdailies",
                              unit.index="cnty90", return_details = TRUE)
+data_W_CH
+# Under the common trends assumption, beta estimates a weighted sum of 10378 ATTs.
+# >  6180 ATTs receive a positive weight, and 4198 receive a negative weight.
+# The sum of the negative weights is equal to -.47401318.
+# beta is compatible with a DGP where the average of those ATTs is equal to 0,
+# while their standard deviation is equal to .00095803.
+# beta is compatible with a DGP where those ATTs all are of a different sign than beta,
+# while their standard deviation is equal to .00194149.
+
+dat_treat <- data_W_CH %>%
+  as_tibble() %>%
+  filter(is_treated)
+
+out <- dat_treat %>%
+  summarise(w_1 = weighted.mean(w, obs_weight),
+            s = sum(weight),
+            sd = sqrt(sum(obs_weight*(w-1)^2)),
+            sd2 = sd(w),
+            sd3 = sd(weight))
+as.numeric(out)
+abs(coef(reg_FE_lfe))/as.numeric(out)
+abs(coef(reg_FE_lfe))/1.8
+
+w <- dat_treat  %>%
+  pull(weight)
+mean(w)
+sd(w)
+mean(w)
+weighted.mean(w, )
+sd2 <- sqrt(mean((w-1)^2))
 
 ## FE2 is state-year
 data_W_CH_styr <- mDid_weights_CH(data=GentzkowData,
                                   y_var="prestout",
                                   time.index = "styr",
+                                  treat = "numdailies",
+                                  unit.index="cnty90", return_details = TRUE)
+
+data_W_CH_styr %>%
+  as_tibble() %>%
+  count(D_1)
+
+## FE2 is state-year
+data_W_CH_styr2 <- mDid_weights_CH(data=GentzkowData_c,
+                                  y_var="prestout",
+                                  time.index = "state_year2",
                                   treat = "numdailies",
                                   unit.index="cnty90", return_details = TRUE)
 
