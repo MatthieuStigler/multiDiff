@@ -143,13 +143,17 @@ reg_plm_DF <- plm(changeprestout ~changedailies, data = gent_plm, effect = "twow
 #'## Decomposition
 ################################
 
-## simplest
+
+
+## simplest" binary
 data_W_CH_bin <- mDid_weights_CH(data=GentzkowData %>%
                                mutate(numdaily_bin = numdailies>0),
                              y_var="prestout",
                              time.index = "year",
                              treat = "numdaily_bin",
                              unit.index="cnty90", return_details = TRUE)
+data_W_CH_bin
+
 data_W_CH_bin %>%
   as_tibble() %>%
   filter(is_treated)%>%
@@ -179,9 +183,14 @@ dat_treat <- data_W_CH %>%
 out <- dat_treat %>%
   summarise(w_1 = weighted.mean(w, obs_weight),
             s = sum(weight),
-            sd = sqrt(sum(obs_weight*(w-1)^2)),
+            sd1 = sqrt(sum(obs_weight*(w-1)^2)),
             sd2 = sd(w),
-            sd3 = sd(weight))
+            sd3 = sd(weight),
+            sd4 = sqrt(modi::weighted.var(w, obs_weight)),
+            sd5 = sqrt(modi::weighted.var(weight, obs_weight))) %>%
+  mutate_at(vars(starts_with("sd")), list(stat=~abs(coef(reg_FE_lfe))/.))
+out
+
 as.numeric(out)
 abs(coef(reg_FE_lfe))/as.numeric(out)
 abs(coef(reg_FE_lfe))/1.8
@@ -250,6 +259,8 @@ GentzkowData %>%
 
 GentzkowData %>%
   filter(st==10)
+##
+
 
 ################################
 #'## Investigate
