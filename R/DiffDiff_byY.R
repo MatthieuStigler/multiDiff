@@ -4,6 +4,7 @@
 #'
 #' @template param_all
 #' @param min_obs_required the minimum number of either treat or control needed to run a regresion
+#' @param treatment Is treatment binary or categorical?
 #' @export
 #' @seealso \code{\link{DiD_aggreg}} for aggregating the output of \code{DD} over years.
 #' @examples
@@ -14,8 +15,9 @@
 
 
 DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="unit",
-               min_obs_required = 2) {
+               min_obs_required = 2, treatment=c("binary", "categorical")) {
 
+  treatment <- match.arg(treatment)
   # time.index = quo("Time")
   # treat = quo("tr")
   # unit.index = quo("unit")
@@ -29,7 +31,7 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
   times <- sort(unique(pull(data2, .data$.time)))
   years_df <- tibble(time = tail(times, -1))
 
-  ## Data treratment
+  ## Data treatment
   data_treat <- data2 %>%
     select(.data$.time, .data$.treat, .data$.unit) %>%
     lag_group(group_var=".unit", time_var=".time", value_var=".treat") %>%
@@ -41,17 +43,33 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
     left_join(data_treat, by = c(".unit", ".time"))
 
   ## DiD table
-  DiD_tab <- tibble(DiD=1:4,
-                    treat = rep(c("0_1", "1_0"), each=2),
-                    control = rep(c("0_0", "1_1"), times=2),
-                    all = paste(treat, .data$control, sep="|"))
+  if(treatment=="binary"){
+    DiD_tab <- tibble(DiD=1:4,
+                      treat = rep(c("0_1", "1_0"), each=2),
+                      control = rep(c("0_0", "1_1"), times=2),
+                      all = paste(treat, .data$control, sep="|"))
+    seqs_all <- c("0_1", "1_0", "0_0", "1_1")
+  } else {
+    treat_vals <- sort(unique(data2$.treat))
+    seqs_all <- outer(treat_vals, treat_vals, function(x, y) paste(x, y, sep="_"))
+    seq_switch <- sort(seqs_all[row(seqs_all)!=col(seqs_all)])
+    seq_control <- str_replace(seq_switch, "([0-9]+)_[0-9]+", "\\1_\\1")
+    DiD_tab <- tibble(DiD=1:length(seq_control),
+                      treat = seq_switch,
+                      control = seq_control,
+                      all = paste(treat, .data$control, sep="|"))
+  }
 
-  get_all <- function(df) {
+  ## Main function
+  DID_one_year <- function(df) {
+
+    ## count units in each sequence data
     cnt <- df %>%
       filter(.data$.time==max(.data$.time)) %>%
       count(seq) %>%
-      tidyr::complete(seq = c("0_1", "1_0", "0_0", "1_1"), fill = list(n=0))
+      tidyr::complete(seq = seqs_all, fill = list(n=0))
 
+    ## Add counts to DiD table
     DiD_tab_here <- DiD_tab %>%
       left_join(cnt %>%
                   rename(treat=seq, n_treat=n), by = c("treat")) %>%
@@ -60,12 +78,14 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
       mutate(n_min = pmin(.data$n_treat, .data$n_control),
              miss_data = .data$n_min<min_obs_required)
 
+    ## subset and run for each period
     DiD_tab_here %>%
       mutate(data = map(all, ~df %>%
                           dplyr::semi_join(filter(df, .time==max(.time) & stringr::str_detect(.data$seq, .x)), by = ".unit")),
+             D_var = map_dbl(data, ~var(.$.treat)),
+             y_var = map_dbl(data, ~var(.[y_var])),
              reg_out = map2(data, .data$miss_data,  ~if(.y) tibble(estimate=NA) else felm(lf_formula, data = .x) %>%
                               broom::tidy(conf.int=TRUE)),
-             D_var = map_dbl(data, ~var(.$.treat)),
              n_vals=map_int(data, nrow)) %>%
       select(-.data$data) %>%
       unnest(.data$reg_out)
@@ -77,13 +97,13 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
   if(FALSE) {
     time_one <- years_df$time[2]
     dat_inner <- filter(data3, .data$.time%in% c(time_one, time_one-1))
-    get_all(df=dat_inner)
+    DID_one_year(df=dat_inner)
   }
 
-  ## For each year
+  ## Run get_all for each year
   res <- years_df %>%
     mutate(data = map(.data$time, ~filter(data3, .data$.time%in% c(., .-1))),
-           reg_out = map(data, get_all)) %>%
+           reg_out = map(data, DID_one_year)) %>%
     select(-.data$data) %>%
     unnest(.data$reg_out)
 
@@ -94,7 +114,6 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
       select(-.data$term, -.data$all)
   }
   res
-
 
 }
 
@@ -151,6 +170,7 @@ if(FALSE) {
   dat_sim_1 <- sim_dat(N=5000, Time = 5)
   coef(lfe::felm(y~tr|Time+unit, data = dat_sim_1))
   res_out <- DD(data = dat_sim_1, time.index = "Time")
+  res_out
 
   ## weighting?
   nrow(dat_sim_1)
@@ -200,5 +220,9 @@ if(FALSE) {
     geom_line() +
     geom_errorbar(aes(ymin=conf.low, ymax = conf.high))
 
+  ## multiple periods
+  dat_sim_2 <- sim_dat(N=5000, Time = 5)
+  dat_sim_2$tr <- sample(1:4, size=nrow(dat_sim_2), replace = TRUE)
+  DD(data = dat_sim_2, y_var = "y",  time.index = "Time", treatment = "categorical")
 }
 

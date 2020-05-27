@@ -10,7 +10,8 @@ DD(
   time.index = "Time",
   treat = "tr",
   unit.index = "unit",
-  min_obs_required = 2
+  min_obs_required = 2,
+  treatment = c("binary", "categorical")
 )
 }
 \arguments{
@@ -26,6 +27,8 @@ DD(
 \item{unit.index}{The name of the units (individual, county, household, etc).}
 
 \item{min_obs_required}{the minimum number of either treat or control needed to run a regresion}
+
+\item{treatment}{Is treatment binary or categorical?}
 }
 \description{
 Compute the diff-and-diff by period. \lifecycle{experimental}
