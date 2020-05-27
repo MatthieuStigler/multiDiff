@@ -45,8 +45,9 @@ weights_CH_smry(data)
 \value{
 A enhanced \code{tibble} of class \emph{FE_weights_CH}
 \describe{
-\item{w}{The weight w}
-\item{weight}{The weight w multiplied by \code{obs_weight}} \%\%$N_{g,t}$
+\item{w}{The weight \eqn{w_{g,t}} as defined in the paper}
+\item{weight}{The weight w multiplied by \code{obs_weight}. They sum to 1.}
+\item{obs_weight}{The ratio \eqn{N_{g,t}/N_1}, eventually including also the treatment intensity.}
 }
 }
 \description{
