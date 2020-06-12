@@ -26,7 +26,8 @@ sim_dat_staggered(
   perc_never = 0.2,
   perc_treat = 0.8,
   perc_always = 1 - perc_treat - perc_never,
-  timing_treatment = 2:Time
+  timing_treatment = 2:Time,
+  trend_diff = 0
 )
 }
 \arguments{

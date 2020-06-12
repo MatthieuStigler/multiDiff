@@ -100,17 +100,20 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
 #'@export
 sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL,
                               perc_never = 0.2, perc_treat = 0.8, perc_always = 1-perc_treat-perc_never,
-                              timing_treatment = 2:Time) {
+                              timing_treatment = 2:Time, trend_diff=0) {
 
   if(!is.null(seed)) set.seed(seed)
 
   ## individual and firm
-  ind_fe <- rep(rnorm(N), each=Time)
-  time_fe <- rep(as.numeric(arima.sim(model=list(ar=0.8), n=Time)), N)
   N_treat <- round(perc_treat*N)
   N_always <- round(perc_always*N)
   N_never <- N-N_treat-N_always
   type <- rep(c("treat", "always", "never"), c(N_treat, N_always, N_never))
+
+  ##
+  # ind_fe <- rep(rnorm(N), each=Time)
+  ind_fe <- rep(c(rnorm(N_treat, mean=trend_diff), rnorm(N_always, mean=trend_diff), rnorm(N_never, mean=0)), each=Time)
+  time_fe <- rep(as.numeric(arima.sim(model=list(ar=0.8), n=Time)), N)
   if(length(timing_treatment)==1) {
     starts <- rep(timing_treatment, N_treat)
   } else {
