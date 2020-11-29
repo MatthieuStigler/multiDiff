@@ -5,8 +5,9 @@ Date: 2020-05-03
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",
-           role = c("aut", "cre"),
-           email = "Matthieu.Stigler@gmail.com")
+           role = c("aut", "cre", "cph"),
+           email = "Matthieu.Stigler@gmail.com",
+           comment =c(ORCID="0000-0002-6802-4290"))
 Description: What the package does (one paragraph).
 License: MIT + file LICENSE
 Encoding: UTF-8
