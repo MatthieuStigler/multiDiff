@@ -157,14 +157,14 @@ if(FALSE){
                              data = filter(GentzkowData2, n_state_year>1))
   reg_FE_lfe
 
-  ## by Time
-  coefs_by_Y <- FE_decompo(data=GentzkowData2,
+  ## FE1 time
+  coefs_by_Y <- FE_decompo_old(data=GentzkowData2,
                            y_var="prestout",
                            time.index = "year",
                            treat = "treat",
                            unit.index="cnty90",
                            by = "time")
-  coefs_by_Y_new <- FE_decompo_new(data=GentzkowData2,
+  coefs_by_Y_new <- FE_decompo(data=GentzkowData2,
                            y_var="prestout",
                            time.index = "year",
                            treat = "treat",
@@ -177,8 +177,8 @@ if(FALSE){
   intrnl_check(coefs_by_Y, reg_FE1_time)
   intrnl_check(coefs_by_Y_new, reg_FE1_time)
 
-  ## By unit
-  coefs_by_unit <- FE_decompo_new(data=GentzkowData2,
+  ## FE1 unit
+  coefs_by_unit <- FE_decompo(data=GentzkowData2,
                                    y_var="prestout",
                                    time.index = "year",
                                    treat = "treat",
@@ -187,9 +187,9 @@ if(FALSE){
                                   fixed_effects = "unit")
   intrnl_check(coefs_by_unit, reg_FE1_unit)
 
-  ## by time
+  ## FE2
   coefs_by_Y_FE2 <- GentzkowData2 %>%
-    FE_decompo_new(y_var="prestout",
+    FE_decompo(y_var="prestout",
                time.index = "year",
                treat = "treat",
                unit.index="cnty90",
@@ -197,7 +197,7 @@ if(FALSE){
                by = "year")
 
   coefs_by_N_FE2 <- GentzkowData2 %>%
-    FE_decompo_new(y_var="prestout",
+    FE_decompo(y_var="prestout",
                    time.index = "year",
                    treat = "treat",
                    unit.index="cnty90",
@@ -206,11 +206,16 @@ if(FALSE){
 
   intrnl_check(coefs_by_Y_FE2, reg_FE2)
   intrnl_check(coefs_by_N_FE2, reg_FE2)
+  all.equal(with(coefs_by_Y_FE2, weighted.mean(treat_coef, treat_weight)),
+            with(coefs_by_N_FE2, weighted.mean(treat_coef, treat_weight)))
+
+  ## estim 1 to compare
+
 
   ## higher FEs? Yes for 1!
   coefs_by_YS_FE2 <- GentzkowData2 %>%
     # filter(n_state_year>1) %>%
-    FE_decompo_new(y_var="prestout",
+    FE_decompo(y_var="prestout",
                    time.index = "year",
                    treat = "treat",
                    unit.index="cnty90",
