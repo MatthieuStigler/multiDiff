@@ -144,6 +144,10 @@ coefs_by <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.in
 }
 
 
+################################
+#'## Internal tests
+################################
+
 if(FALSE){
   intrnl_ave <-  function(df) with(df, weighted.mean(treat_coef, treat_weight))
   intrnl_check <-  function(df, reg) {
@@ -229,9 +233,8 @@ if(FALSE){
 
   intrnl_check(coefs_by_Y_FE2, reg_FE2)
   intrnl_check(coefs_by_N_FE2, reg_FE2)
-  all.equal(with(coefs_by_Y_FE2, weighted.mean(treat_coef, treat_weight)),
-            with(coefs_by_N_FE2, weighted.mean(treat_coef, treat_weight)))
-
+  all.equal(intrnl_ave(coefs_by_Y_FE2),
+            intrnl_ave(coefs_by_N_FE2))
 
 
   ## higher FEs? Yes for 1!
@@ -252,10 +255,8 @@ if(FALSE){
     group_by(state) %>%
     summarise(beta_mean= weighted.mean(treat_coef, w=treat_weight),
               weight_sum=sum(treat_weight))
-  co_FE2_unit_toS %>%
-    left_join(coefs_by_S_FE2 %>%
-                select(state, treat_coef, treat_weight))
-
+  all.equal(co_FE2_unit_toS$beta_mean, coefs_by_S_FE2$treat_coef)
+  all.equal(co_FE2_unit_toS$weight_sum, coefs_by_S_FE2$treat_weight)
 
   ## by 2? not equal!!
   coefs_by_YS_FE2 <- GentzkowData2 %>%
