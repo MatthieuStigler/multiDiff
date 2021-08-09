@@ -96,6 +96,7 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
 
 #'@param perc_never,perc_always,perc_treat \emph{Staggered:} Percentage of (during-sample) treated, never and always
 #'@param timing_treatment \emph{Staggered:} In what periods can treatment start?
+#'@param trend_diff differential trend
 #'@rdname sim_dat
 #'@export
 sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL,

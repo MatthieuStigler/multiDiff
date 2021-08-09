@@ -48,6 +48,8 @@ while the standard beta will apply for values currently treated.}
 \item{perc_never, perc_always, perc_treat}{\emph{Staggered:} Percentage of (during-sample) treated, never and always}
 
 \item{timing_treatment}{\emph{Staggered:} In what periods can treatment start?}
+
+\item{trend_diff}{differential trend}
 }
 \description{
 \subsection{NEW}{
