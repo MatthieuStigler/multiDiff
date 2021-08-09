@@ -10,7 +10,7 @@ lag_group(
   value_var,
   time_var,
   lagamount = 1,
-  complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by = 1),
+  complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by = 1L),
   default = NA
 )
 }

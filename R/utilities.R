@@ -162,7 +162,7 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #'
 #' lag_group(df_test[-4,], "group", time_var="year", lagamount = 1:2, value_var = c("value", "value2"))
 lag_group <- function(df, group_var, value_var, time_var,
-                      lagamount=1, complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by=1),
+                      lagamount=1, complete_time = seq(min(df[[time_var]]), max(df[[time_var]]), by=1L),
                       default = NA) {
 
   ## complete
