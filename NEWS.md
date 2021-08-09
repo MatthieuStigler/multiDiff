@@ -1,5 +1,7 @@
 # multiDiff (development version)
 
+* Fix integer issue with `lag_group` (issue #10)
+
 # multiDiff 0.1.1
 
 * New function `FE_decompo()`: Gibbons et al. weights for fixed effects.
