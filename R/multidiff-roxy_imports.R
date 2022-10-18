@@ -21,7 +21,7 @@ NULL
 #'@importFrom data.table setDT shift .SD setDF setattr
 NULL
 
-#' @importFrom stats arima.sim as.formula rbinom rnorm weighted.mean residuals
+#' @importFrom stats arima.sim as.formula rbinom rnorm weighted.mean residuals coef
 NULL
 
 #' @importFrom lfe felm

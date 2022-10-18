@@ -22,19 +22,19 @@
 #'                time.index=Time, cluster = "unit")
 #'
 #'@export
-test_pre_trend <- function(data, treat.group.index, time.index, y_var = y,
+test_pre_trend <- function(data, treat.group.index, time.index, y_var = "y",
                            cluster=NULL){
 
   ## prep data
   dat_prep <- data %>%
     rename(treat_here ={{treat.group.index}},
            year_here = {{time.index}},
-           "y"= {{y_var}}) %>%
+           y= {{y_var}}) %>%
     mutate(treat_here =as.factor(.data$treat_here),
            year_here = as.factor(.data$year_here))
 
   ##
-  reg_out <- fixest::feols(as.formula("y~ -1+year_here:treat_here"),
+  reg_out <- fixest::feols(y~ -1+year_here:treat_here,
                            cluster = cluster,
                            data=dat_prep)
 
