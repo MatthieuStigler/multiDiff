@@ -1,47 +1,101 @@
-test_pre_trend <- function(df, treat_var, year_var, cluster=NULL){
+#' Conduct parallel pre-trends test
+#'
+#' @param data data-frame, containing only pre-intervention values
+#' @param treat.group.index the variable in `data` containing the post-intervention treatment status
+#' @template param_y_var
+#' @template param_time.index
+#' @param cluster argument passed to `feols(..., cluster=)`
+#'
+#' @examples
+#'
+#' data <- multiDiff::sim_dat_staggered(N=100, perc_always = 0, Time=10,
+#'                                      timing_treatment = 6, perc_treat=0.5)
+#'  library(tidyverse, warn.conflicts = FALSE)
+#'  data_modif <- data %>%
+#'    group_by(unit) %>%
+#'    mutate(type = if_else(any(tr==1), "Treat", "Control")) %>%
+#'    ungroup() %>%
+#'    select(y, type, Time, unit)
+#'
+#' #
+#' test_pre_trend(data_modif, treat.group.index=type,
+#'                time.index=Time, cluster = "unit")
+#'
+#'@export
+test_pre_trend <- function(data, treat.group.index, time.index, y_var = y,
+                           cluster=NULL){
 
   ## prep data
-  dat_prep <- df %>%
-    rename(treat_here ={{treat_var}},
-           year_here = {{year_var}}) %>%
-    mutate(treat_here =as.factor(treat_here),
-           year_here = as.factor(year_here))
+  dat_prep <- data %>%
+    rename(treat_here ={{treat.group.index}},
+           year_here = {{time.index}},
+           "y"= {{y_var}}) %>%
+    mutate(treat_here =as.factor(.data$treat_here),
+           year_here = as.factor(.data$year_here))
 
   ##
-  reg_out <- feols(y~ -1+treat_here:year_here,
-                   cluster = cluster,
-                   data=dat_prep)
+  reg_out <- fixest::feols(as.formula("y~ -1+year_here:treat_here"),
+                           cluster = cluster,
+                           data=dat_prep)
 
   nam <- names(coef(reg_out))
-  nam_split <- str_split(nam, ":")
-  if(!all(map_int(nam_split, length)==2)) stop("Problem with names... contains a `:`?")
   K <- length(nam)
-  co_tab <- tibble(co=nam, first = map_chr(nam_split, 1), sec=map_chr(nam_split, 2))
-  co_tab %>%
-    pread()
-  treat_status <- str_extract(nam, "treat_here.+(?=:)")
 
-  H_which <- which(str_detect(nam, "TRUE"))
-  treat_status
-  H1_char <- paste(paste(nam[H_which], collapse = " + "), "=0")
-  H2_char <- paste(nam[H_which], "=0")
+  ## H1: individual tests
+  H1_char <- sapply(1:(K/2), \(i) paste(nam[c(i,i+K/2)], collapse =" = "))
+  ## check
+  nam_check_1 <- purrr::map(stringr::str_split(H1_char, " = "), \(str) lapply(stringr::str_split(str, ":"), \(i) i[[1]]) %>% unlist())
+  if(!all(map_int(nam_check_1, dplyr::n_distinct)==1)) {
+    stop("Problem with creating hypo H1, vector is: ", H1_char[1])
+  }
 
-  test_sum <- linearHypothesis(reg_out, hypothesis.matrix = H1_char)
-  test_indiv <- linearHypothesis(reg_out, hypothesis.matrix = H2_char)
+  ## H2: join tests
+  H2_char <- str_replace(H1_char, " = ", " - ") %>%
+    paste(collapse = " + ") %>%
+    paste("=0")
+
+  test_joint_or <- car::linearHypothesis(reg_out, hypothesis.matrix = H1_char)
+  test_joint_and <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
+  test_indiv <- purrr::map_dfr(H1_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%
+                          broom::tidy())
 
   ## assemble
-  rbind(test_sum %>% tidy() %>%
-          distinct(statistic, p.value),
-        test_indiv %>% tidy() %>%
-          distinct(statistic, p.value)) %>%
-    mutate(test = c("sum", "indiv")) %>%
-    relocate(test)
+  rbind(test_joint_or %>% broom::tidy() %>%
+          distinct(.data$statistic, .data$p.value) %>%
+          mutate(term = paste(H1_char, collapse = " OR ")),
+        test_joint_and %>% broom::tidy() %>%
+          distinct(.data$statistic, .data$p.value) %>%
+          mutate(term = H2_char),
+        test_indiv %>%
+          distinct(.data$term, .data$statistic, .data$p.value)) %>%
+    mutate(test = c("test_joint_or", "test_joint_and", rep("test_indiv", nrow(test_indiv)))) %>%
+    dplyr::relocate(.data$test)
 }
 
 if(FALSE){
+
+  ##
+  Year <- rep(1:10, times=400)
+  Group <- rep(c("Control", "Treat"), each = 2000)
+
+  set.seed(123)
+  y_same <- as.numeric(as.factor(Year))+
+    rnorm(length(Group))
+  y_diff <- y_same   +
+    ifelse(Year==5 & Group =="Treat",rnorm(mean=0.5, length(Group)),0)
+
+  df <- data.frame(Year, Group, y_same, y_diff)
+
+  ##
+  test_pre_trend(data=df, treat.group.index = Group, time.index = Year,
+                 y_var = y_same)
+  test_pre_trend(data=df, treat.group.index = Group, time.index = Year,
+                 y_var = y_diff)
+
   library(fixest)
   library(tidyverse)
-  data <- sim_dat_staggered(N=100, perc_always = 0, Time=10,
+
+  data <- multiDiff::sim_dat_staggered(N=100, perc_always = 0, Time=10,
                             timing_treatment = 6, perc_treat=0.5)
   data %>%
     count(Time, tr) %>%
@@ -78,7 +132,7 @@ if(FALSE){
 
 
   ### Full
-  treat_var = quo(type)
-  year_var <- quo(Time)
-  test_pre_trend(df=data_modif, )
+  treat.group.index = quo(type)
+  time.index <- quo(Time)
+  test_pre_trend(df=data_modif, cluster=NULL)
 }
