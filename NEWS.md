@@ -1,5 +1,9 @@
 # multiDiff (development version)
 
+
+# multiDiff 0.1.2
+
+* Add function `test_pre_trend` to test for parallel trends
 * Fix integer issue with `lag_group` (issue #10)
 
 # multiDiff 0.1.1
