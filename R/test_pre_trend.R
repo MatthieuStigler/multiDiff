@@ -41,7 +41,7 @@ test_pre_trend <- function(df, treat_var, year_var, cluster=NULL){
 if(FALSE){
   library(fixest)
   library(tidyverse)
-  data <- sim_dat_staggered(N=100, perc_always = 0, Time=10,
+  data <- multiDiff::sim_dat_staggered(N=100, perc_always = 0, Time=10,
                             timing_treatment = 6, perc_treat=0.5)
   data %>%
     count(Time, tr) %>%
@@ -76,6 +76,10 @@ if(FALSE){
   ## Full means
   lm(y~-1+time_fac:type, data=data_modif)
 
+  ## aov?
+  ao <- aov(y~time_fac+type, data=data_modif)
+  summary(aov(y~time_fac:type, data=data_modif))
+  TukeyHSD(ao, which = "time_fac")
 
   ### Full
   treat_var = quo(type)
