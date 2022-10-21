@@ -315,12 +315,12 @@ intrnl_dat_rename <- function(data, y_var="y", time.index = "Time", treat = "tr"
 }
 
 #' Add category
-intrnl_add_treat_status <- function(data, treat = "tr", unit.index="unit"){
+intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit"){
                                     # y_var="y", time.index = "Time"
 
   data %>%
-    group_by({{unit.index}}) %>%
-    mutate(treat_categ = if_else(any({{treat}}==1), "Treat", "Control")) %>%
+    group_by(unit.index) %>%
+    mutate(treat_categ = if_else(any(treat==1), "Treat", "Control")) %>%
     ungroup()
 }
 
