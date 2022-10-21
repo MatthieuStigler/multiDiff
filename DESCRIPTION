@@ -1,19 +1,19 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.1.1.9001
-Date: 2021-08-09
+Version: 0.1.2
+Date: 2022-10-18
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",
            role = c("aut", "cre", "cph"),
            email = "Matthieu.Stigler@gmail.com",
            comment =c(ORCID="0000-0002-6802-4290"))
-Description: What the package does (one paragraph).
+Description: Run various diff-diff estimators, including FE decompositions by Gibbons et al
 License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.1.1
+RoxygenNote: 7.2.1
 Imports: 
     tidyr,
     broom,
@@ -28,7 +28,9 @@ Imports:
     tidyselect,
     data.table,
     collapse,
-    lifecycle
+    lifecycle,
+    car,
+    fixest
 Suggests: 
     tidyverse
 Depends: 

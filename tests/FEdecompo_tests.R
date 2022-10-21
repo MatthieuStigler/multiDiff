@@ -10,7 +10,7 @@ data_sim <- sim_dat(N=500, Time = 15) %>%
   mutate(state = cut(unit, 10,
                      labels = paste("state", letters[1:10], sep = "_"))) %>%
   group_by(unit) %>%
-  sample_n(size = sample(c(14, 15))) %>%
+  sample_n(size = 14) %>%
   ungroup() %>%
   mutate(x = rnorm(n()))
 
