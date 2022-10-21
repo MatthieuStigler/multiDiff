@@ -308,10 +308,10 @@ all.equal(res1 %>% as.data.frame(), res2 %>%  as.data.frame())
 intrnl_dat_rename <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
 
   data %>%
-    rename(treat ={{treat}},
-           time.index = {{time.index}},
-           unit.index = {{unit.index}},
-           y_var = {{y_var}})
+    dplyr::rename("treat" ={{treat}},
+                  "time.index" = {{time.index}},
+                  "unit.index" = {{unit.index}},
+                  "y_var" = {{y_var}})
 }
 
 #' Add category
@@ -323,6 +323,16 @@ intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit")
     mutate(treat_categ = if_else(any(treat==1), "Treat", "Control")) %>%
     ungroup()
 }
+
+intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"){
+  # y_var="y", time.index = "Time"
+
+  data %>%
+    group_by(unit.index) %>%
+    mutate(treat_categ = if_else(any(treat==1), "Treat", "Control")) %>%
+    ungroup()
+}
+
 
 #' Add category
 intrnl_add_treat_time <- function(data){
@@ -341,6 +351,18 @@ first_1 <- function(x) {
   res
 }
 
+x_time_to_treat <- function(x, trim_low= NULL, trim_high=NULL) {
+  w <- which(x==1)
+  if(length(w)>0) {
+    res <- seq_along(x)-w[1]
+    if(!is.null(trim_low)) res[res<trim_low] <- trim_low # or pmax(res, trim_low)
+    if(!is.null(trim_high)) res[res>trim_high] <- trim_high # or pmin(res, trim_high)
+  } else {
+    res <- rep(0, length(x))
+  }
+  res
+}
+
 if(FALSE){
   dt <- tibble(unit = rep(c("A", "B"), each=3),
                tr = c(0,0,0, 0,1,1), Time =NA, y=NA)
@@ -348,4 +370,13 @@ if(FALSE){
   dt %>%
     intrnl_dat_rename() %>%
     intrnl_add_treat_time()
+
+  x_time_to_treat(rep(0,5))
+  x_time_to_treat(rep(1,5))
+  x_time_to_treat(c(0,0, 1,0,0))
+
+  ## trim
+  x_time_to_treat(c(0,0, 0, 1,0,0, 0))
+  x_time_to_treat(c(0,0, 0, 1,0,0, 0), trim_low = -2, trim_high = 2)
+
 }
