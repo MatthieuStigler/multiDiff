@@ -33,7 +33,7 @@ NULL
 #' @importFrom utils head tail
 NULL
 
-#' @importFrom rlang .data := enquo enquos sym quo ensym
+#' @importFrom rlang .data := enquo enquos sym quo ensym as_name
 NULL
 
 #' @importFrom stringr str_extract str_replace str_replace_all str_detect str_remove

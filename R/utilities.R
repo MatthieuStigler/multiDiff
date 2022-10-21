@@ -299,3 +299,53 @@ all.equal(res1 %>% as.data.frame(), res2 %>%  as.data.frame())
 
 
 }
+
+################################
+#'## Smal utilities add group etc
+################################
+
+#' rename/format data
+intrnl_dat_rename <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
+
+  data %>%
+    rename(treat ={{treat}},
+           time.index = {{time.index}},
+           unit.index = {{unit.index}},
+           y_var = {{y_var}})
+}
+
+#' Add category
+intrnl_add_treat_status <- function(data, treat = "tr", unit.index="unit"){
+                                    # y_var="y", time.index = "Time"
+
+  data %>%
+    group_by({{unit.index}}) %>%
+    mutate(treat_categ = if_else(any({{treat}}==1), "Treat", "Control")) %>%
+    ungroup()
+}
+
+#' Add category
+intrnl_add_treat_time <- function(data){
+  data %>%
+    group_by(unit.index) %>%
+    mutate(treat_timing = first_1(treat)) %>%
+    ungroup()
+}
+
+first_1 <- function(x) {
+  w <- which(x==1)
+  res <- rep(0, length(x))
+  if(length(w)>0) {
+    res[w[1]] <- 1
+  }
+  res
+}
+
+if(FALSE){
+  dt <- tibble(unit = rep(c("A", "B"), each=3),
+               tr = c(0,0,0, 0,1,1), Time =NA, y=NA)
+  first_1(x=dt$tr)
+  dt %>%
+    intrnl_dat_rename() %>%
+    intrnl_add_treat_time()
+}
