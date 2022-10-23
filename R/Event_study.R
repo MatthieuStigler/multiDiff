@@ -1,7 +1,7 @@
 #' Estimate simple did
 #'
 #' @template param_all
-DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
+mdd_mdd_DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
   formu <- paste0(rlang::as_name(y_var), " ~ ",
                   rlang::as_name(treat), " | ",
                   rlang::as_name(time.index), " + ",
@@ -26,7 +26,7 @@ add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index=
 
 
 #' Event study
-dd_event <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+mdd_event_study_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                       lag = 3, trim_low=NULL, trim_high=NULL){
 
   # y_var=quo(y)
@@ -86,12 +86,15 @@ dd_event <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.i
 
 if(FALSE){
   library(multiDiff)
+  source("R/utilities.R")
   library(tidyverse)
 
   DID_dat <- multiDiff::sim_dat_staggered(N=5000, perc_always = 0,
                                           Time=8,
                                           beta=1.1,
                                           timing_treatment = 6, perc_treat=0.5)
+
+  ## Manu means
   means_manu <- DID_dat %>%
     intrnl_dat_rename() %>%
     intrnl_add_treat_status() %>%
@@ -101,14 +104,29 @@ if(FALSE){
     mutate(diff=Treat-Control)
 
   means_manu
-  diff(means_manu[c(3,4), "diff", drop=TRUE])
-  coef(DD_simple(data=DID_dat %>% filter(Time %in% c(3, 4))))
-  DD_simple(DID_dat)
 
-  dd_event(data=DID_dat) %>%
-    summary()
+  ## Did simple full
+  coef(mdd_DD_simple(DID_dat))
 
-  dd_event(data=DID_dat)
-  dd_event(data=DID_dat, trim_high = 0)
-  dd_event(data=DID_dat, trim_high = 0, trim_low = -3)
+  ## Did simple: only 2Y
+  diff(means_manu[c(5,6), "diff", drop=TRUE])
+  coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6))))
+
+  ## event
+  ES <- mdd_event_study(data=DID_dat)
+  summary(ES)
+
+  ## Those are numerically equal to diff-diffs!
+  all.equal(coef(ES),
+            (means_manu[, "diff", drop=TRUE]-means_manu[c(5), "diff", drop=TRUE])[-5], check.attributes=FALSE)
+
+
+  all.equal(coef(ES)["timing_to_treat0"],
+            coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6)))), check.attributes=FALSE)
+
+
+  mdd_event_study(data=DID_dat)
+  mdd_event_study(data=DID_dat, trim_high = 1)
+  mdd_event_study(data=DID_dat, trim_high = 0)
+  mdd_event_study(data=DID_dat, trim_high = 0, trim_low = -3)
 }
