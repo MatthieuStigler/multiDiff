@@ -305,6 +305,7 @@ all.equal(res1 %>% as.data.frame(), res2 %>%  as.data.frame())
 ################################
 
 #' rename/format data
+#' @noRd
 intrnl_dat_rename <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
 
   data %>%
@@ -315,6 +316,7 @@ intrnl_dat_rename <- function(data, y_var="y", time.index = "Time", treat = "tr"
 }
 
 #' Add category
+#' @noRd
 intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit"){
                                     # y_var="y", time.index = "Time"
 
@@ -324,6 +326,7 @@ intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit")
     ungroup()
 }
 
+#' @noRd
 intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"){
   # y_var="y", time.index = "Time"
 
@@ -335,6 +338,7 @@ intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"
 
 
 #' Add category
+#' @noRd
 intrnl_add_treat_time <- function(data){
   data %>%
     group_by(unit.index) %>%

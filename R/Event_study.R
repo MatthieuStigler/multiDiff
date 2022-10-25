@@ -26,8 +26,11 @@ add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index=
 
 
 #' Event study
+#'
+#' @template param_all
+#' @param trim_low,trim_high Upper/lower bound on parameters to include
 mdd_event_study_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                      lag = 3, trim_low=NULL, trim_high=NULL){
+                                   trim_low=NULL, trim_high=NULL){
 
   # y_var=quo(y)
   # time.index = quo(Time)
@@ -43,16 +46,16 @@ mdd_event_study_study <-  function(data, y_var="y", time.index = "Time", treat =
 
   ## Prep leads and lags
   T_after <-  dat_renamed %>% distinct(time.index, treat) %>%
-    pivot_wider(names_from = "treat", values_from = "treat", names_prefix = "status_") %>%
+    tidyr::pivot_wider(names_from = "treat", values_from = "treat", names_prefix = "status_") %>%
     arrange(time.index)
-  first_treat <- filter(T_after, status_1==1)[1,"time.index", drop=TRUE]
+  first_treat <- filter(T_after, .data$status_1==1)[1,"time.index", drop=TRUE]
   K_after <- sum(T_after$time.index>first_treat)
   K_before <- sum(T_after$time.index<first_treat)
 
 
   ## add leads and lags
   # lags <- c(-2,1, 2)
-  lags <- seq(-1*K_before, K_after, by=1) %>% discard(~.%in% c(0, -1))
+  lags <- seq(-1*K_before, K_after, by=1) %>% purrr::discard(~.%in% c(0, -1))
 
   ## way A: leads and lags
   # data_aug <- dat_renamed |>
@@ -73,7 +76,7 @@ mdd_event_study_study <-  function(data, y_var="y", time.index = "Time", treat =
     group_by(unit.index) %>%
     mutate(timing_to_treat = x_time_to_treat(treat, trim_low=trim_low, trim_high=trim_high)) %>%
     ungroup() %>%
-    mutate(timing_to_treat =  fct_relevel(factor(timing_to_treat), "-1"))
+    mutate(timing_to_treat =  forcats::fct_relevel(factor(.data$timing_to_treat), "-1"))
 
 
   ## factor way
