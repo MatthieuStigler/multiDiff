@@ -27,6 +27,9 @@ NULL
 #' @importFrom lfe felm
 NULL
 
+#' @importFrom forcats fct_relevel
+NULL
+
 #' @importFrom purrr map map2 map_int map_dbl
 NULL
 
