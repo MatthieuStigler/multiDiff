@@ -29,7 +29,9 @@ add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index=
 #'
 #' @template param_all
 #' @param trim_low,trim_high Upper/lower bound on parameters to include
-mdd_event_study_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+#'
+#' @export
+mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                                    trim_low=NULL, trim_high=NULL){
 
   # y_var=quo(y)
