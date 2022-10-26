@@ -29,10 +29,10 @@ add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index=
 #'
 #' @template param_all
 #' @param trim_low,trim_high Upper/lower bound on parameters to include
-#'
+#' @param time.omit Which is the base year omitted in the analysis?
 #' @export
 mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                                   trim_low=NULL, trim_high=NULL){
+                                   trim_low=NULL, trim_high=NULL, time.omit = -1 ){
 
   # y_var=quo(y)
   # time.index = quo(Time)
@@ -78,7 +78,7 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
     group_by(unit.index) %>%
     mutate(timing_to_treat = x_time_to_treat(treat, trim_low=trim_low, trim_high=trim_high)) %>%
     ungroup() %>%
-    mutate(timing_to_treat =  forcats::fct_relevel(factor(.data$timing_to_treat), "-1"))
+    mutate(timing_to_treat =  forcats::fct_relevel(factor(.data$timing_to_treat), as.character(time.omit)))
 
 
   ## factor way
