@@ -1,5 +1,9 @@
 # multiDiff (development version)
 
+# multiDiff 0.1.3
+
+* Add function `mdd_DD_simple`
+* Add function `mdd_event_study`
 
 # multiDiff 0.1.2
 

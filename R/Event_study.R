@@ -1,7 +1,8 @@
 #' Estimate simple did
 #'
 #' @template param_all
-mdd_mdd_DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
+#' @export
+mdd_DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
   formu <- paste0(rlang::as_name(y_var), " ~ ",
                   rlang::as_name(treat), " | ",
                   rlang::as_name(time.index), " + ",

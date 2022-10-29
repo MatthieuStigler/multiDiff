@@ -11,7 +11,8 @@ mdd_event_study(
   treat = "tr",
   unit.index = "unit",
   trim_low = NULL,
-  trim_high = NULL
+  trim_high = NULL,
+  time.omit = -1
 )
 }
 \arguments{
@@ -27,6 +28,8 @@ mdd_event_study(
 \item{unit.index}{The name of the units (individual, county, household, etc).}
 
 \item{trim_low, trim_high}{Upper/lower bound on parameters to include}
+
+\item{time.omit}{Which is the base year omitted in the analysis?}
 }
 \description{
 Event study
