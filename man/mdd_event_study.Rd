@@ -12,7 +12,8 @@ mdd_event_study(
   unit.index = "unit",
   trim_low = NULL,
   trim_high = NULL,
-  time.omit = -1
+  time.omit = -1,
+  weights = NULL
 )
 }
 \arguments{
@@ -30,6 +31,8 @@ mdd_event_study(
 \item{trim_low, trim_high}{Upper/lower bound on parameters to include}
 
 \item{time.omit}{Which is the base year omitted in the analysis?}
+
+\item{weights}{Variable containing the weights}
 }
 \description{
 Event study

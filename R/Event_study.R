@@ -31,9 +31,10 @@ add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index=
 #' @template param_all
 #' @param trim_low,trim_high Upper/lower bound on parameters to include
 #' @param time.omit Which is the base year omitted in the analysis?
+#' @param weights Variable containing the weights
 #' @export
 mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                                   trim_low=NULL, trim_high=NULL, time.omit = -1 ){
+                                   trim_low=NULL, trim_high=NULL, time.omit = -1, weights=NULL){
 
   # y_var=quo(y)
   # time.index = quo(Time)
@@ -86,7 +87,7 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   formu <- "y_var ~ timing_to_treat |time.index+  unit.index"
 
   ### lead/lag way
-  lfe::felm(as.formula(formu), data =data_aug)
+  lfe::felm(as.formula(formu), data =data_aug, weights = weights)
 }
 
 
@@ -135,4 +136,8 @@ if(FALSE){
   mdd_event_study(data=DID_dat, trim_high = 1)
   mdd_event_study(data=DID_dat, trim_high = 0)
   mdd_event_study(data=DID_dat, trim_high = 0, trim_low = -3)
+
+  ## weights
+  all.equal(mdd_event_study(data=DID_dat, weights = rep(c(0, 1), c(8, nrow(DID_dat)-8))) %>% coef(),
+            mdd_event_study(data=DID_dat %>% tail(-8)) %>% coef())
 }
