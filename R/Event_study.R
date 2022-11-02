@@ -80,16 +80,40 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
     group_by(unit.index) %>%
     mutate(timing_to_treat = x_time_to_treat(treat, trim_low=trim_low, trim_high=trim_high)) %>%
     ungroup() %>%
-    mutate(timing_to_treat =  forcats::fct_relevel(factor(.data$timing_to_treat), as.character(time.omit)))
+    mutate(timing_to_treat =  relevel(factor(.data$timing_to_treat), as.character(time.omit)))
 
 
   ## factor way
   formu <- "y_var ~ timing_to_treat |time.index+  unit.index"
 
   ### lead/lag way
-  lfe::felm(as.formula(formu), data =data_aug, weights = weights)
+  res <- lfe::felm(as.formula(formu), data =data_aug, weights = weights)
+  class(res) <- c("event_study", class(res))
+  res$event_slot <- list(time.omit=time.omit)
+  res
 }
 
+#'
+#' @param x the ES object
+#' @param ... currently not used
+#' @rdname mdd_event_study
+#' @export
+plot.event_study <- function(x, ...){
+
+  ## construct data
+  coef_df <- broom::tidy(x, conf.int=TRUE) %>%
+    tibble::add_row(term = paste0("timing_to_treat", x$event_slot$time.omit),
+            estimate=0,
+            conf.low=0, conf.high=0) %>%
+    mutate(time = str_extract(.data$term, "-?[0-9]+") %>% as.integer)
+
+  coef_df %>%
+    ggplot(aes(x=.data$time, y=.data$estimate))+
+    ggplot2::geom_ribbon(aes(ymin=.data$conf.low, ymax=.data$conf.high),
+                color="grey", alpha=0.8)+
+    ggplot2::geom_point()
+
+}
 
 if(FALSE){
   library(multiDiff)
@@ -121,7 +145,9 @@ if(FALSE){
 
   ## event
   ES <- mdd_event_study(data=DID_dat)
+  ES <- mdd_event_study(data=DID_dat, time.omit = -2)
   summary(ES)
+  plot.event_study(ES)
 
   ## Those are numerically equal to diff-diffs!
   all.equal(coef(ES),

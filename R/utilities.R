@@ -321,8 +321,8 @@ intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit")
                                     # y_var="y", time.index = "Time"
 
   data %>%
-    group_by(unit.index) %>%
-    mutate(treat_categ = if_else(any(treat==1), "Treat", "Control")) %>%
+    group_by(.data$unit.index) %>%
+    mutate(treat_categ = if_else(any(.data$treat==1), "Treat", "Control")) %>%
     ungroup()
 }
 
@@ -331,8 +331,8 @@ intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"
   # y_var="y", time.index = "Time"
 
   data %>%
-    group_by(unit.index) %>%
-    mutate(treat_categ = if_else(any(treat==1), "Treat", "Control")) %>%
+    group_by(.data$unit.index) %>%
+    mutate(treat_categ = if_else(any(.data$treat==1), "Treat", "Control")) %>%
     ungroup()
 }
 
@@ -341,8 +341,8 @@ intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"
 #' @noRd
 intrnl_add_treat_time <- function(data){
   data %>%
-    group_by(unit.index) %>%
-    mutate(treat_timing = first_1(treat)) %>%
+    group_by(.data$unit.index) %>%
+    mutate(treat_timing = first_1(.data$treat)) %>%
     ungroup()
 }
 

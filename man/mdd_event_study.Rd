@@ -2,6 +2,7 @@
 % Please edit documentation in R/Event_study.R
 \name{mdd_event_study}
 \alias{mdd_event_study}
+\alias{plot.event_study}
 \title{Event study}
 \usage{
 mdd_event_study(
@@ -15,6 +16,8 @@ mdd_event_study(
   time.omit = -1,
   weights = NULL
 )
+
+\method{plot}{event_study}(x, ...)
 }
 \arguments{
 \item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
@@ -33,6 +36,10 @@ mdd_event_study(
 \item{time.omit}{Which is the base year omitted in the analysis?}
 
 \item{weights}{Variable containing the weights}
+
+\item{x}{the ES object}
+
+\item{...}{currently not used}
 }
 \description{
 Event study

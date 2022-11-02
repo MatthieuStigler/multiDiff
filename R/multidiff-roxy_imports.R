@@ -21,13 +21,10 @@ NULL
 #'@importFrom data.table setDT shift .SD setDF setattr
 NULL
 
-#' @importFrom stats arima.sim as.formula rbinom rnorm weighted.mean residuals coef
+#' @importFrom stats arima.sim as.formula rbinom rnorm weighted.mean residuals coef relevel
 NULL
 
 #' @importFrom lfe felm
-NULL
-
-#' @importFrom forcats fct_relevel
 NULL
 
 #' @importFrom purrr map map2 map_int map_dbl
