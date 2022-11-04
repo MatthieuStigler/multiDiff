@@ -136,7 +136,7 @@ sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL
 
   timings_all <- timings %>%
     mutate(treat = map(.data$timing_treat, ~fill_here(., Time))) %>%
-    unnest(.data$treat)
+    unnest("treat")
 
   ## Data
   tibble(unit = rep(1:N, each=Time),
@@ -145,7 +145,7 @@ sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL
          time_fe = time_fe,
          error = rnorm(N*Time)) %>%
     dplyr::full_join(timings_all, by = c("unit", "Time")) %>%
-    select(.data$unit, .data$type, .data$timing_treat, .data$Time, tidyselect::everything()) %>%
+    relocate("unit", "type", "timing_treat", "Time") %>%
     mutate(y = beta* .data$tr + gamma* .data$length_treat + .data$unit_fe + .data$time_fe + .data$error)
 }
 

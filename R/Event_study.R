@@ -145,9 +145,9 @@ if(FALSE){
 
   ## event
   ES <- mdd_event_study(data=DID_dat)
-  ES <- mdd_event_study(data=DID_dat, time.omit = -2)
+  ES <- mdd_event_study(data=DID_dat, time.omit = 2)
   summary(ES)
-  plot.event_study(ES)
+  plot(ES)
 
   ## Those are numerically equal to diff-diffs!
   all.equal(coef(ES),

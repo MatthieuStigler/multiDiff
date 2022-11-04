@@ -32,7 +32,9 @@ Imports:
     car,
     fixest
 Suggests: 
+    testthat (>= 3.0.0),
     tidyverse
 Depends: 
     R (>= 2.10)
 RdMacros: lifecycle
+Config/testthat/edition: 3

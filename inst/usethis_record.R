@@ -43,6 +43,9 @@ use_readme_md()
 
 use_git()
 
+## testthat
+usethis::use_testthat(3)
+
 ## version change
 # use_version(which = NULL)
 # use_dev_version()

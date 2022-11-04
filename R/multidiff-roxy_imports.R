@@ -2,7 +2,7 @@ globalVariables(c("n", ".", "value"))
 
 #' @importFrom magrittr "%>%"
 NULL
-#' @importFrom dplyr mutate arrange select mutate_at bind_cols bind_rows filter rename count filter_at all_vars
+#' @importFrom dplyr mutate arrange select relocate mutate_at bind_cols bind_rows filter rename count filter_at all_vars
 NULL
 #' @importFrom dplyr group_by ungroup summarise summarise_all desc pull funs vars left_join inner_join n if_else distinct
 NULL
