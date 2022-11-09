@@ -2,11 +2,9 @@
 % Please edit documentation in R/dat_sim.R
 \name{sim_dat}
 \alias{sim_dat}
+\alias{sim_dat_common}
 \alias{sim_dat_staggered}
-\title{\subsection{NEW}{
-
-Simulate data
-}}
+\title{Simulate data}
 \usage{
 sim_dat(
   N = 1000,
@@ -15,6 +13,15 @@ sim_dat(
   gamma = 0.7,
   seed = NULL,
   prob_treat = 0.25
+)
+
+sim_dat_common(
+  N = 1000,
+  Time = 10,
+  timing_treatment = 2:Time,
+  beta = 1,
+  seed = NULL,
+  perc_treat = 0.25
 )
 
 sim_dat_staggered(
@@ -45,20 +52,18 @@ while the standard beta will apply for values currently treated.}
 
 \item{prob_treat}{Probability of treatment}
 
-\item{perc_never, perc_always, perc_treat}{\emph{Staggered:} Percentage of (during-sample) treated, never and always}
-
 \item{timing_treatment}{\emph{Staggered:} In what periods can treatment start?}
+
+\item{perc_never, perc_always, perc_treat}{\emph{Staggered:} Percentage of (during-sample) treated, never and always}
 
 \item{trend_diff}{differential trend}
 }
 \description{
-\subsection{NEW}{
-
-Simulate data
-}
+Simulates data with common treatment date (\code{sim_dat_common}), staggered date (\code{sim_staggered}) or
+reversible treatment, i.e. units might loose their treatment status (\code{sim_dat}).
 }
 \examples{
-## Standard 2 x2: 2 groups, 2 time periods
+## Standard 2 x 2: 2 groups, 2 time periods
 dat_DiD_1 <- sim_dat_staggered(Time=2, timing_treatment=2)
 DD_manu(data=dat_DiD_1)
 

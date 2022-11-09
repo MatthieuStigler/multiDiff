@@ -38,10 +38,14 @@
 # colnames(Data.obs) <- c("y", "tr", "unit", "time", "x1", "x2")
 
 ################################
-#'## NEW
+### NEW
 ################################
 
 #' Simulate data
+#'
+#' Simulates data with common treatment date (\code{sim_dat_common}), staggered date (\code{sim_staggered}) or
+#' reversible treatment, i.e. units might loose their treatment status (\code{sim_dat}).
+#'
 #' @param  N number of distinct units
 #' @param Time number of distinct time
 #' @param beta coef
@@ -52,7 +56,7 @@
 #' @param prob_treat Probability of treatment
 #' @export
 #' @examples
-#' ## Standard 2 x2: 2 groups, 2 time periods
+#' ## Standard 2 x 2: 2 groups, 2 time periods
 #' dat_DiD_1 <- sim_dat_staggered(Time=2, timing_treatment=2)
 #' DD_manu(data=dat_DiD_1)
 #'
@@ -90,6 +94,38 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
     mutate(lag_one_noNA = dplyr::if_else(is.na(.data$lag_1), 0L, .data$lag_1)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + .data$err,
            y_asym = beta* .data$tr + gamma * .data$lag_one_noNA*(1-.data$tr) + .data$unit_fe + .data$time_fe +.data$err )
+  dat_sim_1
+
+}
+
+#' @rdname sim_dat
+#' @export
+sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1, seed=NULL, perc_treat = 0.25) {
+
+  if(!is.null(seed)) set.seed(seed)
+
+  ## parameters
+  N_treat <- round(perc_treat*N)
+  N_ctrl <- N-N_treat
+  tr_units <- rep(c("treated", "control"), c(N_treat, N_ctrl))
+  T_time <- Time
+
+  ## individual and time FEs, erros
+  ind_fe <- rep(rnorm(N), each=Time)
+  time_fe <- rep(as.numeric(arima.sim(model=list(ar=0.8), n=T_time)), N)
+  error <- rnorm(N*T_time)
+
+
+
+  ## Compute data
+  dat_sim_1 <- tibble(unit = rep(1:N, each=T_time),
+                      treat_group = rep(tr_units, each=T_time),
+                      Time = rep(1:T_time, times=N),
+                      unit_fe = ind_fe,
+                      time_fe = time_fe,
+                      tr = dplyr::if_else(treat_group=="treated" & Time %in% timing_treatment,1,0)) %>%
+    mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + error) %>%
+    select("unit", "Time", "treat_group", "tr", "y")
   dat_sim_1
 
 }

@@ -145,7 +145,7 @@ coefs_by <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.in
 
 
 ################################
-#'## Internal tests
+### Internal tests
 ################################
 
 if(FALSE){
