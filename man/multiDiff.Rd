@@ -3,10 +3,11 @@
 \docType{package}
 \name{multiDiff}
 \alias{multiDiff}
-\title{multiDiff: multi-perio diff-and-diff}
+\title{multiDiff: multi-period diff-and-diff}
 \description{
 This R package implements the multi-period diff-diff as discussed in
-Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
+Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019),
+as well as the Gibbons et al decomposition, and simple event study function.
 }
 \details{
 Main functions are \code{\link{DD}}, and \code{\link{DiD_aggreg}}.
