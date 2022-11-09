@@ -2,10 +2,10 @@ library(multiDiff)
 
 ## Sim data
 set.seed(123)
-DID_dat <- multiDiff::sim_dat_staggered(N=5000, perc_always = 0,
-                                        Time=8,
-                                        beta=1.1,
-                                        timing_treatment = 6, perc_treat=0.5)
+DID_dat <- sim_dat_common(N=5000, Time=8,
+                          beta=1.1,
+                          timing_treatment = 6:8, perc_treat=0.5)
+
 ## Estimate DiD
 DiD <- mdd_DD_simple(data=DID_dat)
 

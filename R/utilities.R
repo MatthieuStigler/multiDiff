@@ -1,14 +1,52 @@
-## check one manually
-add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit"){
-  groups <- df %>%
-    select(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat)) %>%
-    spread(!!enquo(time.index), !!enquo(treat)) %>%
-    tidyr::unite(".group", -!!enquo(unit.index))
+## Add sequence as .group variable
+add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
+                      raw=TRUE){
+
+  ## get 0-1 sequences for each unit
+  groups <- get_sequences(df, time.index = {{time.index}},
+                          treat = {{treat}}, unit.index = {{unit.index}}) %>%
+    rename(.group="seq")
+
+  ## rename eventually
+  if(!raw) {
+    groups <- groups %>%
+      mutate(.group = case_when(str_detect(.group, "0_1")~"treated",
+                                str_detect(.group, "0_0")~"control"))
+  }
+
+  ## add tot data
   df %>%
     left_join(groups %>%
                 select("unit", ".group"), by = "unit")
 }
 
+# add_treat_group_simple <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){
+#
+#   data %>%
+#     group_by(dplyr::across({{unit.index}})) %>%
+#     mutate(treat_group = if_else(any({{treat}}==1), "treated", "control")) %>%
+#     ungroup()
+# }
+
+if(FALSE){
+  DID_dat <- sim_dat_common()
+  multiDiff:::get_sequences(DID_dat)
+
+  time.index = quo("Time")
+  treat = quo("tr")
+  unit.index = quo("unit")
+
+  add_group(df=DID_dat )|>
+    dplyr::count(.group)
+
+  add_group(df=DID_dat, raw=FALSE)|>
+    dplyr::count(.group)
+
+  DID_dat |>
+    # multiDiff:::add_treat_group() |>
+    add_treat_group()|>
+    dplyr::count(treat_group)
+}
 
 #' df of sequences 0_0_1
 #'@examples

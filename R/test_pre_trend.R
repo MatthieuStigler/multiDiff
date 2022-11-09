@@ -1,15 +1,16 @@
 #' Conduct parallel pre-trends test
 #'
 #' @param data data-frame, containing only pre-intervention values
-#' @param treat.group.index the variable in `data` containing the post-intervention treatment status
 #' @template param_y_var
+#' @template param_treat
 #' @template param_time.index
+#' @template param_unit.index
 #' @param cluster argument passed to `feols(..., cluster=)`
 #'
 #' @examples
 #'
-#' data <- multiDiff::sim_dat_staggered(N=100, perc_always = 0, Time=10,
-#'                                      timing_treatment = 6, perc_treat=0.5)
+#' data <- sim_dat_common(N=100, Time=10,
+#'                        timing_treatment = 6, perc_treat=0.5)
 #'  library(tidyverse, warn.conflicts = FALSE)
 #'  data_modif <- data %>%
 #'    group_by(unit) %>%
@@ -18,23 +19,30 @@
 #'    select(y, type, Time, unit)
 #'
 #' #
-#' test_pre_trend(data_modif, treat.group.index=type,
-#'                time.index=Time, cluster = "unit")
+#' mdd_test_pre_trend_means(data=data, unit.index = "unit",
+#'                          time.index=Time, cluster = "unit")
 #'
 #'@export
-test_pre_trend <- function(data, treat.group.index, time.index, y_var = "y",
-                           cluster=NULL){
+mdd_test_pre_trend_means <- function(data,
+                                     unit.index,
+                                     time.index,
+                                     y_var = "y",
+                                     treat = "tr",
+                                     cluster=NULL){
 
   ## prep data
   dat_prep <- data %>%
-    rename(treat_here ={{treat.group.index}},
-           year_here = {{time.index}},
+    add_group(time.index = {{time.index}},
+              treat = {{treat}}, unit.index = {{unit.index}},
+              raw=FALSE) %>%
+    rename(treat =".group",
+           period = {{time.index}},
            y= {{y_var}}) %>%
-    mutate(treat_here =as.factor(.data$treat_here),
-           year_here = as.factor(.data$year_here))
+    mutate(treat =as.factor(.data$treat),
+           period = as.factor(.data$period))
 
   ##
-  reg_out <- fixest::feols(y~ -1+year_here:treat_here,
+  reg_out <- fixest::feols(y~ -1+period:treat,
                            cluster = cluster,
                            data=dat_prep)
 
@@ -50,47 +58,39 @@ test_pre_trend <- function(data, treat.group.index, time.index, y_var = "y",
   }
 
   ## H2: join tests
-  H2_char <- str_replace(H1_char, " = ", " - ") %>%
-    paste(collapse = " + ") %>%
-    paste("=0")
+  H_pairs <- sapply(1:(K/2), \(i) paste(nam[c(i,i+K/2)], collapse =" - "))
+  H2_char <- paste(H_pairs[-1],"=",  H_pairs[1])
 
-  test_joint_or <- car::linearHypothesis(reg_out, hypothesis.matrix = H1_char)
-  test_joint_and <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
+  test_joint <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
   test_indiv <- purrr::map_dfr(H1_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%
                           broom::tidy())
 
   ## assemble
-  rbind(test_joint_or %>% broom::tidy() %>%
+  rbind(test_joint %>% broom::tidy() %>%
           distinct(.data$statistic, .data$p.value) %>%
-          mutate(term = paste(H1_char, collapse = " OR ")),
-        test_joint_and %>% broom::tidy() %>%
-          distinct(.data$statistic, .data$p.value) %>%
-          mutate(term = H2_char),
+          mutate(term = paste(H2_char, collapse = "AND")),
         test_indiv %>%
           distinct(.data$term, .data$statistic, .data$p.value)) %>%
-    mutate(test = c("test_joint_or", "test_joint_and", rep("test_indiv", nrow(test_indiv)))) %>%
-    dplyr::relocate(.data$test)
+    mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
+    dplyr::relocate("test")
 }
 
 if(FALSE){
 
   ##
-  Year <- rep(1:10, times=400)
-  Group <- rep(c("Control", "Treat"), each = 2000)
+  df <- sim_dat_common(N=100, Time=10,
+                         timing_treatment = 6, perc_treat=0.5)
+  df
 
-  set.seed(123)
-  y_same <- as.numeric(as.factor(Year))+
-    rnorm(length(Group))
-  y_diff <- y_same   +
-    ifelse(Year==5 & Group =="Treat",rnorm(mean=0.5, length(Group)),0)
-
-  df <- data.frame(Year, Group, y_same, y_diff)
 
   ##
-  test_pre_trend(data=df, treat.group.index = Group, time.index = Year,
-                 y_var = y_same)
-  test_pre_trend(data=df, treat.group.index = Group, time.index = Year,
-                 y_var = y_diff)
+  time.index = quo(Time)
+  y_var = quo(y)
+  mdd_test_pre_trend_means(data=df, treat = tr, time.index = Time,
+                           y_var = y)
+  ## make sure vars exist!?
+  mdd_test_pre_trend_means(data=df, treat = tr, time.index = Timesakjdhfjshfskjshfkjdshfjhszf,
+                           y_var = y)
 
   library(fixest)
   library(tidyverse)
@@ -138,5 +138,5 @@ if(FALSE){
   ### Full
   treat.group.index = quo(type)
   time.index <- quo(Time)
-  test_pre_trend(df=data_modif, cluster=NULL)
+  mdd_test_pre_trend_means(df=data_modif, cluster=NULL)
 }

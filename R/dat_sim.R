@@ -123,7 +123,7 @@ sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1,
                       Time = rep(1:T_time, times=N),
                       unit_fe = ind_fe,
                       time_fe = time_fe,
-                      tr = dplyr::if_else(treat_group=="treated" & Time %in% timing_treatment,1,0)) %>%
+                      tr = dplyr::if_else(.data$treat_group=="treated" & Time %in% timing_treatment,1,0)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + error) %>%
     select("unit", "Time", "treat_group", "tr", "y")
   dat_sim_1

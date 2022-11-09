@@ -18,13 +18,6 @@ if(FALSE){
   DD(data=DID_dat)
 }
 
-add_treat_group <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){
-  data %>%
-    group_by({{unit.index}}) %>%
-    mutate(treat_group = if_else(any({{treat}}==1), "treated", "control"))
-}
-
-
 
 #' Event study
 #'
