@@ -1,4 +1,6 @@
 library(multiDiff)
+
+set.seed(123)
 data <- sim_dat(N=100)
 
 ## TEST standard
@@ -9,7 +11,7 @@ DD(data=data)
 data3 <- data |>
   dplyr::mutate(tr = 0)
 test_that("Output from DD is same as from DD_manu_many", {
-  expect_warning(DD_out <- DD(data=data3),
+  expect_warning(DD(data=data3),
                  "No variation in treatment found!?")
 })
 

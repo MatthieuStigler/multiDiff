@@ -1,5 +1,4 @@
 library(multiDiff)
-library(tidyverse)
 
 DD_manu_many_diffs <-  multiDiff:::DD_manu_many_diffs
 DD_manu_many_dids <-  multiDiff:::DD_manu_many_dids
@@ -32,19 +31,19 @@ out_DD <- DD(data = dat_sim_1,
 
 ## DD: reformat
 compare <- out_DD %>%
-  filter(DiD%in% c(1, 4)) %>%
-  select(time, DiD, treat, control, estimate) %>%
-  select(time, DiD, estimate) %>%
-  mutate(DiD=case_when(DiD==1 ~ "did_01_vs_00",
-                       DiD==4 ~ "did_10_vs_11")) %>%
-  spread(DiD, estimate) %>%
-  rename(`.time`=time) %>%
-  mutate(did_10_vs_11 = -1*did_10_vs_11)
+  dplyr::filter(DiD%in% c(1, 4)) %>%
+  dplyr::select(time, DiD, treat, control, estimate) %>%
+  dplyr::select(time, DiD, estimate) %>%
+  dplyr::mutate(DiD=dplyr::case_when(DiD==1 ~ "did_01_vs_00",
+                                     DiD==4 ~ "did_10_vs_11")) %>%
+  tidyr::spread(DiD, estimate) %>%
+  dplyr::rename(`.time`=time) %>%
+  dplyr::mutate(did_10_vs_11 = -1*did_10_vs_11)
 
 ## compare with output from DD_manu_many
 here <- DD_manu_many_dids(out_l1) %>%
-  select(.time, starts_with("did")) %>%
-  mutate(.time = as.integer(.time))
+  dplyr::select(.time, starts_with("did")) %>%
+  dplyr::mutate(.time = as.integer(.time))
 
 
 test_that("Output from DD is same as from DD_manu_many", {

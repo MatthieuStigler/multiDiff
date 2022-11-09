@@ -88,8 +88,8 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
                                       treat_var = var(!!rlang::sym(treat)),
                                       n_vals = n()))) %>%
     ungroup() %>%
-    select(-.data$term) %>%
-    rename(treat_coef = .data$estimate)
+    select(-"term") %>%
+    rename(treat_coef = "estimate")
 
   ## check only 1 vals?
   if(any(dat_coefs$n_vals==1)) warning("Cells (", sum(dat_coefs$n_vals==1), ") with only one observation")
@@ -98,7 +98,7 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
   dat_coefs_w <- dat_coefs %>%
     mutate(treat_weight=.data$treat_var*(.data$n_vals-1),
            treat_weight= .data$treat_weight/sum(.data$treat_weight, na.rm = TRUE)) %>%
-    select(tidyselect::one_of(by), .data$n_vals, tidyselect::everything())
+    select(tidyselect::one_of(by), "n_vals", tidyselect::everything())
 
   dat_coefs_w
 
