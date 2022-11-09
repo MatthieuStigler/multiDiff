@@ -1,5 +1,5 @@
 library(multiDiff)
-library(lfe)
+suppressPackageStartupMessages(library(lfe))
 
 
 ### DATA SIMUL ####

@@ -6,7 +6,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit"){
     tidyr::unite(".group", -!!enquo(unit.index))
   df %>%
     left_join(groups %>%
-                select(.data$unit, .data$.group), by = "unit")
+                select("unit", ".group"), by = "unit")
 }
 
 

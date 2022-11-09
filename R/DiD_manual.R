@@ -38,7 +38,7 @@ DD_manu <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.in
   # treat = quo("tr")
   # unit.index = quo("unit")
   # y_var= "y"
-  seqs <- get_sequences(data, time.index = time.index, unit.index = unit.index,
+  seqs <- get_sequences(data, time.index = {{time.index}}, unit.index = {{unit.index}},
                         treat = {{treat}}) %>%
     distinct(seq)
 
