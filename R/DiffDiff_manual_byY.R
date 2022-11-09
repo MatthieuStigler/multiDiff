@@ -39,7 +39,7 @@ DD_manu_many <- function(y_var="y", data, time.index = "Time", treat = "tr", uni
   # data_treat
 
   data_treat <- data2 %>%
-    select(.data$.time, .data$.treat, .data$.unit, .data$.yvar) %>%
+    select(".time", ".treat", ".unit", ".yvar") %>%
     lag_group(group_var=".unit", time_var=".time",
               value_var= c(".treat",".yvar"), lagamount = seq_len(lag))%>%
     tidyr::unite(seq, c(paste0(".treat_lag", rev(seq_len(lag))), ".treat"), sep="->", remove=FALSE)
@@ -86,7 +86,7 @@ DD_manu_many_tolong <- function(df) {
 DD_manu_many_diffs <- function(df) {
   lag_max <-  max(df$lag)
   res <- df %>%
-    select(.data$.time, .data$seq, .data$lag, .data$.yvar) %>%
+    select(".time", "seq", "lag", ".yvar") %>%
     mutate(lag = factor(paste0("lag_", .data$lag),
                         levels = paste0("lag_", rev(unique(.data$lag))))) %>%
     spread(.data$lag, .data$.yvar) %>%
@@ -109,7 +109,7 @@ DD_manu_many_diffs <- function(df) {
 DD_manu_many_dids <- function(df) {
   diffs <- DD_manu_many_diffs(df)
   diffs %>%
-    select(.data$.time, .data$seq, .data$diff_l0_l1) %>%
+    select(".time", "seq", "diff_l0_l1") %>%
     mutate(seq = paste0("seq_", seq) %>%
              str_replace_all("->", "_")) %>%
     filter(!str_detect(seq, "NA")) %>%

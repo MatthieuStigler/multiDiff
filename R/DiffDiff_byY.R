@@ -33,7 +33,7 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
 
   ## Data treatment
   data_treat <- data2 %>%
-    select(.data$.time, .data$.treat, .data$.unit) %>%
+    select(".time", ".treat", ".unit") %>%
     lag_group(group_var=".unit", time_var=".time", value_var=".treat") %>%
     # lag_group(group_var=.data$.unit, time_var=.data$.time, lag_var=.data$.treat) %>%
     tidyr::unite(seq, c(".treat_lag1", ".treat"), sep="_")
@@ -87,8 +87,8 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
              reg_out = map2(data, .data$miss_data,  ~if(.y) tibble(estimate=NA) else felm(lf_formula, data = .x) %>%
                               broom::tidy(conf.int=TRUE)),
              n_vals=map_int(data, nrow)) %>%
-      select(-.data$data) %>%
-      unnest(.data$reg_out)
+      select(-"data") %>%
+      unnest("reg_out")
   }
 
   ## internal test
@@ -104,14 +104,14 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
   res <- years_df %>%
     mutate(data = map(.data$time, ~filter(data3, .data$.time%in% c(., .-1))),
            reg_out = map(data, DID_one_year)) %>%
-    select(-.data$data) %>%
-    unnest(.data$reg_out)
+    select(-"data") %>%
+    unnest("reg_out")
 
   if(all(res$miss_data)) {
     warning("No variation in treatment found!?")
   } else {
     res <-  res %>%
-      select(-.data$term, -.data$all)
+      select(-"term", -"all")
   }
   res
 
