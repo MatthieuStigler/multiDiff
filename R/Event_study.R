@@ -25,13 +25,31 @@ if(FALSE){
 
 #' Event study
 #'
-#' @template param_all
+#' @template param_mdd_dat
 #' @param trim_low,trim_high Upper/lower bound on parameters to include
 #' @param time.omit Which is the base year omitted in the analysis?
 #' @param weights Variable containing the weights
+#' @examples
+#' ## simulate and format data
+#' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
+#' DID_dat <- mdd_data_format(DID_dat_raw)
+#'
+#' ## estimate ES
+#' ES_out <- mdd_event_study(DID_dat)
+#' ES_out
+#' summary(ES_out)
+#' plot(ES_out)
 #' @export
-mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
+mdd_event_study <-  function(mdd_dat,
+                             # y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
                                    trim_low=NULL, trim_high=NULL, time.omit = -1, weights=NULL){
+
+
+  ## mdd formatting
+  if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
+  mdd_dat_slot <- attributes(mdd_dat)$mdd_dat_slot
+  mdd_vars <- mdd_dat_slot$var_names
+
 
   # y_var=quo(y)
   # time.index = quo(Time)
@@ -39,14 +57,15 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   # unit.index <- quo(unit)
 
   ## data rename
-  dat_renamed <- data %>%
-    intrnl_dat_rename(treat = !!sym(treat), y_var=!!sym(y_var),
-                      time.index=!!sym(time.index), unit.index=!!sym(unit.index)) %>%
+  dat_renamed <- mdd_dat %>%
+    intrnl_dat_rename(treat = !!sym(mdd_vars$treat), y_var=!!sym(mdd_vars$y_var),
+                      time.index=!!sym(mdd_vars$time.index), unit.index=!!sym(mdd_vars$unit.index)) %>%
     intrnl_add_treat_time()
 
 
   ## Prep leads and lags
-  T_after <-  dat_renamed %>% distinct(time.index, treat) %>%
+  T_after <-  dat_renamed %>%
+    distinct(time.index, treat) %>%
     tidyr::pivot_wider(names_from = "treat", values_from = "treat", names_prefix = "status_") %>%
     arrange(time.index)
   first_treat <- filter(T_after, .data$status_1==1)[1,"time.index", drop=TRUE]

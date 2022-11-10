@@ -6,7 +6,7 @@
 #' @examples
 #'
 #' data <- sim_dat_common(N=100, Time=10,
-#'                        timing_treatment = 6, perc_treat=0.5)
+#'                        timing_treatment = 6:10, perc_treat=0.5)
 #'
 #' mdd_data <- mdd_data_format(data)
 #' mdd_test_pre_trend_means(mdd_dat=mdd_data)
@@ -69,6 +69,13 @@ mdd_test_pre_trend_means <- function(mdd_dat,
           distinct(.data$term, .data$statistic, .data$p.value)) %>%
     mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
     dplyr::relocate("test")
+}
+
+
+#'@export
+mdd_test_pre_trend_event <- function(mdd_dat,
+                                     cluster=NULL){
+
 }
 
 if(FALSE){

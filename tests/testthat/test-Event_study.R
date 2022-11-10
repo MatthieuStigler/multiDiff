@@ -7,9 +7,9 @@ DID_dat_raw <- sim_dat_common(N=5000, Time=8,
 DID_dat <- mdd_data_format(DID_dat_raw)
 
 ## Manu means
-means_manu <- DID_dat %>%
-  multiDiff:::mdd_simple_means() %>%
-  tidyr::spread(.group, y) %>%
+means_manu <- DID_dat |>
+  multiDiff:::mdd_simple_means() |>
+  tidyr::spread(.group, y) |>
   dplyr::mutate(diff=treated-control)
 
 means_manu
@@ -21,11 +21,11 @@ coef(DiD_simple)
 ## Did simple: only 2Y
 test_that("DID for 2Y is same as diff-diff means", {
   expect_equal(diff(means_manu[c(5,6), "diff", drop=TRUE]),
-               coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6))))[[1]])
+               coef(mdd_DD_simple(data=DID_dat |> dplyr::filter(Time %in% c(5, 6))))[[1]])
 })
 
 ## event
-ES <- mdd_event_study(data=DID_dat)
+ES <- mdd_event_study(mdd_dat = DID_dat)
 summary(ES)
 plot(ES)
 
@@ -40,13 +40,14 @@ test_that("ES 0 effect is same as diffs annual", {
 })
 
 
-mdd_event_study(data=DID_dat)
-mdd_event_study(data=DID_dat, trim_high = 1)
-mdd_event_study(data=DID_dat, trim_high = 0)
-mdd_event_study(data=DID_dat, trim_high = 0, trim_low = -3)
+mdd_event_study(mdd_dat=DID_dat)
+mdd_event_study(mdd_dat=DID_dat, trim_high = 1)
+mdd_event_study(mdd_dat=DID_dat, trim_high = 0)
+mdd_event_study(mdd_dat=DID_dat, trim_high = 0, trim_low = -3)
 
 ## weights
 test_that("Using with weights in ES works", {
-  expect_equal(mdd_event_study(data=DID_dat, weights = rep(c(0, 1), c(8, nrow(DID_dat)-8))) %>% coef(),
-               mdd_event_study(data=DID_dat %>% tail(-8)) %>% coef())
+  expect_equal(mdd_event_study(mdd_dat=DID_dat, weights = rep(c(0, 1), c(8, nrow(DID_dat)-8))) %>% coef(),
+               mdd_event_study(mdd_dat=DID_dat %>% tail(-8)) %>% coef())
 })
+

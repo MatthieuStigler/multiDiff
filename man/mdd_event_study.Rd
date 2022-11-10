@@ -6,11 +6,7 @@
 \title{Event study}
 \usage{
 mdd_event_study(
-  data,
-  y_var = "y",
-  time.index = "Time",
-  treat = "tr",
-  unit.index = "unit",
+  mdd_dat,
   trim_low = NULL,
   trim_high = NULL,
   time.omit = -1,
@@ -20,16 +16,7 @@ mdd_event_study(
 \method{plot}{mdd_event_study}(x, ...)
 }
 \arguments{
-\item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
-\code{unit.index}}
-
-\item{y_var}{The name of the y variable}
-
-\item{time.index}{The name of the variable describing the time index (date, year, etc)}
-
-\item{treat}{The name of the treatment variable.}
-
-\item{unit.index}{The name of the units (individual, county, household, etc).}
+\item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{trim_low, trim_high}{Upper/lower bound on parameters to include}
 
@@ -43,4 +30,15 @@ mdd_event_study(
 }
 \description{
 Event study
+}
+\examples{
+## simulate and format data
+DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
+DID_dat <- mdd_data_format(DID_dat_raw)
+
+## estimate ES
+ES_out <- mdd_event_study(DID_dat)
+ES_out
+summary(ES_out)
+plot(ES_out)
 }

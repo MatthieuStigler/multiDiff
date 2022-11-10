@@ -6,6 +6,7 @@ DID_dat <- sim_dat_common(N=5000, Time=8,
                           beta=1.1,
                           timing_treatment = 6:8, perc_treat=0.5)
 
+DID_dat_mdd <- mdd_data_format(DID_dat)
 mdd_data_format(DID_dat)
 
 ## Estimate DiD
@@ -21,11 +22,11 @@ DD_manu_out <- DD_manu(data=DID_dat,
                        treat_gr = "0_0_0_0_0_1_1_1")
 
 ## estimate ES
-ES <- mdd_event_study(data=DID_dat)
-ES_rebase_2 <- mdd_event_study(data=DID_dat, time.omit = -2)
-ES_trim2 <- mdd_event_study(data=DID_dat, trim_high = 1)
-ES_trim_neg <- mdd_event_study(data=DID_dat, trim_low = -1)
-ES_trim_all <- mdd_event_study(data=DID_dat, trim_high = 0, trim_low = -1, time.omit = -1)
+ES <- mdd_event_study(mdd_dat=DID_dat_mdd)
+ES_rebase_2 <- mdd_event_study(mdd_dat=DID_dat_mdd, time.omit = -2)
+ES_trim2 <- mdd_event_study(mdd_dat=DID_dat_mdd, trim_high = 1)
+ES_trim_neg <- mdd_event_study(mdd_dat=DID_dat_mdd, trim_low = -1)
+ES_trim_all <- mdd_event_study(mdd_dat=DID_dat_mdd, trim_high = 0, trim_low = -1, time.omit = -1)
 
 
 test_that("DID is same as mean(post-diff) - mean(pre-diff)", {
