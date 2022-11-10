@@ -1,68 +1,64 @@
 #' Conduct parallel pre-trends test
 #'
-#' @param data data-frame, containing only pre-intervention values
-#' @template param_y_var
-#' @template param_treat
-#' @template param_time.index
-#' @template param_unit.index
+#' @template param_mdd_dat
 #' @param cluster argument passed to `feols(..., cluster=)`
 #'
 #' @examples
 #'
 #' data <- sim_dat_common(N=100, Time=10,
 #'                        timing_treatment = 6, perc_treat=0.5)
-#'  library(tidyverse, warn.conflicts = FALSE)
-#'  data_modif <- data %>%
-#'    group_by(unit) %>%
-#'    mutate(type = if_else(any(tr==1), "Treat", "Control")) %>%
-#'    ungroup() %>%
-#'    select(y, type, Time, unit)
 #'
-#' #
-#' mdd_test_pre_trend_means(data=data, unit.index = "unit",
-#'                          time.index=Time, cluster = "unit")
+#' mdd_data <- mdd_data_format(data)
+#' mdd_test_pre_trend_means(mdd_dat=mdd_data)
 #'
 #'@export
-mdd_test_pre_trend_means <- function(data,
-                                     unit.index,
-                                     time.index,
-                                     y_var = "y",
-                                     treat = "tr",
+mdd_test_pre_trend_means <- function(mdd_dat,
                                      cluster=NULL){
 
+  ## mdd formatting
+  if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
+  mdd_dat_slot <- attributes(mdd_dat)$mdd_dat_slot
+  mdd_vars <- mdd_dat_slot$var_names
+
+  if(mdd_dat_slot$n_seq>2) stop("Not implemented for more than 2 groups")
+  if(mdd_dat_slot$is_reversible) warning("reversible treatment? Taking till first treatment")
+
+
   ## prep data
-  dat_prep <- data %>%
-    add_group(time.index = {{time.index}},
-              treat = {{treat}}, unit.index = {{unit.index}},
-              raw=FALSE) %>%
+  mdd_dat_add <- mdd_dat %>%
+    add_group(time.index = mdd_vars$time.index, treat = mdd_vars$treat,
+              unit.index = mdd_vars$unit.index, group_rename_maybe=TRUE) %>%
     rename(treat =".group",
-           period = {{time.index}},
-           y= {{y_var}}) %>%
+           period = !!sym(mdd_vars$time.index),
+           y= !!sym(mdd_vars$y_var)) %>%
     mutate(treat =as.factor(.data$treat),
            period = as.factor(.data$period))
 
-  ##
+  ## Estimate ES regression
   reg_out <- fixest::feols(y~ -1+period:treat,
                            cluster = cluster,
-                           data=dat_prep)
+                           data=mdd_dat_add)
 
-  nam <- names(coef(reg_out))
-  K <- length(nam)
+  nam_coef <- names(coef(reg_out))
+  K <- length(nam_coef)
 
-  ## H1: individual tests
-  H1_char <- sapply(1:(K/2), \(i) paste(nam[c(i,i+K/2)], collapse =" = "))
-  ## check
-  nam_check_1 <- purrr::map(stringr::str_split(H1_char, " = "), \(str) lapply(stringr::str_split(str, ":"), \(i) i[[1]]) %>% unlist())
+  ## get pre-preiods
+  pre_periods <- mdd_dat_slot$periods[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
+
+  ## H1: individual pairs
+  H_pairs <- sapply(pre_periods, \(i) paste(nam_coef[c(i,i+(K/2))], collapse =" - "))
+
+  ## internal checkI got it right
+  nam_check_1 <- purrr::map(stringr::str_split(H_pairs, " = "), \(str) lapply(stringr::str_split(str, ":"), \(i) i[[1]]) %>% unlist())
   if(!all(map_int(nam_check_1, dplyr::n_distinct)==1)) {
-    stop("Problem with creating hypo H1, vector is: ", H1_char[1])
+    stop("Problem with creating hypo H1, vector is: ", H_pairs[1])
   }
 
   ## H2: join tests
-  H_pairs <- sapply(1:(K/2), \(i) paste(nam[c(i,i+K/2)], collapse =" - "))
   H2_char <- paste(H_pairs[-1],"=",  H_pairs[1])
 
   test_joint <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
-  test_indiv <- purrr::map_dfr(H1_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%
+  test_indiv <- purrr::map_dfr(H2_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%
                           broom::tidy())
 
   ## assemble
@@ -76,21 +72,18 @@ mdd_test_pre_trend_means <- function(data,
 }
 
 if(FALSE){
+  library(multiDiff)
 
   ##
   df <- sim_dat_common(N=100, Time=10,
-                         timing_treatment = 6, perc_treat=0.5)
-  df
+                       timing_treatment = 6, perc_treat=0.5)
+  df_mdd <- mdd_data_format(df)
+  plot(df_mdd)
 
 
   ##
-  time.index = quo(Time)
-  y_var = quo(y)
-  mdd_test_pre_trend_means(data=df, treat = tr, time.index = Time,
-                           y_var = y)
-  ## make sure vars exist!?
-  mdd_test_pre_trend_means(data=df, treat = tr, time.index = Timesakjdhfjshfskjshfkjdshfjhszf,
-                           y_var = y)
+  mdd_test_pre_trend_means(mdd_dat = df_mdd)
+
 
   library(fixest)
   library(tidyverse)
