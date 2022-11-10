@@ -2,7 +2,7 @@
 % Please edit documentation in R/Event_study.R
 \name{mdd_event_study}
 \alias{mdd_event_study}
-\alias{plot.event_study}
+\alias{plot.mdd_event_study}
 \title{Event study}
 \usage{
 mdd_event_study(
@@ -17,7 +17,7 @@ mdd_event_study(
   weights = NULL
 )
 
-\method{plot}{event_study}(x, ...)
+\method{plot}{mdd_event_study}(x, ...)
 }
 \arguments{
 \item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and

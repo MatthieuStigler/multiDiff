@@ -8,7 +8,11 @@ mdd_DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", u
                   rlang::as_name(time.index), " + ",
                   rlang::as_name(unit.index))
 
-  lfe::felm(as.formula(formu), data =data)
+  res <- lfe::felm(as.formula(formu), data =data)
+
+  ## format result
+  class(res) <- c("mdd_DiD", class(res))
+  res
 }
 
 if(FALSE){
@@ -81,7 +85,7 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
 
   ### lead/lag way
   res <- lfe::felm(as.formula(formu), data =data_aug, weights = weights)
-  class(res) <- c("event_study", class(res))
+  class(res) <- c("mdd_event_study", class(res))
   res$event_slot <- list(time.omit=time.omit)
   res
 }
@@ -91,7 +95,7 @@ mdd_event_study <-  function(data, y_var="y", time.index = "Time", treat = "tr",
 #' @param ... currently not used
 #' @rdname mdd_event_study
 #' @export
-plot.event_study <- function(x, ...){
+plot.mdd_event_study <- function(x, ...){
 
   ## construct data
   coef_df <- broom::tidy(x, conf.int=TRUE) %>%
@@ -108,55 +112,3 @@ plot.event_study <- function(x, ...){
 
 }
 
-if(FALSE){
-  library(multiDiff)
-  source("R/utilities.R")
-  library(tidyverse)
-
-  DID_dat <- multiDiff::sim_dat_staggered(N=5000, perc_always = 0,
-                                          Time=8,
-                                          beta=1.1,
-                                          timing_treatment = 6, perc_treat=0.5)
-
-  ## Manu means
-  means_manu <- DID_dat %>%
-    intrnl_dat_rename() %>%
-    intrnl_add_treat_status() %>%
-    group_by(treat_categ, time.index) %>%
-    summarise(mean= mean(y_var)) %>%
-    spread(treat_categ, mean) %>%
-    mutate(diff=Treat-Control)
-
-  means_manu
-
-  ## Did simple full
-  coef(mdd_DD_simple(DID_dat))
-
-  ## Did simple: only 2Y
-  diff(means_manu[c(5,6), "diff", drop=TRUE])
-  coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6))))
-
-  ## event
-  ES <- mdd_event_study(data=DID_dat)
-  ES <- mdd_event_study(data=DID_dat, time.omit = 2)
-  summary(ES)
-  plot(ES)
-
-  ## Those are numerically equal to diff-diffs!
-  all.equal(coef(ES),
-            (means_manu[, "diff", drop=TRUE]-means_manu[c(5), "diff", drop=TRUE])[-5], check.attributes=FALSE)
-
-
-  all.equal(coef(ES)["timing_to_treat0"],
-            coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6)))), check.attributes=FALSE)
-
-
-  mdd_event_study(data=DID_dat)
-  mdd_event_study(data=DID_dat, trim_high = 1)
-  mdd_event_study(data=DID_dat, trim_high = 0)
-  mdd_event_study(data=DID_dat, trim_high = 0, trim_low = -3)
-
-  ## weights
-  all.equal(mdd_event_study(data=DID_dat, weights = rep(c(0, 1), c(8, nrow(DID_dat)-8))) %>% coef(),
-            mdd_event_study(data=DID_dat %>% tail(-8)) %>% coef())
-}
