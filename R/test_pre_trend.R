@@ -1,6 +1,7 @@
 #' Conduct parallel pre-trends test
 #'
 #' @template param_mdd_dat
+#' @param time_ref the reference time period against which to test
 #' @param cluster argument passed to `feols(..., cluster=)`
 #'
 #' @examples
@@ -12,8 +13,7 @@
 #' mdd_test_pre_trend_means(mdd_dat=mdd_data)
 #'
 #'@export
-mdd_test_pre_trend_means <- function(mdd_dat,
-                                     cluster=NULL){
+mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = "1"){
 
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
@@ -55,7 +55,8 @@ mdd_test_pre_trend_means <- function(mdd_dat,
   }
 
   ## H2: join tests
-  H2_char <- paste(H_pairs[-1],"=",  H_pairs[1])
+  base_ref <- which(str_detect(H_pairs, paste0("period", time_ref, ":")))
+  H2_char <- paste(H_pairs[-base_ref],"=",  H_pairs[base_ref])
 
   test_joint <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
   test_indiv <- purrr::map_dfr(H2_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%

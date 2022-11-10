@@ -5,7 +5,7 @@
 \alias{mdd_test_pre_trend_event}
 \title{Conduct parallel pre-trends test}
 \usage{
-mdd_test_pre_trend_means(mdd_dat, cluster = NULL)
+mdd_test_pre_trend_means(mdd_dat, cluster = NULL, time_ref = "1")
 
 mdd_test_pre_trend_event(mdd_dat, ...)
 }
@@ -13,6 +13,8 @@ mdd_test_pre_trend_event(mdd_dat, ...)
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{cluster}{argument passed to \code{feols(..., cluster=)}}
+
+\item{time_ref}{the reference time period against which to test}
 
 \item{...}{Further arguments passed to \code{\link{mdd_event_study}}}
 }
