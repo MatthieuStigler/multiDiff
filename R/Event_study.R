@@ -66,9 +66,9 @@ mdd_event_study <-  function(mdd_dat,
 
   ## Prep leads and lags
   T_after <-  dat_renamed %>%
-    distinct(time.index, treat) %>%
+    distinct(.data$time.index, .data$treat) %>%
     tidyr::pivot_wider(names_from = "treat", values_from = "treat", names_prefix = "status_") %>%
-    arrange(time.index)
+    arrange(.data$time.index)
   first_treat <- filter(T_after, .data$status_1==1)[1,"time.index", drop=TRUE]
   K_after <- sum(T_after$time.index>first_treat)
   K_before <- sum(T_after$time.index<first_treat)
@@ -94,8 +94,8 @@ mdd_event_study <-  function(mdd_dat,
 
    ## Way B: time to treat
   data_aug <- dat_renamed |>
-    group_by(unit.index) %>%
-    mutate(timing_to_treat = x_time_to_treat(treat, trim_low=trim_low, trim_high=trim_high)) %>%
+    group_by(.data$unit.index) %>%
+    mutate(timing_to_treat = x_time_to_treat(.data$treat, trim_low=trim_low, trim_high=trim_high)) %>%
     ungroup() %>%
     mutate(timing_to_treat =  relevel(factor(.data$timing_to_treat), as.character(time.omit)))
 
