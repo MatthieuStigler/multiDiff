@@ -1,6 +1,6 @@
 ## Add sequence as .group variable
 add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
-                      raw=TRUE){
+                      group_rename_maybe=FALSE){
 
   ## get 0-1 sequences for each unit
   groups <- get_sequences(df, time.index = {{time.index}},
@@ -8,7 +8,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
     rename(.group="seq")
 
   ## rename eventually
-  if(!raw) {
+  if(n_distinct(groups$.group)==2 & group_rename_maybe) {
     groups <- groups %>%
       mutate(.group = case_when(str_detect(.group, "0_1")~"treated",
                                 str_detect(.group, "0_0")~"control"))

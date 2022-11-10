@@ -6,6 +6,8 @@ DID_dat <- sim_dat_common(N=5000, Time=8,
                           beta=1.1,
                           timing_treatment = 6:8, perc_treat=0.5)
 
+mdd_data_format(DID_dat)
+
 ## Estimate DiD
 DiD <- mdd_DD_simple(data=DID_dat)
 
