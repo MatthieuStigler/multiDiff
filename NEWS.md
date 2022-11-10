@@ -5,6 +5,7 @@
 * Add function `mdd_data_format`, with `plot` and `print` methods
 * Add function `sim_dat_common`
 * Add function `mdd_test_pre_trend_means`
+* Add function `mdd_test_pre_trend_event`
 
 # multiDiff 0.1.3
 
