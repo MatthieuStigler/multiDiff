@@ -422,3 +422,28 @@ if(FALSE){
   x_time_to_treat(c(0,0, 0, 1,0,0, 0), trim_low = -2, trim_high = 2)
 
 }
+
+################################
+#'## Mdd internal functions
+################################
+
+#' Get internal slot
+#'@noRd
+intrnl_mdd_get_mdd_slot <- function(mdd_dat_any){
+  if("mdd_dat_slot" %in% names(attributes(mdd_dat_any))) {
+    res <- attributes(mdd_dat_any)$mdd_dat_slot
+  } else if ("mdd_dat_slot" %in% names(mdd_dat_any)) {
+    res <- mdd_dat_any$mdd_dat_slot
+  } else {
+    stop("object contains no slot/attribute mdd_dat_slot!?")
+  }
+    res
+}
+
+intrnl_mdd_get_pre_periods <- function(mdd_dat_any){
+
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat_any)
+
+  ## res
+  mdd_dat_slot$periods[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
+}

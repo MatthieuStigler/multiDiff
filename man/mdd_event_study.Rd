@@ -42,3 +42,6 @@ ES_out
 summary(ES_out)
 plot(ES_out)
 }
+\seealso{
+\code{\link{mdd_test_pre_trend_event}} to run a parallel trend assumption
+}

@@ -17,7 +17,7 @@ mdd_test_pre_trend_means <- function(mdd_dat,
 
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
-  mdd_dat_slot <- attributes(mdd_dat)$mdd_dat_slot
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
 
   if(mdd_dat_slot$n_seq>2) stop("Not implemented for more than 2 groups")
@@ -71,10 +71,51 @@ mdd_test_pre_trend_means <- function(mdd_dat,
     dplyr::relocate("test")
 }
 
-
+#'@param ... Further arguments passed to \code{\link{mdd_event_study}}
+#'@seealso \code{\link{mdd_event_study}} to estimate the event study.
 #'@export
-mdd_test_pre_trend_event <- function(mdd_dat,
-                                     cluster=NULL){
+#'@rdname mdd_test_pre_trend_means
+mdd_test_pre_trend_event <- function(mdd_dat, ...){
+  ## mdd formatting
+  if(!inherits(mdd_dat, c("mdd_dat", "mdd_event_study"))) {
+    stop("Data should be either of class 'mdd_data_format' or 'mdd_event_study'")
+  }
+
+  ## to ES if not
+  if(!inherits(mdd_dat, c("mdd_event_study"))) {
+    mdd_dat <- mdd_event_study(mdd_dat, ...)
+  }
+
+  ## weird bug in car/broom
+  if(mdd_dat$event_slot$time.omit!=-1) {
+    warning("Having time.omit!=-1 might cause errors")
+  }
+  ## pre preiods?
+  # mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
+
+  ## format hypo
+  coef_nam <- names(coef(mdd_dat))
+  which_before <- stringr::str_detect(coef_nam, "-[0-9]+")
+  K_before <- sum(which_before)
+  H_mat <- matrix(0, nrow = K_before, ncol = length(coef_nam))
+  for(i in 1:K_before) {
+    H_mat[i, which(which_before)[i]] <- 1
+  }
+
+  ## hypo
+  test_joint <- car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat)
+  test_indiv <- purrr::map_dfr(1:K_before, \(i) car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat[i,]) |>
+                                 broom::tidy())
+
+  ## tidy res
+  ## assemble
+  rbind(test_joint %>% broom::tidy() %>%
+          distinct(.data$statistic, .data$p.value) %>%
+          mutate(term = paste(H_indiv, collapse = " AND ")),
+        test_indiv %>%
+          distinct(.data$term, .data$statistic, .data$p.value)) %>%
+    mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
+    dplyr::relocate("test")
 
 }
 
@@ -83,13 +124,19 @@ if(FALSE){
 
   ##
   df <- sim_dat_common(N=100, Time=10,
-                       timing_treatment = 6, perc_treat=0.5)
-  df_mdd <- mdd_data_format(df)
-  plot(df_mdd)
+                       timing_treatment = 6:10, perc_treat=0.5)
+  mdd_dat <- mdd_data_format(df)
+  plot(mdd_dat)
 
+  ES <- mdd_event_study(mdd_dat)
+  ES_omit5 <- mdd_event_study(mdd_dat, time.omit = -5)
 
   ##
-  mdd_test_pre_trend_means(mdd_dat = df_mdd)
+  mdd_test_pre_trend_means(mdd_dat = mdd_dat)
+
+  mdd_test_pre_trend_event(mdd_dat = mdd_dat)
+  mdd_test_pre_trend_event(mdd_dat = ES)
+  mdd_test_pre_trend_event(mdd_dat = ES_omit5)
 
 
   library(fixest)

@@ -39,6 +39,7 @@ if(FALSE){
 #' ES_out
 #' summary(ES_out)
 #' plot(ES_out)
+#'@seealso \code{\link{mdd_test_pre_trend_event}} to run a parallel trend assumption
 #' @export
 mdd_event_study <-  function(mdd_dat,
                              # y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
@@ -47,7 +48,7 @@ mdd_event_study <-  function(mdd_dat,
 
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
-  mdd_dat_slot <- attributes(mdd_dat)$mdd_dat_slot
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
 
 
@@ -104,7 +105,11 @@ mdd_event_study <-  function(mdd_dat,
 
   ### lead/lag way
   res <- lfe::felm(as.formula(formu), data =data_aug, weights = weights)
+
+
+  ## format result
   class(res) <- c("mdd_event_study", class(res))
+  res$mdd_dat_slot <- mdd_dat_slot
   res$event_slot <- list(time.omit=time.omit)
   res
 }

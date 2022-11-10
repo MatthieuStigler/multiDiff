@@ -9,9 +9,15 @@ dat_DiD <- mdd_data_format(data=dat_DiD_raw)
 dat_any <- mdd_data_format(data=dat_any_raw)
 dat_stag <- mdd_data_format(data=dat_stag_raw)
 
+dat_all <- list(dat_DiD=dat_DiD, dat_any=dat_any, dat_stag = dat_stag)
 dat_DiD
 dat_any
 dat_stag
 
 plot(dat_DiD)
 plot(dat_stag)
+
+## methods
+lapply(dat_all, multiDiff:::intrnl_mdd_get_mdd_slot)
+lapply(dat_all, multiDiff:::intrnl_mdd_get_pre_periods)
+

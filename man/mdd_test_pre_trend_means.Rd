@@ -2,14 +2,19 @@
 % Please edit documentation in R/test_pre_trend.R
 \name{mdd_test_pre_trend_means}
 \alias{mdd_test_pre_trend_means}
+\alias{mdd_test_pre_trend_event}
 \title{Conduct parallel pre-trends test}
 \usage{
 mdd_test_pre_trend_means(mdd_dat, cluster = NULL)
+
+mdd_test_pre_trend_event(mdd_dat, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{cluster}{argument passed to \code{feols(..., cluster=)}}
+
+\item{...}{Further arguments passed to \code{\link{mdd_event_study}}}
 }
 \description{
 Conduct parallel pre-trends test
@@ -22,4 +27,7 @@ data <- sim_dat_common(N=100, Time=10,
 mdd_data <- mdd_data_format(data)
 mdd_test_pre_trend_means(mdd_dat=mdd_data)
 
+}
+\seealso{
+\code{\link{mdd_event_study}} to estimate the event study.
 }
