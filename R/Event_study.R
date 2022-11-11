@@ -23,8 +23,8 @@ mdd_DD_simple <-  function(mdd_dat, weights = NULL, cluster = NULL){
 
   formu <- paste0(mdd_vars$y_var, " ~ ",
                   mdd_vars$treat, " | ",
-                  mdd_vars$time.index, " + ",
-                  mdd_vars$unit.index)
+                  mdd_vars$unit.index, " + ",
+                  mdd_vars$time.index)
 
   res <- fixest::feols(as.formula(formu), data =mdd_dat, weights = weights, cluster = cluster)
 
@@ -124,7 +124,7 @@ mdd_event_study <-  function(mdd_dat,
 
 
   ## factor way
-  formu <- "y_var ~ timing_to_treat |time.index+  unit.index"
+  formu <- "y_var ~ timing_to_treat |unit.index + time.index"
 
   ### lead/lag way
   res <- fixest::feols(as.formula(formu), data =data_aug, weights = weights, cluster = cluster)
