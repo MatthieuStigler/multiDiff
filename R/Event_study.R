@@ -1,14 +1,28 @@
 #' Estimate simple did
 #'
-#' @template param_all
+#' Standard two-way FE estimation of a DiD
+#' @template param_mdd_dat
+#' @examples
+#' ## simulate and format data
+#' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
+#' DID_dat <- mdd_data_format(DID_dat_raw)
+#'
+#' ## Estimate DiD
+#' mdd_DD_simple(DID_dat)
+#' @seealso \code{\link{mdd_event_study}} for the event study.
 #' @export
-mdd_DD_simple <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
-  formu <- paste0(rlang::as_name(y_var), " ~ ",
-                  rlang::as_name(treat), " | ",
-                  rlang::as_name(time.index), " + ",
-                  rlang::as_name(unit.index))
+mdd_DD_simple <-  function(mdd_dat){
 
-  res <- lfe::felm(as.formula(formu), data =data)
+  ## mdd formatting
+  if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
+  mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
+
+  formu <- paste0(mdd_vars$y_var, " ~ ",
+                  mdd_vars$treat, " | ",
+                  mdd_vars$time.index, " + ",
+                  mdd_vars$unit.index)
+
+  res <- lfe::felm(as.formula(formu), data =mdd_dat)
 
   ## format result
   class(res) <- c("mdd_DiD", class(res))
@@ -33,6 +47,9 @@ if(FALSE){
 #' ## simulate and format data
 #' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
 #' DID_dat <- mdd_data_format(DID_dat_raw)
+#'
+#' ## Estimate DiD
+#' mdd_DD_simple(DID_dat)
 #'
 #' ## estimate ES
 #' ES_out <- mdd_event_study(DID_dat)

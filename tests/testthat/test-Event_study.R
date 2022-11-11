@@ -21,7 +21,7 @@ coef(DiD_simple)
 ## Did simple: only 2Y
 test_that("DID for 2Y is same as diff-diff means", {
   expect_equal(diff(means_manu[c(5,6), "diff", drop=TRUE]),
-               coef(mdd_DD_simple(data=DID_dat |> dplyr::filter(Time %in% c(5, 6))))[[1]])
+               coef(mdd_DD_simple(mdd_dat=DID_dat |> dplyr::filter(Time %in% c(5, 6))))[[1]])
 })
 
 ## event
@@ -36,7 +36,7 @@ test_that("ES is same as diffs in DD_manu: diff- diff[5]", {
 
 test_that("ES 0 effect is same as diffs annual", {
   expect_equal(coef(ES)["timing_to_treat0"][[1]],
-               coef(mdd_DD_simple(data=DID_dat %>% filter(Time %in% c(5, 6))))[[1]])
+               coef(mdd_DD_simple(mdd_dat=DID_dat %>% filter(Time %in% c(5, 6))))[[1]])
 })
 
 

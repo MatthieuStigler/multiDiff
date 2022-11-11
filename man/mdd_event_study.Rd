@@ -36,6 +36,9 @@ Event study
 DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
 DID_dat <- mdd_data_format(DID_dat_raw)
 
+## Estimate DiD
+mdd_DD_simple(DID_dat)
+
 ## estimate ES
 ES_out <- mdd_event_study(DID_dat)
 ES_out

@@ -4,26 +4,22 @@
 \alias{mdd_DD_simple}
 \title{Estimate simple did}
 \usage{
-mdd_DD_simple(
-  data,
-  y_var = "y",
-  time.index = "Time",
-  treat = "tr",
-  unit.index = "unit"
-)
+mdd_DD_simple(mdd_dat)
 }
 \arguments{
-\item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
-\code{unit.index}}
-
-\item{y_var}{The name of the y variable}
-
-\item{time.index}{The name of the variable describing the time index (date, year, etc)}
-
-\item{treat}{The name of the treatment variable.}
-
-\item{unit.index}{The name of the units (individual, county, household, etc).}
+\item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 }
 \description{
-Estimate simple did
+Standard two-way FE estimation of a DiD
+}
+\examples{
+## simulate and format data
+DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
+DID_dat <- mdd_data_format(DID_dat_raw)
+
+## Estimate DiD
+mdd_DD_simple(DID_dat)
+}
+\seealso{
+\code{\link{mdd_event_study}} for the event study.
 }

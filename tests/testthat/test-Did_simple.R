@@ -10,7 +10,7 @@ DID_dat_mdd <- mdd_data_format(DID_dat)
 mdd_data_format(DID_dat)
 
 ## Estimate DiD
-DiD <- mdd_DD_simple(data=DID_dat)
+DiD <- mdd_DD_simple(mdd_dat=DID_dat_mdd)
 
 ## Estimate annual DiD
 DD_out <- DD(data=DID_dat) |>

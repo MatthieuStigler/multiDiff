@@ -15,7 +15,7 @@ test_that("Function runs smoothly", {
   expect_no_error(mdd_test_pre_trend_means(mdd_dat=mdd_data))
 })
 
-mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "4")
+mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "5")
 mdd_test_pre_trend_event(mdd_dat = mdd_data)
 mdd_test_pre_trend_event(mdd_dat = ES)
 
