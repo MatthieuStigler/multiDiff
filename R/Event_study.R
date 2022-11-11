@@ -2,6 +2,8 @@
 #'
 #' Standard two-way FE estimation of a DiD
 #' @template param_mdd_dat
+#' @template param_weights
+#' @template param_cluster
 #' @examples
 #' ## simulate and format data
 #' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
@@ -11,7 +13,9 @@
 #' mdd_DD_simple(DID_dat)
 #' @seealso \code{\link{mdd_event_study}} for the event study.
 #' @export
-mdd_DD_simple <-  function(mdd_dat){
+mdd_DD_simple <-  function(mdd_dat, weights = NULL, cluster = NULL){
+
+  if(is.character(cluster)) cluster <- as.formula(paste0("~", cluster))
 
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
@@ -22,7 +26,7 @@ mdd_DD_simple <-  function(mdd_dat){
                   mdd_vars$time.index, " + ",
                   mdd_vars$unit.index)
 
-  res <- lfe::felm(as.formula(formu), data =mdd_dat)
+  res <- fixest::feols(as.formula(formu), data =mdd_dat, weights = weights, cluster = cluster)
 
   ## format result
   class(res) <- c("mdd_DiD", class(res))
@@ -42,7 +46,8 @@ if(FALSE){
 #' @template param_mdd_dat
 #' @param trim_low,trim_high Upper/lower bound on parameters to include
 #' @param time.omit Which is the base year omitted in the analysis?
-#' @param weights Variable containing the weights
+#' @template param_cluster
+#' @template param_weights
 #' @examples
 #' ## simulate and format data
 #' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
@@ -59,8 +64,8 @@ if(FALSE){
 #'@seealso \code{\link{mdd_test_pre_trend_event}} to run a parallel trend assumption
 #' @export
 mdd_event_study <-  function(mdd_dat,
-                             # y_var="y", time.index = "Time", treat = "tr", unit.index="unit",
-                                   trim_low=NULL, trim_high=NULL, time.omit = -1, weights=NULL){
+                             trim_low=NULL, trim_high=NULL, time.omit = -1,
+                             weights=NULL, cluster=NULL){
 
 
   ## mdd formatting
@@ -68,6 +73,7 @@ mdd_event_study <-  function(mdd_dat,
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
 
+  if(is.character(cluster)) cluster <- as.formula(paste0("~", cluster))
 
   # y_var=quo(y)
   # time.index = quo(Time)
@@ -121,7 +127,7 @@ mdd_event_study <-  function(mdd_dat,
   formu <- "y_var ~ timing_to_treat |time.index+  unit.index"
 
   ### lead/lag way
-  res <- lfe::felm(as.formula(formu), data =data_aug, weights = weights)
+  res <- fixest::feols(as.formula(formu), data =data_aug, weights = weights, cluster = cluster)
 
 
   ## format result

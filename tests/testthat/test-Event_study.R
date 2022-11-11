@@ -36,7 +36,7 @@ test_that("ES is same as diffs in DD_manu: diff- diff[5]", {
 
 test_that("ES 0 effect is same as diffs annual", {
   expect_equal(coef(ES)["timing_to_treat0"][[1]],
-               coef(mdd_DD_simple(mdd_dat=DID_dat %>% filter(Time %in% c(5, 6))))[[1]])
+               coef(mdd_DD_simple(mdd_dat=DID_dat %>% dplyr::filter(Time %in% c(5, 6))))[[1]])
 })
 
 
@@ -46,8 +46,12 @@ mdd_event_study(mdd_dat=DID_dat, trim_high = 0)
 mdd_event_study(mdd_dat=DID_dat, trim_high = 0, trim_low = -3)
 
 ## weights
+w <- rep(c(0, 1), c(8, nrow(DID_dat)-8))
+ES_with_weights <- suppressMessages(mdd_event_study(mdd_dat=DID_dat, weights = w))
+ES_subset  <- mdd_event_study(mdd_dat=DID_dat |> tail(-8))
+
 test_that("Using with weights in ES works", {
-  expect_equal(mdd_event_study(mdd_dat=DID_dat, weights = rep(c(0, 1), c(8, nrow(DID_dat)-8))) %>% coef(),
-               mdd_event_study(mdd_dat=DID_dat %>% tail(-8)) %>% coef())
+  expect_equal(coef(ES_with_weights),
+               coef(ES_subset))
 })
 

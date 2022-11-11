@@ -15,6 +15,8 @@
 #'@export
 mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = "1"){
 
+  if(is.character(cluster)) cluster <- as.formula(paste0("~", cluster))
+
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)

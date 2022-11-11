@@ -10,7 +10,8 @@ mdd_event_study(
   trim_low = NULL,
   trim_high = NULL,
   time.omit = -1,
-  weights = NULL
+  weights = NULL,
+  cluster = NULL
 )
 
 \method{plot}{mdd_event_study}(x, ...)
@@ -22,7 +23,9 @@ mdd_event_study(
 
 \item{time.omit}{Which is the base year omitted in the analysis?}
 
-\item{weights}{Variable containing the weights}
+\item{weights}{Weight argument passed to the underlying \code{feols} function}
+
+\item{cluster}{Cluster argument passed to the underlying \code{feols} function}
 
 \item{x}{the ES object}
 

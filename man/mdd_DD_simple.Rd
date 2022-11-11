@@ -4,10 +4,14 @@
 \alias{mdd_DD_simple}
 \title{Estimate simple did}
 \usage{
-mdd_DD_simple(mdd_dat)
+mdd_DD_simple(mdd_dat, weights = NULL, cluster = NULL)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
+
+\item{weights}{Weight argument passed to the underlying \code{feols} function}
+
+\item{cluster}{Cluster argument passed to the underlying \code{feols} function}
 }
 \description{
 Standard two-way FE estimation of a DiD
