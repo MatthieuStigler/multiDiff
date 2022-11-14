@@ -25,9 +25,10 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   is_reversible <- any(str_detect(seq_uniques, "1_0"))
   n_units <- nrow(sequences)
   n_seq <- length(seq_uniques)
-  treated_periods <- map(str_split(seq_uniques, "_"), ~which(.=="1")) %>%
+  treated_periods_num <- map(str_split(seq_uniques, "_"), ~which(.=="1")) %>%
     unlist() %>% unique() %>% sort()
   periods <- unique(pull(data, {{time.index}}))
+  treated_periods <- periods[treated_periods_num]
 
 
   ## classify time
@@ -46,6 +47,7 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
                        n_seq = n_seq,
                        is_reversible = is_reversible,
                        treated_periods = treated_periods,
+                       treated_periods_num = treated_periods_num,
                        periods = periods,
                        var_names = vars,
                        DID_type = DID_type)
@@ -64,11 +66,13 @@ print.mdd_dat <- function(x, ...){
 
   mdd_dat_slot <- attributes(x)$mdd_dat_slot
 
+  ## Printing of treated periods
   treated_periods_clean <- mdd_dat_slot$treated_periods
-  if(mdd_dat_slot$is_reversible) {
-    treated_periods_print <- treated_periods_clean
-  } else {
+  expected_seq <- min(treated_periods_clean):max(treated_periods_clean)
+  if(all(treated_periods_clean== expected_seq)) {
     treated_periods_print <- paste(range(treated_periods_clean), collapse = ":")
+  } else {
+    treated_periods_print <- treated_periods_clean
   }
 
   cat("### MDD data\n")
