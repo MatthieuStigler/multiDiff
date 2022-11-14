@@ -17,7 +17,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
   ## add tot data
   df %>%
     left_join(groups %>%
-                select("unit", ".group"), by = "unit")
+                select({{unit.index}}, ".group"), by = {{unit.index}})
 }
 
 # add_treat_group_simple <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){
