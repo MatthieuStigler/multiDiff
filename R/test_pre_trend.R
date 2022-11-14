@@ -1,7 +1,7 @@
 #' Conduct parallel pre-trends test
 #'
 #' @template param_mdd_dat
-#' @param time_ref the reference time period against which to test
+#' @param time_ref the reference time period against which to test, By default, the first pre-period
 #' @param cluster argument passed to `feols(..., cluster=)`
 #'
 #' @examples
@@ -13,7 +13,7 @@
 #' mdd_test_pre_trend_means(mdd_dat=mdd_data)
 #'
 #'@export
-mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = "1"){
+mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
 
   if(is.character(cluster)) cluster <- as.formula(paste0("~", cluster))
 
@@ -46,9 +46,11 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = "1"){
 
   ## get pre-preiods
   pre_periods <- mdd_dat_slot$periods[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
+  pre_periods_num <- seq_along(mdd_dat_slot$periods)[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
 
   ## H1: individual pairs
-  H_pairs <- sapply(pre_periods, \(i) paste(nam_coef[c(i,i+(K/2))], collapse =" - "))
+  # H_pairs <- sapply(pre_periods, \(i) paste(nam_coef[c(i,i+(K/2))], collapse =" - "))
+  H_pairs <- sapply(pre_periods_num, \(i) paste(nam_coef[c(i,i+(K/2))], collapse =" - "))
 
   ## internal checkI got it right
   nam_check_1 <- purrr::map(stringr::str_split(H_pairs, " = "), \(str) lapply(stringr::str_split(str, ":"), \(i) i[[1]]) %>% unlist())
@@ -57,6 +59,11 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = "1"){
   }
 
   ## H2: join tests
+  if(is.null(time_ref)) time_ref <- pre_periods[1]
+  if(!time_ref %in% pre_periods) {
+    rlang::abort(paste("Arg. 'time_ref' not found in identified pre-periods:",
+                       paste(pre_periods,collapse = ",")))
+  }
   base_ref <- which(str_detect(H_pairs, paste0("period", time_ref, ":")))
   H2_char <- paste(H_pairs[-base_ref],"=",  H_pairs[base_ref])
 

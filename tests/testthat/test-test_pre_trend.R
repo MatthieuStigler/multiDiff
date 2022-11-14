@@ -46,3 +46,27 @@ test_that("Works with different variables names: _event", {
                mdd_test_pre_trend_event(mdd_dat=mdd_data_alter))
 })
 
+################################
+#'## years, gaps
+################################
+
+dat_DiD_raw_years <- sim_dat_common(Time = 10, timing_treatment = 6:10) |>
+  dplyr::filter(!Time %in% c(4,8))
+
+test_that("Works with years", {
+  expect_no_error(mdd_test_pre_trend_means(mdd_dat = mdd_data_format(dat_DiD_raw_years)))
+})
+
+
+dat_DiD_raw_gaps <- sim_dat_common(Time = 10, timing_treatment = 6:10) |>
+  dplyr::filter(!Time %in% c(4,8))|>
+  dplyr::mutate(Time =Time+2000)
+
+test_that("Speciifcation of years: error if not found", {
+  expect_error(mdd_test_pre_trend_means(mdd_dat = mdd_data_format(dat_DiD_raw_gaps), time_ref = "2020"),
+               "Arg. 'time_ref' not found in identified pre-periods: 2001,2002,2003,2005", fixed=TRUE)
+})
+
+test_that("Current problem with gaps in years", {
+  expect_no_error(mdd_test_pre_trend_means(mdd_dat = mdd_data_format(dat_DiD_raw_gaps)))
+})
