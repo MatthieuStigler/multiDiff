@@ -55,3 +55,19 @@ test_that("Using with weights in ES works", {
                coef(ES_subset))
 })
 
+################################
+#'## Other names
+################################
+
+DID_dat_alter <- DID_dat_raw |>
+  dplyr::rename(unit_id=unit, time_id=Time,
+                y_outcome=y, treat_var=tr) |>
+  mdd_data_format(y_var = y_outcome,
+                  unit.index = unit_id, time.index = time_id,
+                  treat = treat_var)
+
+test_that("Works with different variables names", {
+  expect_equal(coef(mdd_event_study(DID_dat_alter)),
+               coef(mdd_event_study(DID_dat)))
+})
+
