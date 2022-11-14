@@ -14,10 +14,12 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
                                 str_detect(.group, "0_0")~"control"))
   }
 
-  ## add tot data
+  ## add tot dat
+  # by_var <- {{unit.index}}
+  # if(rlang::is_quosure(by_var)) by_var <- rlang::as_name(by_var)
   df %>%
     left_join(groups %>%
-                select({{unit.index}}, ".group"), by = {{unit.index}})
+                select({{unit.index}}, ".group"), by = unit.index)
 }
 
 # add_treat_group_simple <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){
@@ -31,21 +33,18 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
 if(FALSE){
   DID_dat <- sim_dat_common()
   multiDiff:::get_sequences(DID_dat)
+  multiDiff:::add_group(DID_dat)
+
 
   time.index = quo("Time")
   treat = quo("tr")
-  unit.index = quo("unit")
+
+  unit.index_quo = quo("unit")
+  a <- add_group(DID_dat, unit.index=unit.index_quo)
+  a <- add_group(DID_dat, unit.index="unit")
 
   add_group(df=DID_dat )|>
     dplyr::count(.group)
-
-  add_group(df=DID_dat, raw=FALSE)|>
-    dplyr::count(.group)
-
-  DID_dat |>
-    # multiDiff:::add_treat_group() |>
-    add_treat_group()|>
-    dplyr::count(treat_group)
 }
 
 #' df of sequences 0_0_1

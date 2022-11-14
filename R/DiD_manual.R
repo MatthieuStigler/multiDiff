@@ -64,7 +64,7 @@ DD_manu <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.in
   data2 <- data %>%
     add_group(time.index = !!enquo(time.index),
               treat = !!enquo(treat),
-              unit.index=!!enquo(unit.index))%>%
+              unit.index=unit.index)%>%
     filter(!is.na(.data$.period)) %>%
     filter(.data$.group %in% c(control_gr, treat_gr)) %>%
     group_by(.data$.period, .data$.group) %>%
