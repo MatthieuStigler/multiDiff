@@ -445,5 +445,11 @@ intrnl_mdd_get_pre_periods <- function(mdd_dat_any){
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat_any)
 
   ## res
-  mdd_dat_slot$periods[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
+  res <- mdd_dat_slot$periods[mdd_dat_slot$periods < min(mdd_dat_slot$treated_periods)]
+
+  ## check res
+  if(length(res)==0) rlang::warn("Internal confusion in identifying treated errors")
+
+  ##
+  res
 }
