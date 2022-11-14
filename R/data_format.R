@@ -7,6 +7,13 @@
 #' dat_DiD <- mdd_data_format(dat_DiD_raw)
 mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr", unit.index="unit"){
 
+  ## Check vars
+  if(!all(c(y_var, time.index, treat, unit.index) %in% colnames(data))){
+    which_miss_num <- which(!c(y_var, time.index, treat, unit.index) %in% colnames(data))
+    which_miss <- c(y_var, time.index, treat, unit.index)[which_miss_num]
+    stop("Variable(s): ", which_miss, " not in data?")
+  }
+
   ##
   sequences <- get_sequences(data, time.index = {{time.index}},
                              treat = {{treat}}, unit.index = {{unit.index}}) %>%

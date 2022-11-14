@@ -21,3 +21,11 @@ plot(dat_stag)
 lapply(dat_all, multiDiff:::intrnl_mdd_get_mdd_slot)
 lapply(dat_all, multiDiff:::intrnl_mdd_get_pre_periods)
 
+################################
+#'## Other names?
+################################
+
+test_that("Missing vars are spotted", {
+  expect_error(mdd_data_format(dat_DiD_raw, y_var = "HELOOOOO"),
+               "Variable(s): HELOOOOO not in data?", fixed=TRUE)
+})
