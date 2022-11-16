@@ -15,7 +15,14 @@ test_that("Function runs smoothly", {
   expect_no_error(mdd_test_pre_trend_means(mdd_dat=mdd_data))
 })
 
-mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "5")
+## means:unsensitive to base period
+test_that("_means is invariant to base period", {
+  means_pre5 <- mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "5")
+  means_pre1 <- mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "1")
+  expect_equal(means_pre5[1,2],
+               means_pre1[1,2])
+})
+
 mdd_test_pre_trend_event(mdd_dat = mdd_data)
 mdd_test_pre_trend_event(mdd_dat = ES)
 
