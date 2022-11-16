@@ -97,8 +97,8 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
   }
 
   ## weird bug in car/broom
-  if(mdd_dat$event_slot$time.omit!=-1) {
-    warning("Having time.omit!=-1 might cause errors")
+  if(mdd_dat$event_slot$time.omit!=-1 & packageVersion("car") <"3.1.2") {
+    rlang::warn("Having time.omit!=-1 might cause errors if package car < 3.1.2 ")
   }
   ## pre preiods?
   # mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)

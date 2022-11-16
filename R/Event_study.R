@@ -99,7 +99,7 @@ mdd_event_study <-  function(mdd_dat,
 
   ## add leads and lags
   # lags <- c(-2,1, 2)
-  lags <- seq(-1*K_before, K_after, by=1) %>% purrr::discard(~.%in% c(0, -1))
+  # lags <- seq(-1*K_before, K_after, by=1) %>% purrr::discard(~.%in% c(0, -1))
 
   ## way A: leads and lags
   # data_aug <- dat_renamed |>
