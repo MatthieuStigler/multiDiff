@@ -86,19 +86,32 @@ print.mdd_dat <- function(x, ...){
   invisible(x)
 }
 
+#' @param conf.int Whether the plot should show confidence intervals to,
+#' see \code{\link{mdd_group_means}}
 #' @export
 #' @rdname mdd_data_format
-plot.mdd_dat <- function(x, ...){
+plot.mdd_dat <- function(x, conf.int=FALSE, ...){
 
   mdd_vars <- attributes(x)$mdd_dat_slot$var_names
 
-  means <- mdd_group_means(x)
+  ## get means
+  means <- mdd_group_means(x, conf.int=conf.int)
 
-  means %>%
+  ## plot
+  base_plot <- means %>%
     ggplot(aes(x = !!sym(mdd_vars$time.index),
                y = !!sym(mdd_vars$y_var),
                color = .data$.group))+
     ggplot2::geom_line()
+
+  ## add CI in case
+  if(conf.int){
+    base_plot <- base_plot +
+      ggplot2::geom_ribbon(aes(ymin=.data$conf.low, ymax=.data$conf.high, fill = .data$.group),
+                           alpha =0.6)
+  }
+
+  base_plot
 }
 
 
@@ -119,6 +132,7 @@ if(FALSE){
   dat_stag
 
   plot(dat_DiD)
+  plot(dat_DiD, conf.int=TRUE)
   plot(dat_stag)
 
 }

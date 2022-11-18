@@ -7,6 +7,7 @@
 * Add function `mdd_test_pre_trend_means`
 * Add function `mdd_test_pre_trend_event`
 * Add function `mdd_group_means`
+* Pass argument `conf.int` to `plot(mdd_dat)`
 
 # multiDiff 0.1.3
 

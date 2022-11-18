@@ -15,6 +15,7 @@ dat_any
 dat_stag
 
 plot(dat_DiD)
+plot(dat_DiD, conf.int=TRUE)
 plot(dat_stag)
 
 ## methods

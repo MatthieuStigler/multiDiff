@@ -16,7 +16,7 @@ mdd_data_format(
 
 \method{print}{mdd_dat}(x, ...)
 
-\method{plot}{mdd_dat}(x, ...)
+\method{plot}{mdd_dat}(x, conf.int = FALSE, ...)
 }
 \arguments{
 \item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
@@ -33,6 +33,9 @@ mdd_data_format(
 \item{x}{object of class mdd_dat}
 
 \item{...}{unused}
+
+\item{conf.int}{Whether the plot should show confidence intervals to,
+see \code{\link{mdd_group_means}}}
 }
 \description{
 Diff Diff manual table
