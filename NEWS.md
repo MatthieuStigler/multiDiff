@@ -6,6 +6,7 @@
 * Add function `sim_dat_common`
 * Add function `mdd_test_pre_trend_means`
 * Add function `mdd_test_pre_trend_event`
+* Add function `mdd_group_means`
 
 # multiDiff 0.1.3
 
