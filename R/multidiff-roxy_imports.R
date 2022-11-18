@@ -9,7 +9,7 @@ NULL
 #' @importFrom dplyr select_at group_modify mutate_all group_by_at summarise_at case_when n_distinct
 NULL
 
-#' @importFrom tidyselect starts_with one_of
+#' @importFrom tidyselect starts_with one_of all_of
 NULL
 
 #' @importFrom tidyr gather spread nest unnest

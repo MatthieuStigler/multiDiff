@@ -92,7 +92,7 @@ plot.mdd_dat <- function(x, ...){
 
   mdd_vars <- attributes(x)$mdd_dat_slot$var_names
 
-  means <- mdd_simple_means(x)
+  means <- mdd_group_means(x)
 
   means %>%
     ggplot(aes(x = !!sym(mdd_vars$time.index),
@@ -101,23 +101,7 @@ plot.mdd_dat <- function(x, ...){
     ggplot2::geom_line()
 }
 
-mdd_simple_means <- function(mdd_dat) {
-  if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
-  mdd_dat_slot <- attributes(mdd_dat)$mdd_dat_slot
-  mdd_vars <- mdd_dat_slot$var_names
 
-  # add groups
-  mdd_dat_add <- mdd_dat %>%
-    add_group(time.index = mdd_vars$time.index, treat = mdd_vars$treat,
-              unit.index = mdd_vars$unit.index, group_rename_maybe=TRUE)
-
-  ##
-  mdd_dat_add %>%
-    group_by(dplyr::across(c(".group", mdd_vars$time.index))) %>%
-    summarise(dplyr::across(mdd_vars$y_var, mean),
-              .groups = "drop")
-
-}
 
 if(FALSE){
   library(multiDiff)
@@ -136,8 +120,5 @@ if(FALSE){
 
   plot(dat_DiD)
   plot(dat_stag)
-
-  mdd_simple_means(dat_DiD)
-  mdd_simple_means(mdd_data_format(data=dat_stag_raw))
 
 }

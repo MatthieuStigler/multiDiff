@@ -8,7 +8,7 @@ DID_dat <- mdd_data_format(DID_dat_raw)
 
 ## Manu means
 means_manu <- DID_dat |>
-  multiDiff:::mdd_simple_means() |>
+  multiDiff:::mdd_group_means() |>
   tidyr::spread(.group, y) |>
   dplyr::mutate(diff=treated-control)
 
