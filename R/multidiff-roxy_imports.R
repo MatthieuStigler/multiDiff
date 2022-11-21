@@ -8,6 +8,8 @@ NULL
 NULL
 #' @importFrom dplyr select_at group_modify mutate_all group_by_at summarise_at case_when n_distinct
 NULL
+#' @importFrom dplyr across
+NULL
 
 #' @importFrom tidyselect starts_with one_of all_of
 NULL
