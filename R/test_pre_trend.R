@@ -74,11 +74,13 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
   ## assemble
   rbind(test_joint %>% broom::tidy() %>%
           distinct(.data$statistic, .data$p.value) %>%
-          mutate(term = paste(H2_char, collapse = "AND")),
+          mutate(estimate = NA,
+                 term = paste(H2_char, collapse = "AND")),
         test_indiv %>%
-          distinct(.data$term, .data$statistic, .data$p.value)) %>%
+          distinct(.data$estimate, .data$term, .data$statistic, .data$p.value)) %>%
     mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
-    dplyr::relocate("test")
+    rename(coefficient = "estimate") %>%
+    dplyr::relocate("test", "coefficient")
 }
 
 #'@param ... Further arguments passed to \code{\link{mdd_event_study}}
@@ -122,11 +124,13 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
   name_joint <- attributes(test_joint)$heading[2:(K_before+1)]
   rbind(test_joint %>% broom::tidy() %>%
           distinct(.data$statistic, .data$p.value) %>%
-          mutate(term = paste(name_joint, collapse = " AND ")),
+          mutate(estimate = NA,
+                 term = paste(name_joint, collapse = " AND ")),
         test_indiv %>%
-          distinct(.data$term, .data$statistic, .data$p.value)) %>%
+          distinct(.data$estimate, .data$term, .data$statistic, .data$p.value)) %>%
     mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
-    dplyr::relocate("test")
+    rename(coefficient = "estimate") %>%
+    dplyr::relocate("test", "coefficient")
 
 }
 
