@@ -53,11 +53,20 @@ test_that("FE decompo: time/time/time", {
 coefs_FE1_byN <- FE_decompo(data=data_sim,
                             time.index = "Time",
                             fixed_effects = "unit",
-                            by = c("unit", "state"))
+                            by = c("unit"))
 test_that("FE decompo: time/unit/unit-state", {
   expect_true(intrnl_check(coefs_FE1_byN, reg_FE1_unit))
 })
 
+### Using state unit is redundant
+coefs_FE1_byNS <- FE_decompo(data=data_sim,
+                            time.index = "Time",
+                            fixed_effects = "unit",
+                            by = c("unit", "state"))
+
+test_that("Using state unit is redundant", {
+  expect_equal(coefs_FE1_byN, coefs_FE1_byNS |>dplyr::select(-state))
+})
 
 
 ## TEST FE2, by one var
@@ -89,7 +98,7 @@ test_that("FE decompo: time/unit/state", {
 
 
 ## Compare by state versus average by unit
-compr <- coefs_FE1_byN %>%
+compr <- coefs_FE1_byNS %>%
   dplyr::group_by(state) %>%
   dplyr::summarise(treat_coef_byS = weighted.mean(treat_coef, w = treat_weight),
                    treat_weight_byS = sum(treat_weight),
