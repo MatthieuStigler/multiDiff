@@ -1,5 +1,10 @@
 # multiDiff (development version)
 
+
+# multiDiff 0.2.1
+
+* fix issue#12: minor bug with weird data
+
 # multiDiff xxxx
 
 * Add function `mdd_data_format`, with `plot` and `print` methods

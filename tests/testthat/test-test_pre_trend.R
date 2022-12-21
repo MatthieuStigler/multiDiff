@@ -27,8 +27,12 @@ mdd_test_pre_trend_event(mdd_dat = mdd_data)
 mdd_test_pre_trend_event(mdd_dat = ES)
 
 test_that("Function runs smoothly", {
+  car_v <- packageVersion("car")
+  mess <- paste("arguments imply differing number of rows:",
+                ifelse(car_v>"3.1.2", "0, 1", "3, 4" ))
+
   expect_error(suppressWarnings(mdd_test_pre_trend_event(mdd_dat = ES_omit5)),
-               "arguments imply differing number of rows: 0, 1")
+               mess)
 })
 
 
@@ -77,3 +81,4 @@ test_that("Speciifcation of years: error if not found", {
 test_that("Current problem with gaps in years", {
   expect_no_error(mdd_test_pre_trend_means(mdd_dat = mdd_data_format(dat_DiD_raw_gaps)))
 })
+

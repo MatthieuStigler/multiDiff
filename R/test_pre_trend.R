@@ -115,14 +115,22 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
   }
 
   ## hypo
-  test_joint <- car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat)
+  test_joint <- try(car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat), silent = TRUE)
+  if(inherits(test_joint, "try-error")) {
+    error <- attributes(test_joint)$condition
+    warning(error)
+    test_joint_tidy <- tibble(statistic=NA, p.value=NA)
+    name_joint <- "ERROR"
+  } else {
+    name_joint <- attributes(test_joint)$heading[2:(K_before+1)]
+    test_joint_tidy <- test_joint %>% broom::tidy()
+  }
   test_indiv <- purrr::map_dfr(1:K_before, \(i) car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat[i,]) |>
                                  broom::tidy())
 
   ## tidy res
   ## assemble
-  name_joint <- attributes(test_joint)$heading[2:(K_before+1)]
-  rbind(test_joint %>% broom::tidy() %>%
+  rbind(test_joint_tidy %>%
           distinct(.data$statistic, .data$p.value) %>%
           mutate(estimate = NA,
                  term = paste(name_joint, collapse = " AND ")),
