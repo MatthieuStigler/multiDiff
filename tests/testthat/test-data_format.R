@@ -60,3 +60,10 @@ test_that("Correct formatting of years with gaps", {
                c(2006, 2007, 2009, 2010))
 })
 
+## warning messages
+test_that("Warn when miss variables", {
+  dat_modif <- dat_DiD_raw_years |>
+    dplyr::rename(y_out=y, treat=tr)
+  expect_error(mdd_data_format(data = dat_modif),
+               "Variable(s): y, tr not in data?", fixed=TRUE)
+})

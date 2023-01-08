@@ -10,7 +10,7 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   ## Check vars
   if(!all(c(y_var, time.index, treat, unit.index) %in% colnames(data))){
     which_miss_num <- which(!c(y_var, time.index, treat, unit.index) %in% colnames(data))
-    which_miss <- c(y_var, time.index, treat, unit.index)[which_miss_num]
+    which_miss <- paste(c(y_var, time.index, treat, unit.index)[which_miss_num], collapse = ", ")
     stop("Variable(s): ", which_miss, " not in data?")
   }
 

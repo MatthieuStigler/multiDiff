@@ -1,5 +1,8 @@
 # multiDiff (development version)
 
+# multiDiff 0.2.1.9000
+
+* fix warning with missing var
 
 # multiDiff 0.2.1
 
