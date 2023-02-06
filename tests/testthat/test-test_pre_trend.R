@@ -15,7 +15,11 @@ test_that("Function runs smoothly", {
   expect_no_error(mdd_test_pre_trend_means(mdd_dat=mdd_data))
 })
 
-## means:unsensitive to base period
+test_that("Function runs smoothly with time.omit=-2", {
+  expect_no_error(mdd_test_pre_trend_event(mdd_dat=mdd_data, time.omit= -2))
+})
+
+## means: insensitive to base period
 test_that("_means is invariant to base period", {
   means_pre5 <- mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "5")
   means_pre1 <- mdd_test_pre_trend_means(mdd_dat=mdd_data, time_ref = "1")
@@ -23,17 +27,13 @@ test_that("_means is invariant to base period", {
                means_pre1[1,2])
 })
 
-mdd_test_pre_trend_event(mdd_dat = mdd_data)
-mdd_test_pre_trend_event(mdd_dat = ES)
-
-test_that("Function runs smoothly", {
-  car_v <- packageVersion("car")
-  mess <- paste("arguments imply differing number of rows:",
-                ifelse(car_v>"3.1.2", "0, 1", "3, 4" ))
-
-  expect_error(suppressWarnings(mdd_test_pre_trend_event(mdd_dat = ES_omit5)),
-               mess)
+test_that("_event is invariant to base period", {
+  wald_pre5 <- mdd_test_pre_trend_event(mdd_event_study(mdd_data, time.omit = -5))
+  wald_pre1 <- mdd_test_pre_trend_event(mdd_event_study(mdd_data, time.omit = -1))
+  expect_equal(wald_pre5[1,"statistic"],
+               wald_pre1[1,"statistic"])
 })
+
 
 
 ################################

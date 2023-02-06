@@ -2,6 +2,7 @@
 
 # multiDiff 0.2.1.9000
 
+* Use now internal *my_wald* for event study test
 * fix warning with missing var
 
 # multiDiff 0.2.1

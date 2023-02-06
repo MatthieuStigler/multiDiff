@@ -69,13 +69,13 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
 
   test_joint <- car::linearHypothesis(reg_out, hypothesis.matrix = H2_char)
   test_indiv <- purrr::map_dfr(H2_char, \(i) car::linearHypothesis(reg_out, hypothesis.matrix = i) %>%
-                          broom::tidy())
+                                 broom::tidy())
 
   ## assemble
   rbind(test_joint %>% broom::tidy() %>%
           distinct(.data$statistic, .data$p.value) %>%
           mutate(estimate = NA,
-                 term = paste(H2_char, collapse = "AND")),
+                 term = paste(H2_char, collapse = " AND ")),
         test_indiv %>%
           distinct(.data$estimate, .data$term, .data$statistic, .data$p.value)) %>%
     mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
@@ -88,6 +88,7 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
 #'@export
 #'@rdname mdd_test_pre_trend_means
 mdd_test_pre_trend_event <- function(mdd_dat, ...){
+
   ## mdd formatting
   if(!inherits(mdd_dat, c("mdd_dat", "mdd_event_study"))) {
     stop("Data should be either of class 'mdd_data_format' or 'mdd_event_study'")
@@ -98,14 +99,8 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
     mdd_dat <- mdd_event_study(mdd_dat, ...)
   }
 
-  ## weird bug in car/broom
-  if(mdd_dat$event_slot$time.omit!=-1 & utils::packageVersion("car") <"3.1.2") {
-    rlang::warn("Having time.omit!=-1 might cause errors if package car < 3.1.2 ")
-  }
-  ## pre preiods?
-  # mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
 
-  ## format hypo
+  ## format hypo H matrix
   coef_nam <- names(coef(mdd_dat))
   which_before <- stringr::str_detect(coef_nam, "-[0-9]+")
   K_before <- sum(which_before)
@@ -115,30 +110,15 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
   }
 
   ## hypo
-  test_joint <- try(car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat), silent = TRUE)
-  if(inherits(test_joint, "try-error")) {
-    error <- attributes(test_joint)$condition
-    warning(error)
-    test_joint_tidy <- tibble(statistic=NA, p.value=NA)
-    name_joint <- "ERROR"
-  } else {
-    name_joint <- attributes(test_joint)$heading[2:(K_before+1)]
-    test_joint_tidy <- test_joint %>% broom::tidy()
-  }
-  test_indiv <- purrr::map_dfr(1:K_before, \(i) car::linearHypothesis(mdd_dat, hypothesis.matrix = H_mat[i,]) |>
-                                 broom::tidy())
+  test_joint <- my_wald(mdd_dat, H_mat)
+  test_indiv <- purrr::map_dfr(1:K_before, \(i) my_wald(mdd_dat, H_mat[i,,drop=FALSE]))
 
-  ## tidy res
-  ## assemble
-  rbind(test_joint_tidy %>%
-          distinct(.data$statistic, .data$p.value) %>%
-          mutate(estimate = NA,
-                 term = paste(name_joint, collapse = " AND ")),
-        test_indiv %>%
-          distinct(.data$estimate, .data$term, .data$statistic, .data$p.value)) %>%
+  ## tidy res  assemble
+  rbind(test_joint,
+        test_indiv ) %>%
     mutate(test = c("test_joint", rep("test_indiv", nrow(test_indiv)))) %>%
-    rename(coefficient = "estimate") %>%
-    dplyr::relocate("test", "coefficient")
+    dplyr::relocate("test", "coefficient") %>%
+    as_tibble()
 
 }
 
@@ -208,5 +188,59 @@ if(FALSE){
   ### Full
   treat.group.index = quo(type)
   time.index <- quo(Time)
-  mdd_test_pre_trend_means(df=data_modif, cluster=NULL)
+  mdd_test_pre_trend_means(data_modif, cluster=NULL)
+}
+
+################################
+#'## Wald test
+################################
+
+#' Internal Wald test for 0
+#'
+#' @param object any reg object with coef/vcov
+#' @param H Hypo matrix, N col shold be same aas N coef
+#'
+#' @noRd
+my_wald <- function(object, H){
+  B <- coef(object)
+  R <- H %*% B
+  W <- t(R) %*% solve(H%*% stats::vcov(object) %*% t(H)) %*% R
+  p <- 1 - stats::pchisq(W, df = nrow(H))
+
+  ## term
+  nam_B <- names(coef(object))
+  terms_sep <- lapply(1:nrow(H), \(i) paste(paste(nam_B[which(H[i,]==1)], collapse = " + "), "= 0"))
+  terms <- paste(terms_sep, collapse = " AND ")
+
+  ## estimate
+  coefficient <- if(nrow(H)==1)R else NA
+
+  ## res
+  data.frame(coefficient= coefficient,
+             statistic=W, p.value=p, term= terms)
+}
+
+if(FALSE){
+  reg  <-  lm(freeny)
+  H <- cbind(0, diag(2), matrix(0,2,2))
+  H2 <- H
+  H2[1,1] <- 1
+  H_indiv <- matrix(c(0, 1, 0,0,0), nrow=1)
+
+  ##
+  my_wald(object = reg, H)
+  my_wald(object = reg, H2)
+  my_wald(object = reg, H_indiv)
+
+  aod_res <- aod::wald.test(Sigma = vcov(reg), b = coef(reg), Terms = 2:3)
+  my_res <- my_wald(object = reg, H)
+  all.equal(aod_res$result$chi2[["chi2"]], my_res[["statistic"]])
+  all.equal(aod_res$result$chi2[["P"]], my_res[["p.value"]])
+
+  ## test individual
+  my_wald(reg, H_indiv)
+  all.equal(my_wald(reg, H_indiv)[["statistic"]] |>sqrt(),
+            coef(summary(reg))[2,"t value"])
+
+  car::linearHypothesis(reg, H) |> broom::tidy()
 }
