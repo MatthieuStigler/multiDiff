@@ -11,7 +11,8 @@ mdd_event_study(
   trim_high = NULL,
   time.omit = -1,
   weights = NULL,
-  cluster = NULL
+  cluster = NULL,
+  ...
 )
 
 \method{plot}{mdd_event_study}(x, ...)
@@ -27,9 +28,9 @@ mdd_event_study(
 
 \item{cluster}{Cluster argument passed to the underlying \code{feols} function}
 
-\item{x}{the ES object}
+\item{...}{passed to feols for mdd_event_study}
 
-\item{...}{currently not used}
+\item{x}{the ES object}
 }
 \description{
 Event study

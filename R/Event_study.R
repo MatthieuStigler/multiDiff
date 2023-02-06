@@ -65,7 +65,7 @@ if(FALSE){
 #' @export
 mdd_event_study <-  function(mdd_dat,
                              trim_low=NULL, trim_high=NULL, time.omit = -1,
-                             weights=NULL, cluster=NULL){
+                             weights=NULL, cluster=NULL, ...){
 
 
   ## mdd formatting
@@ -127,7 +127,7 @@ mdd_event_study <-  function(mdd_dat,
   formu <- "y_var ~ timing_to_treat |unit.index + time.index"
 
   ### lead/lag way
-  res <- fixest::feols(as.formula(formu), data =data_aug, weights = weights, cluster = cluster)
+  res <- fixest::feols(as.formula(formu), data =data_aug, weights = weights, cluster = cluster, ...)
 
 
   ## format result
@@ -139,7 +139,7 @@ mdd_event_study <-  function(mdd_dat,
 
 #'
 #' @param x the ES object
-#' @param ... currently not used
+#' @param ... passed to feols for mdd_event_study
 #' @rdname mdd_event_study
 #' @export
 plot.mdd_event_study <- function(x, ...){
@@ -148,7 +148,7 @@ plot.mdd_event_study <- function(x, ...){
   coef_df <- broom::tidy(x, conf.int=TRUE) %>%
     tibble::add_row(term = paste0("timing_to_treat", x$event_slot$time.omit),
             estimate=0,
-            conf.low=0, conf.high=0) %>%
+            conf.low=NA, conf.high=NA) %>%
     mutate(time = str_extract(.data$term, "-?[0-9]+") %>% as.integer)
 
   coef_df %>%
