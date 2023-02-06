@@ -202,10 +202,22 @@ if(FALSE){
 #'
 #' @noRd
 my_wald <- function(object, H){
+
+
   B <- coef(object)
   R <- H %*% B
-  W <- t(R) %*% solve(H%*% stats::vcov(object) %*% t(H)) %*% R
-  p <- 1 - stats::pchisq(W, df = nrow(H))
+  SIG <- H%*% stats::vcov(object) %*% t(H)
+
+  ## Try to inverse
+  S_inv <- try(solve(SIG), silent = TRUE)
+  if(inherits(S_inv, "try-error")) {
+    error <- attributes(S_inv)$condition
+    warning(error)
+    W <- p <- NA
+  } else {
+    W <- t(R) %*% solve(SIG) %*% R
+    p <- 1 - stats::pchisq(W, df = nrow(H))
+  }
 
   ## term
   nam_B <- names(coef(object))
