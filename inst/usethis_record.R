@@ -28,6 +28,7 @@ use_package("car", "Imports")
 use_package("fixest", "Imports")
 
 use_package("tidyverse", "Suggests")
+use_package("synthdid", "Suggests")
 # tidyselect
 
 
