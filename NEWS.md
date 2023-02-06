@@ -1,6 +1,8 @@
-# multiDiff (development version)
+# multiDiff 0.2.2.90000
 
-# multiDiff 0.2.2
+* Add new `mdd_synthdid` for synthetic diff-diff
+
+# multiDiff 0.2.2 (2023-02-06)
 
 * Use now internal *my_wald* for event study test
 * fix warning with missing var
