@@ -24,6 +24,7 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   ## Compute various info
   is_reversible <- any(str_detect(seq_uniques, "1_0"))
   n_units <- nrow(sequences)
+  n_treated <- sum(str_detect(sequences$.group, "1"))
   n_seq <- length(seq_uniques)
   treated_periods_num <- map(str_split(seq_uniques, "_"), ~which(.=="1")) %>%
     unlist() %>% unique() %>% sort()
@@ -36,7 +37,7 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
                         n_seq==2 & is_reversible ~ "classical-single time",
                         n_seq>2 & !is_reversible ~ "staggered",
                         n_seq>2 & is_reversible ~ "general",
-                        TRUE ~"UNCLASSFIED YET?")
+                        TRUE ~"UNCLASSFIED SCHEME YET?")
 
   ## put all info together
   vars <- list(y_var=rlang::as_name(enquo(y_var)),
@@ -45,6 +46,7 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
                unit.index=rlang::as_name(enquo(unit.index)))
   mdd_dat_slot <- list(n_units = n_units,
                        n_seq = n_seq,
+                       n_treated = n_treated,
                        is_reversible = is_reversible,
                        treated_periods = treated_periods,
                        treated_periods_num = treated_periods_num,
@@ -77,10 +79,11 @@ print.mdd_dat <- function(x, ...){
 
   cat("### MDD data\n")
   cat("\t-Design type: ", mdd_dat_slot$DID_type, "\n")
-  cat("\t-N units: ", mdd_dat_slot$n_units, "\n")
-  cat("\t-N treatment groups: ", mdd_dat_slot$n_seq, "\n")
   cat("\t-Reversible treatment: ", mdd_dat_slot$is_reversible, "\n")
-  cat("\t-treated periods: ", treated_periods_print, "\n")
+  cat("\t-N units: ", mdd_dat_slot$n_units, ". Treated: ", mdd_dat_slot$n_treated, "\n", sep="")
+  cat("\t-N treatment sequences: ", mdd_dat_slot$n_seq, "\n")
+  cat("\t-T periods: ", length(mdd_dat_slot$periods), ". Treated: ", length(treated_periods_clean), "\n", sep="")
+  cat("\t-Treated periods: ", treated_periods_print, "\n")
   #
   # NextMethod(head(x))
   invisible(x)

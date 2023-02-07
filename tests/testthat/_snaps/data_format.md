@@ -5,10 +5,11 @@
     Output
       ### MDD data
       	-Design type:  classical 
-      	-N units:  1000 
-      	-N treatment groups:  2 
       	-Reversible treatment:  FALSE 
-      	-treated periods:  2:10 
+      	-N units: 1000. Treated: 250
+      	-N treatment sequences:  2 
+      	-T periods: 10. Treated: 9
+      	-Treated periods:  2:10 
 
 ---
 
@@ -17,10 +18,11 @@
     Output
       ### MDD data
       	-Design type:  general 
-      	-N units:  1000 
-      	-N treatment groups:  774 
       	-Reversible treatment:  TRUE 
-      	-treated periods:  1:15 
+      	-N units: 1000. Treated: 985
+      	-N treatment sequences:  774 
+      	-T periods: 15. Treated: 15
+      	-Treated periods:  1:15 
 
 ---
 
@@ -29,8 +31,9 @@
     Output
       ### MDD data
       	-Design type:  staggered 
-      	-N units:  1000 
-      	-N treatment groups:  15 
       	-Reversible treatment:  FALSE 
-      	-treated periods:  2:15 
+      	-N units: 1000. Treated: 800
+      	-N treatment sequences:  15 
+      	-T periods: 15. Treated: 14
+      	-Treated periods:  2:15 
 
