@@ -1,8 +1,8 @@
 library(multiDiff)
 
 dat_DiD_raw <- sim_dat_common()
-dat_any_raw <- sim_dat()
-dat_stag_raw <- sim_dat_staggered()
+dat_any_raw <- sim_dat(seed = 123)
+dat_stag_raw <- sim_dat_staggered(seed = 123)
 
 ## to mdd
 dat_DiD <- mdd_data_format(data=dat_DiD_raw)
@@ -66,4 +66,15 @@ test_that("Warn when miss variables", {
     dplyr::rename(y_out=y, treat=tr)
   expect_error(mdd_data_format(data = dat_modif),
                "Variable(s): y, tr not in data?", fixed=TRUE)
+})
+
+
+################################
+#'## Output
+################################
+
+test_that("Check output of print", {
+  expect_snapshot(dat_DiD)
+  expect_snapshot(dat_any)
+  expect_snapshot(dat_stag)
 })
