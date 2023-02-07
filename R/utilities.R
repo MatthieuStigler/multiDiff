@@ -19,7 +19,7 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
   # if(rlang::is_quosure(by_var)) by_var <- rlang::as_name(by_var)
   df %>%
     left_join(groups %>%
-                select({{unit.index}}, ".group"), by = unit.index)
+                select(all_of(unit.index), ".group"), by = unit.index)
 }
 
 # add_treat_group_simple <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){

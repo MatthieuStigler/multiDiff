@@ -32,7 +32,7 @@ mdd_group_means <- function(mdd_dat, conf.int=FALSE) {
       group_by(dplyr::across(c(".group", mdd_vars$time.index))) %>%
       summarise(dplyr::across(mdd_vars$y_var, mean),
                 .groups = "drop") %>%
-      arrange(.data$.group, all_of(mdd_vars$time.index))
+      arrange(.data$.group, mdd_vars$time.index)
 
   } else {
     formu <- as.formula(paste(mdd_vars$y_var, "~1"))
@@ -41,12 +41,12 @@ mdd_group_means <- function(mdd_dat, conf.int=FALSE) {
       nest() %>%
       mutate(data = map(.data$data, ~lm(formu, data =.) %>%
                           broom::tidy(conf.int=TRUE))) %>%
-      unnest(.data$data) %>%
+      unnest("data") %>%
       ungroup() %>%
       relocate(all_of(c(".group", mdd_vars$time.index))) %>%
       select(-"term") %>%
       dplyr::rename_with(~str_replace(., "^estimate$", mdd_vars$y_var)) %>%
-      arrange(.data$.group, all_of(mdd_vars$time.index))
+      arrange(.data$.group, mdd_vars$time.index)
   }
 
   ## return result
