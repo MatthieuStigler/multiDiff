@@ -4,12 +4,12 @@
 \alias{mdd_synthdid}
 \title{Run synthetic diff-diff}
 \usage{
-mdd_synthdid(mdd_dat, feols_output = FALSE)
+mdd_synthdid(mdd_dat, add_weights = FALSE)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
-\item{feols_output}{re-estuiamte model with feols?}
+\item{add_weights}{return the weights?}
 }
 \description{
 Run synthetic diff-diff

@@ -12,7 +12,11 @@ mdd_california_prop99 <- mdd_data_format(california_prop99,
 
 ## Run
 res <- mdd_synthdid(mdd_dat=mdd_california_prop99)
-res_rerun <- mdd_synthdid(mdd_dat=mdd_california_prop99, feols_output=TRUE)
+res_full <- mdd_synthdid(mdd_dat=mdd_california_prop99, add_weights = TRUE)
+W <- as.data.frame(attr(res_full, "mdd_data"))
+head(W)
+
+res_rerun <- mdd_DD_simple(mdd_california_prop99, weights =  W$weights)
 
 ## Compare with feols_output
 test_that("feols_output=TRUE gives same output", {
@@ -20,4 +24,12 @@ test_that("feols_output=TRUE gives same output", {
                coef(res_rerun)[[1]])
 })
 
-
+### means
+# res_full_dat <- attr(res_full, "mdd_data")
+# as_tibble(res_full_dat)
+# mdd_group_means(res_full_dat, weights = weights) %>%
+#   ggplot(aes(x=Year, y=PacksPerCapita, color=.group))+
+#   geom_line()
+#
+# plot(mdd_california_prop99)+
+#   geom_line(aes(x=Year, y=PacksPerCapita, color=.group), data=mdd_group_means(res_full_dat, weights = weights), linetype=2)

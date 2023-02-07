@@ -1,7 +1,7 @@
 #' Run synthetic diff-diff
 #'
 #' @template param_mdd_dat
-#' @param feols_output re-estuiamte model with feols?
+#' @param add_weights return the weights?
 #'
 #' @examples
 #' if(require(synthdid)){
@@ -12,13 +12,12 @@
 #'   mdd_synthdid(mdd_dat=mdd_california_prop99)
 #' }
 #' @export
-mdd_synthdid <- function(mdd_dat, feols_output=FALSE){
+mdd_synthdid <- function(mdd_dat, add_weights=FALSE){
 
   if(!requireNamespace("synthdid", quietly = TRUE)) stop("Please install `synthdid`")
 
   ## prep data
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
-  # mdd_dat_slot <- multiDiff:::intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
   tr_quo <- rlang::sym(mdd_vars$treat)
   time_quo <- rlang::sym(mdd_vars$time.index)
@@ -34,7 +33,7 @@ mdd_synthdid <- function(mdd_dat, feols_output=FALSE){
   res <- synthdid::synthdid_estimate(setup$Y, setup$N0, setup$T0)
 
   ## re-estimate?
-  if(feols_output){
+  if(add_weights){
     W <- attributes(res)$weights
 
     W_time <- W$lambda
@@ -54,8 +53,12 @@ mdd_synthdid <- function(mdd_dat, feols_output=FALSE){
 
 
     ## re-estimate
-    res <- mdd_DD_simple(mdd_dat_full, weights = mdd_dat_full$weights)
+    # res <- mdd_DD_simple(mdd_dat_full, weights = mdd_dat_full$weights)
+    attr(res, "mdd_data") <- mdd_dat_full
   }
+
+  attr(res, "mdd_dat_slot") <- mdd_dat_slot
+  # class(res) <- c(class(res), "mdd_synthdid") ## see issue https://github.com/synth-inference/synthdid/issues/100
   res
 }
 
