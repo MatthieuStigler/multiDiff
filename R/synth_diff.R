@@ -23,7 +23,7 @@ mdd_synthdid <- function(mdd_dat, add_weights=FALSE){
   time_quo <- rlang::sym(mdd_vars$time.index)
   unit_quo <- rlang::sym(mdd_vars$unit.index)
   setup <- synthdid::panel.matrices(as.data.frame(mdd_dat) %>%
-                                      mutate({{tr_quo}} := {{tr_quo}}),
+                                      mutate({{tr_quo}} := as.integer({{tr_quo}})),
                                     unit=mdd_vars$unit.index,
                                     time = mdd_vars$time.index,
                                     outcome = mdd_vars$y_var,
