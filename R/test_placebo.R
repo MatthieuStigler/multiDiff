@@ -29,7 +29,7 @@ mdd_test_placebo <- function(mdd_dat, T_treated = NULL, weights = NULL, cluster=
   if(is.null(T_treated)) {
     T_treated <- min(length(mdd_dat_slot$treated_periods), T_pre-1)
   } else {
-    if(T_treated>T_pre-1) stop(paste("Arg. T_treated should not be bigger than", T_pre-1))
+    if(T_treated>T_pre-1) stop(paste("Arg. 'T_treated' should not be bigger than", T_pre-1))
     if(T_treated<1) stop("Arg. 'T_treated' should be >0")
   }
     # treated.fraction <- length(mdd_dat_slot$treated_periods)/length(mdd_dat_slot$periods)
