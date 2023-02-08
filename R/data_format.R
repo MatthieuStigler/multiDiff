@@ -118,6 +118,17 @@ plot.mdd_dat <- function(x, conf.int=FALSE, ...){
 }
 
 
+## reassign
+#' @noRd
+intrnl_mdd_data_format_reassign <- function(mdd_new, mdd_old){
+
+  mdd_vars_old <- intrnl_mdd_get_mdd_slot(mdd_old)$var_names
+
+  mdd_data_format(mdd_new, y_var = mdd_vars_old$y_var, time.index = mdd_vars_old$time.index,
+                  treat = mdd_vars_old$treat, unit.index = mdd_vars_old$unit.index)
+
+}
+
 
 if(FALSE){
   library(multiDiff)
