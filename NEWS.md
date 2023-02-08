@@ -1,6 +1,7 @@
 # multiDiff 0.2.2.90000
 
 * Add new `mdd_synthdid` for synthetic diff-diff
+* `mdd_group_means`: add argument `weights`
 * Internal: add testthat snapshots
 
 # multiDiff 0.2.2 (2023-02-06)
