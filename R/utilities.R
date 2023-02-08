@@ -186,6 +186,18 @@ intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit")
     ungroup()
 }
 
+#' Add category, but for mfdd object
+#' @noRd
+intrnl_add_treat_status_mdd <- function(mdd_dat) {
+
+  mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
+  treat_quo <- rlang::sym(mdd_vars$treat)
+  mdd_dat %>%
+    group_by(across(mdd_vars$unit.index)) %>%
+    mutate(treat_categ = if_else(any(!!treat_quo==1), "Treat", "Control")) %>%
+    ungroup()
+}
+
 #' @noRd
 intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"){
   # y_var="y", time.index = "Time"
