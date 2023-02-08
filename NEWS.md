@@ -1,5 +1,6 @@
-# multiDiff 0.2.2.90000
+# multiDiff 0.2.3
 
+# Add new `mdd_test_placebo` to run a placebo test on the pre-period
 * Add new `mdd_synthdid` for synthetic diff-diff
 * `mdd_group_means`: add argument `weights`
 * Internal: add testthat snapshots

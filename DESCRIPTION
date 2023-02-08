@@ -1,6 +1,6 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.2.2.90001
+Version: 0.2.3
 Date: 2023-02-08
 Authors@R: 
     person(given = "Matthieu",
