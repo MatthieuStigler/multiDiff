@@ -19,7 +19,8 @@ mdd_DD_simple <-  function(mdd_dat, weights = NULL, cluster = NULL){
 
   ## mdd formatting
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
-  mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
+  mdd_vars <- mdd_dat_slot$var_names
 
   formu <- paste0(mdd_vars$y_var, " ~ ",
                   mdd_vars$treat, " | ",
@@ -30,6 +31,7 @@ mdd_DD_simple <-  function(mdd_dat, weights = NULL, cluster = NULL){
 
   ## format result
   class(res) <- c("mdd_DiD", class(res))
+  attr(res, "mdd_dat_slot") <- mdd_dat_slot
   res
 }
 

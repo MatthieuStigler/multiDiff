@@ -1,6 +1,11 @@
+# multiDiff 0.2.4
+
+
+* Return mdd_dat_slot with `mdd_DD_simple`
+
 # multiDiff 0.2.3
 
-# Add new `mdd_test_placebo` to run a placebo test on the pre-period
+* Add new `mdd_test_placebo` to run a placebo test on the pre-period
 * Add new `mdd_synthdid` for synthetic diff-diff
 * `mdd_group_means`: add argument `weights`
 * Internal: add testthat snapshots
@@ -14,8 +19,7 @@
 
 * fix issue#12: minor bug with weird data
 
-# multiDiff xxxx
-
+# multiDiff 
 * Add function `mdd_data_format`, with `plot` and `print` methods
 * Add function `sim_dat_common`
 * Add function `mdd_test_pre_trend_means`
