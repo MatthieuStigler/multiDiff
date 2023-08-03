@@ -1,3 +1,8 @@
+# multiDiff 0.2.5 (2023-08-03)
+
+* Add `coef` and `tidy` methods for `mdd_synthdid`
+
+
 # multiDiff 0.2.4
 
 
