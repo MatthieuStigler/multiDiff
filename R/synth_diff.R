@@ -82,7 +82,8 @@ tidy.synthdid_estimate <- function(x, conf.int=FALSE, conf.level=0.95, method='j
   term <- attr(x, "mdd_dat_slot")$var_names$treat
   if(is.null(term)) term <- NA_character_
   coef <- as.double(x)
-  se = sqrt(synthdid::vcov.synthdid_estimate(x, method=method))
+  # se = sqrt(synthdid::vcov.synthdid_estimate(x, method=method))
+  se = sqrt(stats::vcov(x, method=method))
   res <- data.frame(term = term,
              estimate = coef,
              std.error =se,
