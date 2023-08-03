@@ -62,6 +62,9 @@ mdd_synthdid <- function(mdd_dat, add_weights=FALSE){
   res
 }
 
+#' @export
+coef.synthdid_estimate <- function(object, ...) as.double(object)
+
 if(FALSE){
   if(require(synthdid)){
     # data('california_prop99')
@@ -73,7 +76,6 @@ if(FALSE){
                                              time.index = "Year", treat = "treated", unit.index = "State")
     mdd_california_prop99
     res <- mdd_synthdid(mdd_dat=mdd_california_prop99)
-    all.equal(res[1],
-              coef(mdd_synthdid(mdd_dat=mdd_california_prop99, feols_output=TRUE))[[1]])
+    res
   }
 }
