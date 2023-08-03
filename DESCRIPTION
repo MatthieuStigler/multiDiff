@@ -30,7 +30,8 @@ Imports:
     collapse,
     lifecycle,
     car,
-    fixest
+    fixest,
+    generics
 Suggests: 
     synthdid,
     testthat (>= 3.0.0),

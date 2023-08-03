@@ -31,6 +31,8 @@ use_package("tidyverse", "Suggests")
 use_package("synthdid", "Suggests")
 # tidyselect
 
+## broom
+usethis::use_package("generics", "Imports")
 
 ## lifecycle
 usethis::use_lifecycle()
