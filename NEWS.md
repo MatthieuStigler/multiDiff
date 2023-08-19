@@ -1,10 +1,10 @@
-# multiDiff 0.2.5 (2023-08-03)
+# multiDiff 0.2.5 
+
+Published on 2023-08-03.
 
 * Add `coef` and `tidy` methods for `mdd_synthdid`
 
-
 # multiDiff 0.2.4
-
 
 * Return mdd_dat_slot with `mdd_DD_simple`
 
@@ -15,7 +15,9 @@
 * `mdd_group_means`: add argument `weights`
 * Internal: add testthat snapshots
 
-# multiDiff 0.2.2 (2023-02-06)
+# multiDiff 0.2.2 
+
+Published on 2023-02-06.
 
 * Use now internal *my_wald* for event study test
 * fix warning with missing var
