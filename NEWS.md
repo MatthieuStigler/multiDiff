@@ -1,3 +1,10 @@
+# multiDiff 0.2.6
+
+Published on 2023-08-19.
+
+* Add argument `by_treat_period` in `mdd_group_means`, cf #17 https://github.com/MatthieuStigler/multiDiff/issues/17
+* Small fixes in documentation
+
 # multiDiff 0.2.5 
 
 Published on 2023-08-03.
