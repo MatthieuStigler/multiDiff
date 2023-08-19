@@ -5,6 +5,8 @@
 #' @template param_mdd_dat
 #' @param conf.int Weather to compute confidence intervals for the means
 #' @param weights Optional column name of weights variable
+#' @param by_treat_period Should the mean be computed by treated period, i.e. before/after?
+#' Default to `FALSE`, so computes for every instance of \code{time.index}.
 #' @examples
 #'  library(multiDiff)
 #'  dat_DiD_raw <- sim_dat_common()
@@ -16,7 +18,7 @@
 #'  mdd_group_means(dat_DiD, conf.int = TRUE)
 
 #' @export
-mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL, by_year=TRUE) {
+mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL, by_treat_period=FALSE) {
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -29,7 +31,7 @@ mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL, by_year=TRUE)
   index_time_here <-mdd_vars$time.index
 
   ## eventually change grouping variable: overwrite previous to keep same name
-  if(!by_year){
+  if(by_treat_period){
     mdd_dat_add <- mdd_dat_add |>
       mutate(!!sym(mdd_vars$time.index) := if_else(!!sym(mdd_vars$time.index) %in% mdd_dat_slot$treated_periods,
                                   "Post", "Pre"))

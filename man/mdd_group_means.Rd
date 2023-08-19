@@ -4,7 +4,12 @@
 \alias{mdd_group_means}
 \title{Compute group means by time period}
 \usage{
-mdd_group_means(mdd_dat, conf.int = FALSE, weights = NULL)
+mdd_group_means(
+  mdd_dat,
+  conf.int = FALSE,
+  weights = NULL,
+  by_treat_period = FALSE
+)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
@@ -12,6 +17,9 @@ mdd_group_means(mdd_dat, conf.int = FALSE, weights = NULL)
 \item{conf.int}{Weather to compute confidence intervals for the means}
 
 \item{weights}{Optional column name of weights variable}
+
+\item{by_treat_period}{Should the mean be computed by treated period, i.e. before/after?
+Default to \code{FALSE}, so computes for every instance of \code{time.index}.}
 }
 \description{
 Compute the means of each group for each time periods
