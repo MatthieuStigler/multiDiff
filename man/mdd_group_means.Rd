@@ -14,7 +14,7 @@ mdd_group_means(mdd_dat, conf.int = FALSE, weights = NULL)
 \item{weights}{Optional column name of weights variable}
 }
 \description{
-Compute the means of each group for wach time periods
+Compute the means of each group for each time periods
 }
 \examples{
  library(multiDiff)

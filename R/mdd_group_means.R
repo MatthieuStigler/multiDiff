@@ -1,6 +1,6 @@
 #' Compute group means by time period
 #'
-#' Compute the means of each group for wach time periods
+#' Compute the means of each group for each time periods
 #'
 #' @template param_mdd_dat
 #' @param conf.int Weather to compute confidence intervals for the means
@@ -16,7 +16,7 @@
 #'  mdd_group_means(dat_DiD, conf.int = TRUE)
 
 #' @export
-mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL) {
+mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL, by_year=TRUE) {
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -26,8 +26,16 @@ mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL) {
   mdd_dat_add <- mdd_dat %>%
     add_group(time.index = mdd_vars$time.index, treat = mdd_vars$treat,
               unit.index = mdd_vars$unit.index, group_rename_maybe=TRUE)
+  index_time_here <-mdd_vars$time.index
 
-  ## process wieghts argument
+  ## eventually change grouping variable: overwrite previous to keep same name
+  if(!by_year){
+    mdd_dat_add <- mdd_dat_add |>
+      mutate(!!sym(mdd_vars$time.index) := if_else(!!sym(mdd_vars$time.index) %in% mdd_dat_slot$treated_periods,
+                                  "Post", "Pre"))
+  }
+
+  ## process weights argument
   is_w_null <- rlang::quo_is_null(enquo(weights)) ## check if null
   if(!is_w_null & !rlang::quo_is_symbol(rlang::enquo(weights))) weights <- rlang::sym(weights) # if not null and char, then to quo
 
