@@ -3,14 +3,14 @@
 \name{DiD_count}
 \alias{DiD_count}
 \alias{DiD_aggreg}
-\title{Count the treated/control}
+\title{Count the treated/control from \code{\link{DD}}.}
 \usage{
 DiD_count(x)
 
 DiD_aggreg(x, DiD_keep = c(1, 4), by_DiD = FALSE, ...)
 }
 \arguments{
-\item{x}{output from DD}
+\item{x}{output from \code{\link{DD}}}
 
 \item{DiD_keep}{which to look at}
 
@@ -19,9 +19,9 @@ DiD_aggreg(x, DiD_keep = c(1, 4), by_DiD = FALSE, ...)
 \item{\ldots}{grouping vars... time}
 }
 \description{
-Count the treated/control
+Count the treated/control from \code{\link{DD}}.
 
-Aggreg results
+Aggregates results from \code{\link{DD}}.
 }
 \examples{
 data <- sim_dat(N=100)
@@ -29,4 +29,7 @@ DD_out <- DD(data=data)
 DiD_aggreg(x=DD_out, by_DiD = FALSE)
 DiD_aggreg(x=DD_out, by_DiD = TRUE)
 DiD_count(x=DD_out)
+}
+\seealso{
+\code{\link{DD}} for the DD function.
 }

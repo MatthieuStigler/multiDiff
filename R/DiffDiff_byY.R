@@ -117,7 +117,7 @@ DD <- function(y_var="y", data, time.index = "Time", treat = "tr", unit.index="u
 
 }
 
-#' Count the treated/control
+#' Count the treated/control from \code{\link{DD}}.
 #'
 #' @export
 #' @rdname DiD_aggreg
@@ -136,13 +136,14 @@ DiD_count <- function(x) {
     ungroup()
 }
 
-#' Aggreg results
+#' Aggregates results from \code{\link{DD}}.
 #'
-#' @param x output from DD
+#' @param x output from \code{\link{DD}}
 #' @param DiD_keep which to look at
 #' @param by_DiD DiD specific?
 #' @param \ldots grouping vars... time
 #' @export
+#' @seealso \code{\link{DD}} for the DD function.
 #' @examples
 #' data <- sim_dat(N=100)
 #' DD_out <- DD(data=data)
