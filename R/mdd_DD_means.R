@@ -28,7 +28,8 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
            post_Treat=as.numeric(.data$treat_period=="post" & .data$treat_categ =="Treat"))
 
   ## regression now
-  reg_2_2 <- stats::lm(y~ -1 + pre_Untreat + pre_Treat + post_Untreat + post_Treat, data=mdd_dat_extended)
+  formu_here <- paste0(mdd_vars$y_var, " ~ -1 + pre_Untreat + pre_Treat + post_Untreat + post_Treat")
+  reg_2_2 <- stats::lm(formu_here, data=mdd_dat_extended)
 
 
   ## add tests
@@ -73,12 +74,18 @@ print.mdd_DD_means22 <- function(x, ...){
 if(FALSE){
 
   ## example
-  dat_sim <- sim_dat_common(timing_treatment = 6:10,beta =1.2)
+  dat_sim <- sim_dat_common(timing_treatment = 6:10)
   dat_sim_mdd <- mdd_data_format(dat_sim)
 
 
   out <- mdd_DD_means22(mdd_dat=dat_sim_mdd)
   out
 
+  ## doat other
+  dat_sim_alter <- sim_dat_common(timing_treatment = 6:10) |>
+    dplyr::rename(id=unit, year=Time, treat_var=tr, out=y)|>
+    dplyr::select(-treat_group) |>
+    mdd_data_format(y_var = "out", time.index = "year", treat = "treat_var", unit.index = "id")
+  mdd_DD_means22(dat_sim_alter)
 }
 
