@@ -15,7 +15,7 @@ Imai and Kim (2019) and Chaisemartin and Hautfeuille (2019).
 ## Installation
 
 ``` r
-devtools::install_github("MatthieuStigler/multiDiff")
+remotes::install_github("MatthieuStigler/multiDiff", upgrade = "never")
 ```
 
 ## Main functions:
