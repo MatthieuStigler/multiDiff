@@ -23,6 +23,11 @@ DID_dat <- mdd_data_format(DID_dat_raw)
 
 ## Estimate DiD
 mdd_DD_simple(DID_dat)
+
+## estimate with weights
+# add random unit-year specific weights:
+DID_dat$wght <- runif(nrow(DID_dat))
+mdd_DD_simple(DID_dat, weights=~wght)
 }
 \seealso{
 \code{\link{mdd_event_study}} for the event study.
