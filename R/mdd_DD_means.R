@@ -46,7 +46,8 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
 
   }
 
-  reg_2_2$mdd_dat_slot$DiD_manu_tests <- tests
+  ## add to res
+  mdd_dat_slot$DiD_manu_tests <- tests
 
   ##
   class(reg_2_2) <- c("mdd_DD_means22", "mdd_DiD", class(reg_2_2))
