@@ -20,11 +20,12 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
   pre_periods <- intrnl_mdd_get_pre_periods(mdd_dat)
 
   mdd_dat_extended <- mdd_dat %>%
+    intrnl_add_treat_status_mdd() %>%
     mutate(treat_period = if_else(!!sym(mdd_vars$time.index) %in% pre_periods, "pre", "post"),
-           pre_Untreat = as.numeric(.data$treat_period=="pre" & .data$treat_group !="treated"),
-           pre_Treat = as.numeric(.data$treat_period=="pre" & .data$treat_group =="treated"),
-           post_Untreat=as.numeric(.data$treat_period=="post" & .data$treat_group !="treated"),
-           post_Treat=as.numeric(.data$treat_period=="post" & .data$treat_group =="treated"))
+           pre_Untreat = as.numeric(.data$treat_period=="pre" & .data$treat_categ !="Treat"),
+           pre_Treat = as.numeric(.data$treat_period=="pre" & .data$treat_categ =="Treat"),
+           post_Untreat=as.numeric(.data$treat_period=="post" & .data$treat_categ !="treated"),
+           post_Treat=as.numeric(.data$treat_period=="post" & .data$treat_categ =="Treat"))
 
   ## regression now
   reg_2_2 <- stats::lm(y~ -1 + pre_Untreat + pre_Treat + post_Untreat + post_Treat, data=mdd_dat_extended)
@@ -63,7 +64,7 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
 #' @rdname mdd_DD_means
 print.mdd_DD_means22 <- function(x, ...){
   stats::printCoefmat(coef(summary(x)))
-  tests_out <- x$mdd_dat_slot$DiD_manu_tests %>%
+  tests_out <- intrnl_mdd_get_mdd_slot(x)$DiD_manu_tests %>%
     select(-all_of(c("rss", "df", "sumsq")))
   print(tests_out)
 }
