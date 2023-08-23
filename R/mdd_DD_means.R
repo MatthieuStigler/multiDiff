@@ -24,7 +24,7 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
     mutate(treat_period = if_else(!!sym(mdd_vars$time.index) %in% pre_periods, "pre", "post"),
            pre_Untreat = as.numeric(.data$treat_period=="pre" & .data$treat_categ !="Treat"),
            pre_Treat = as.numeric(.data$treat_period=="pre" & .data$treat_categ =="Treat"),
-           post_Untreat=as.numeric(.data$treat_period=="post" & .data$treat_categ !="treated"),
+           post_Untreat=as.numeric(.data$treat_period=="post" & .data$treat_categ !="Treat"),
            post_Treat=as.numeric(.data$treat_period=="post" & .data$treat_categ =="Treat"))
 
   ## regression now
