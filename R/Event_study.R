@@ -40,8 +40,8 @@ mdd_event_study <-  function(mdd_dat,
   ## data rename
   dat_renamed <- mdd_dat %>%
     intrnl_dat_rename(treat = !!sym(mdd_vars$treat), y_var=!!sym(mdd_vars$y_var),
-                      time.index=!!sym(mdd_vars$time.index), unit.index=!!sym(mdd_vars$unit.index)) %>%
-    intrnl_add_treat_time()
+                      time.index=!!sym(mdd_vars$time.index), unit.index=!!sym(mdd_vars$unit.index))
+    # intrnl_add_treat_time()
 
 
   ## Prep leads and lags
