@@ -2,20 +2,33 @@
 % Please edit documentation in R/mdd_DD_means.R
 \name{mdd_DD_means22}
 \alias{mdd_DD_means22}
+\alias{print.mdd_DD_means22}
 \title{Estimate DiD 2x2 means}
 \usage{
 mdd_DD_means22(mdd_dat, add_tests = TRUE)
+
+\method{print}{mdd_DD_means22}(x, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{add_tests}{compute also tests?}
+
+\item{x}{output of mdd_DD_means}
+
+\item{...}{unused}
+}
+\value{
+An object of class lm (wrapped into mdd_DD_means22),
+with the slot \code{mdd_dat_slot} which contains the output of the tests under \code{DiD_manu_tests}
 }
 \description{
-Estimate DiD 2x2 means
+Estimate juste the before/after treated/control means, and conduct inference on the various diffs
 }
 \examples{
-dat_sim <- sim_dat_common(timing_treatment = 6:10)
-dat_sim_mdd <- mdd_data_format(dat_sim)
+dat_sim_mdd <- sim_dat_common(timing_treatment = 6:10,  as_mdd=TRUE)
 out <- mdd_DD_means22(mdd_dat=dat_sim_mdd)
+out
+# extract tests:
+attr(out, "mdd_dat_slot")$DiD_manu_tests
 }

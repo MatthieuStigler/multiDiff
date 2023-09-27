@@ -1,10 +1,16 @@
 #' Estimate DiD 2x2 means
+#'
+#' Estimate juste the before/after treated/control means, and conduct inference on the various diffs
 #' @template param_mdd_dat
 #' @param add_tests compute also tests?
+#' @returns An object of class lm (wrapped into mdd_DD_means22),
+#' with the slot \code{mdd_dat_slot} which contains the output of the tests under \code{DiD_manu_tests}
 #' @examples
-#' dat_sim <- sim_dat_common(timing_treatment = 6:10)
-#' dat_sim_mdd <- mdd_data_format(dat_sim)
+#' dat_sim_mdd <- sim_dat_common(timing_treatment = 6:10,  as_mdd=TRUE)
 #' out <- mdd_DD_means22(mdd_dat=dat_sim_mdd)
+#' out
+#' # extract tests:
+#' attr(out, "mdd_dat_slot")$DiD_manu_tests
 #' @export
 mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
 
@@ -62,7 +68,7 @@ mdd_DD_means22 <- function(mdd_dat, add_tests = TRUE){
 #' @param x output of mdd_DD_means
 #' @param ... unused
 #' @export
-#' @rdname mdd_DD_means
+#' @rdname mdd_DD_means22
 print.mdd_DD_means22 <- function(x, ...){
   stats::printCoefmat(coef(summary(x)))
   tests_out <- intrnl_mdd_get_mdd_slot(x)$DiD_manu_tests %>%
