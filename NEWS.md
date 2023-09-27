@@ -1,3 +1,13 @@
+# multiDiff 0.2.8
+
+Published on 2023-09-27.
+
+* Add new argument `as_mdd` in `sim_dat_*` functions
+* Add/clean internal functions: Correct `intrnl_add_treat_time_mdd`, add arg `keep_mdd` in `intrnl_add_treat_status_mdd`, add `internal intrnl_back_to_mdd`
+* Add new testthat for utilities
+* Add explanation in help file on ES coefficient interpretation
+
+
 # multiDiff 0.2.7
 
 Published on 2023-08-23.
