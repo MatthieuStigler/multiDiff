@@ -35,10 +35,17 @@ mdd_event_study(
 \description{
 Event study
 }
+\details{
+This function uses lags of pre/post treatment, omitting the lag -1
+(can be changed with \code{time.omit}).
+The interpretation of the event-study coefficient is then the following:
+each coefficient represents the value of a DiD relating the treated/control difference
+at relative year -3, -2, 1, 2
+to the treated/control difference at relative year -1.
+}
 \examples{
 ## simulate and format data
-DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
-DID_dat <- mdd_data_format(DID_dat_raw)
+DID_dat <- sim_dat_common(timing_treatment = 5:10, as_mdd = TRUE)
 
 ## Estimate DiD
 mdd_DD_simple(DID_dat)
@@ -48,6 +55,16 @@ ES_out <- mdd_event_study(DID_dat)
 ES_out
 summary(ES_out)
 plot(ES_out)
+
+## compare to year-t- base year diff-diffs:
+means_manu <- DID_dat |>
+  mdd_group_means() |>
+  as.data.frame() |>
+  reshape(idvar = "Time",timevar = ".group",
+          direction = "wide")
+diff_by_period <- means_manu$y.treated - means_manu$y.control
+  all.equal((diff_by_period - diff_by_period[5])[-5],
+            coef(ES_out), check.attributes= FALSE)
 }
 \seealso{
 \code{\link{mdd_test_pre_trend_event}} to run a parallel trend assumption
