@@ -8,9 +8,12 @@ DID_dat <- mdd_data_format(DID_dat_raw)
 
 ## Manu means
 means_manu <- DID_dat |>
-  multiDiff:::mdd_group_means() |>
+  multiDiff::mdd_group_means() |>
   tidyr::spread(.group, y) |>
-  dplyr::mutate(diff=treated-control)
+  dplyr::mutate(diff=treated-control,
+                diff_lag = dplyr::lag(diff),
+                diff_diff = diff-diff_lag,
+                ES = diff - diff[5])
 
 means_manu
 
@@ -20,7 +23,7 @@ coef(DiD_simple)
 
 ## Did simple: only 2Y
 test_that("DID for 2Y is same as diff-diff means", {
-  expect_equal(diff(means_manu[c(5,6), "diff", drop=TRUE]),
+  expect_equal(dplyr::filter(means_manu, Time==6)$diff_diff,
                coef(mdd_DD_simple(mdd_dat=DID_dat |> dplyr::filter(Time %in% c(5, 6))))[[1]])
 })
 
@@ -54,6 +57,36 @@ test_that("Using with weights in ES works", {
   expect_equal(coef(ES_with_weights),
                coef(ES_subset))
 })
+
+################################
+#'## Approach is similar to formula
+################################
+
+## add timing to treat
+df <- DID_dat |>
+  multiDiff:::intrnl_add_treat_time_mdd(keep_mdd = TRUE) |>
+  multiDiff:::intrnl_add_treat_status_mdd() |>
+  dplyr::mutate(timing_to_treat_num = ifelse(treat_categ=="Treat", Time -treat_timing, 0),
+                timing_to_treat = factor(timing_to_treat_num) |> relevel("-1"),
+                timing_to_treat_vs_2 = factor(timing_to_treat_num) |> relevel("-2"))
+
+
+ES_alter <- fixest::feols(y~ timing_to_treat|unit+Time, data=df)
+ES_pkg <- mdd_event_study(DID_dat)
+
+test_that("Lags versus factor approach is equivalent", {
+  expect_equal(coef(ES_alter),
+               coef(ES_pkg))
+})
+
+ES_alter_2 <- fixest::feols(y~ timing_to_treat_vs_2|unit+Time, data=df)
+ES_pkg_2 <- mdd_event_study(DID_dat, time.omit = -2)
+
+test_that("Lags versus factr approach is equivalent (vs -2)", {
+  expect_equal(coef(ES_alter_2),
+               coef(ES_pkg_2), ignore_attr = TRUE)
+})
+
 
 ################################
 #'## Other names
