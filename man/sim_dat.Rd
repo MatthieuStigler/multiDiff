@@ -12,7 +12,8 @@ sim_dat(
   beta = 1,
   gamma = 0.7,
   seed = NULL,
-  prob_treat = 0.25
+  prob_treat = 0.25,
+  as_mdd = FALSE
 )
 
 sim_dat_common(
@@ -21,7 +22,8 @@ sim_dat_common(
   timing_treatment = 2:Time,
   beta = 1,
   seed = NULL,
-  perc_treat = 0.25
+  perc_treat = 0.25,
+  as_mdd = FALSE
 )
 
 sim_dat_staggered(
@@ -34,7 +36,8 @@ sim_dat_staggered(
   perc_treat = 0.8,
   perc_always = 1 - perc_treat - perc_never,
   timing_treatment = 2:Time,
-  trend_diff = 0
+  trend_diff = 0,
+  as_mdd = FALSE
 )
 }
 \arguments{
@@ -51,6 +54,8 @@ while the standard beta will apply for values currently treated.}
 \item{seed}{seed}
 
 \item{prob_treat}{Probability of treatment}
+
+\item{as_mdd}{Should output object be formatted of class mdd? Default is \code{FALSE} for now.}
 
 \item{timing_treatment}{\emph{Staggered:} In what periods can treatment start?}
 

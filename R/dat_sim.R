@@ -54,6 +54,7 @@
 #' Gamma is the coefficients for observations that were not treated (0) the previous period,
 #' while the standard beta will apply for values currently treated.
 #' @param prob_treat Probability of treatment
+#' @param as_mdd Should output object be formatted of class mdd? Default is `FALSE` for now.
 #' @export
 #' @examples
 #' ## Standard 2 x 2: 2 groups, 2 time periods
@@ -70,7 +71,7 @@
 #'
 #' ## Did with variation in treatment
 #' dat_DiD_3 <- sim_dat_staggered(Time=10, timing_treatment=c(2, 10))
-sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25) {
+sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25, as_mdd = FALSE) {
 
   if(!is.null(seed)) set.seed(seed)
 
@@ -94,13 +95,19 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
     mutate(lag_one_noNA = dplyr::if_else(is.na(.data$lag_1), 0L, .data$lag_1)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + .data$err,
            y_asym = beta* .data$tr + gamma * .data$lag_one_noNA*(1-.data$tr) + .data$unit_fe + .data$time_fe +.data$err )
+
+  if(as_mdd){
+    dat_sim_1 <- dat_sim_1 |>
+      mdd_data_format()
+  }
   dat_sim_1
 
 }
 
 #' @rdname sim_dat
 #' @export
-sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1, seed=NULL, perc_treat = 0.25) {
+sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1, seed=NULL, perc_treat = 0.25,
+                           as_mdd = FALSE) {
 
   if(!is.null(seed)) set.seed(seed)
 
@@ -126,6 +133,11 @@ sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1,
                       tr = dplyr::if_else(.data$treat_group=="treated" & Time %in% timing_treatment,1,0)) %>%
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + error) %>%
     select("unit", "Time", "treat_group", "tr", "y")
+
+  if(as_mdd){
+    dat_sim_1 <- dat_sim_1 |>
+      mdd_data_format()
+  }
   dat_sim_1
 
 }
@@ -137,7 +149,8 @@ sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1,
 #'@export
 sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL,
                               perc_never = 0.2, perc_treat = 0.8, perc_always = 1-perc_treat-perc_never,
-                              timing_treatment = 2:Time, trend_diff=0) {
+                              timing_treatment = 2:Time, trend_diff=0,
+                              as_mdd = FALSE) {
 
   if(!is.null(seed)) set.seed(seed)
 
@@ -175,7 +188,7 @@ sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL
     unnest("treat")
 
   ## Data
-  tibble(unit = rep(1:N, each=Time),
+  dat_sim_1 <- tibble(unit = rep(1:N, each=Time),
          Time = rep(1:Time, times=N),
          unit_fe = ind_fe,
          time_fe = time_fe,
@@ -183,6 +196,13 @@ sim_dat_staggered <- function(N = 1000, Time = 15, beta =1, gamma = 0, seed=NULL
     dplyr::full_join(timings_all, by = c("unit", "Time")) %>%
     relocate("unit", "type", "timing_treat", "Time") %>%
     mutate(y = beta* .data$tr + gamma* .data$length_treat + .data$unit_fe + .data$time_fe + .data$error)
+
+  if(as_mdd){
+    dat_sim_1 <- dat_sim_1 |>
+      mdd_data_format()
+  }
+  dat_sim_1
+
 }
 
 
