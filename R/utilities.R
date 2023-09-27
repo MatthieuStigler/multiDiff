@@ -186,16 +186,30 @@ intrnl_add_treat_status <- function(data) { #}, treat = "tr", unit.index="unit")
     ungroup()
 }
 
-#' Add category, but for mfdd object
+#' Add category, but for mdd object
 #' @noRd
-intrnl_add_treat_status_mdd <- function(mdd_dat) {
+#' @examples
+#' df_stag <- sim_dat_staggered(as_mdd = TRUE)
+#' multiDiff:::intrnl_add_treat_status_mdd(df_stag)
+intrnl_add_treat_status_mdd <- function(mdd_dat, keep_mdd=FALSE) {
 
   mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
   treat_quo <- rlang::sym(mdd_vars$treat)
-  mdd_dat %>%
+  dat_out <- mdd_dat %>%
     group_by(across(mdd_vars$unit.index)) %>%
     mutate(treat_categ = if_else(any(!!treat_quo==1), "Treat", "Control")) %>%
     ungroup()
+
+  ## format out
+  if(keep_mdd) dat_out <- intrnl_back_to_mdd(dat_out, mdd_vars)
+  dat_out
+}
+
+intrnl_back_to_mdd <- function(data, var_names) {
+  mdd_data_format(data, y_var = rlang::sym(var_names$y_var),
+                  time.index = rlang::sym(var_names$time.index),
+                  unit.index = rlang::sym(var_names$unit.index),
+                  treat = rlang::sym(var_names$treat))
 }
 
 #' @noRd
@@ -212,12 +226,51 @@ intrnl_add_time_to_treat <- function(data) { #}, treat = "tr", unit.index="unit"
 #' Add category
 #' @noRd
 intrnl_add_treat_time <- function(data){
+  .Deprecated("intrnl_add_treat_time_mdd")
   data %>%
     group_by(.data$unit.index) %>%
-    mutate(treat_timing = first_1(.data$treat)) %>%
+    mutate(treat_timing = which_first(.data$treat)) %>%
     ungroup()
 }
 
+#' @noRd
+#' @examples
+#' which_first(c(0,0, 1,1))
+#' which_first(rep(0,4))
+#' which_first(rep(1,4))
+which_first <- function(x, no_1_value =0) {
+  if(!any(x==1)) return(no_1_value)
+  which(x==1)[1]
+}
+
+#' @noRd
+#' @examples
+#' sim_dat_staggered(as_mdd = TRUE, Time=6) |>
+#'   intrnl_add_treat_time_mdd() |>
+#'   multiDiff:::add_group() |>
+#'   distinct(.group, type, treat_timing) |>
+#'   arrange(treat_timing)
+intrnl_add_treat_time_mdd <- function(mdd_dat, name_var_out = "treat_timing",
+                                      keep_mdd = FALSE){
+
+  mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
+
+  dat_out <- mdd_dat %>%
+    group_by(across(!!sym(mdd_vars$unit.index))) %>%
+    arrange(across(!!sym(mdd_vars$time.index))) %>%
+    mutate(!!name_var_out := which_first(!!sym(mdd_vars$treat))) %>%
+    ungroup()
+
+  ## format out
+  if(keep_mdd) dat_out <- intrnl_back_to_mdd(dat_out, mdd_vars)
+  dat_out
+}
+
+#' @noRd
+#' @examples
+#' first_1(c(0,0, 1,1))
+#' first_1(rep(0,4))
+#' first_1(rep(1,4))
 first_1 <- function(x) {
   w <- which(x==1)
   res <- rep(0, length(x))
