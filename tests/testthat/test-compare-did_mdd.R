@@ -61,9 +61,19 @@ test_that("ES coefs are DiD vs 4", {
 ## CS do:
 # - for first to last treated period: ATT() compared to last non-treated
 # - for non-treated: ATT() compared to previous year
-test_that("CS ATT-coefs are weird", {
+test_that("CS ATT-coefs are: -post: vs 4, -pre: vs T-1", {
   expect_equal(out_group_means$ES_as_CS[-1],
                did_coefs_all$estimate,
                ignore_attr=TRUE)
 })
 
+test_that("CS ATT-coefs are: -post: vs 4, -pre: vs T-1. Version 2", {
+  ES_vs_4 <- mdd_event_study(df_classical, time.omit = -4)
+  ES_vs_3 <- mdd_event_study(df_classical, time.omit = -3)
+  ES_vs_2 <- mdd_event_study(df_classical, time.omit = -2)
+  ES_vs_432 <- c(coef(ES_vs_4)[1], coef(ES_vs_3)[2], coef(ES_vs_2)[3])
+
+  expect_equal(ES_vs_432,
+            did_coefs_all$estimate[1:3], ignore_attr = TRUE)
+
+})
