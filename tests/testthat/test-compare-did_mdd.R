@@ -5,16 +5,9 @@ library(did)
 df_classical <- sim_dat_common(timing_treatment = 5:10, as_mdd = TRUE, seed = 12345)
 df_classical
 
-## to did
-mdd_to_did <- function(mdd_data) {
-  mdd_data |>
-    multiDiff:::intrnl_add_treat_time_mdd() |>
-    as.data.frame()
-}
-
-
+## Convert to did
 df_to_did <- df_classical |>
-  mdd_to_did()
+  multiDiff:::mdd_conv_mdd_to_did()
 
 ### estimate with DiD
 did_out <- att_gt(yname = "y",
