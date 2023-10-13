@@ -49,6 +49,7 @@
 #' @param  N number of distinct units
 #' @param Time number of distinct time
 #' @param beta coef
+#' @param beta_dyn optional coefficients for post-treatment periods in \code{sim_dat_common}. Its length should be equal to the number of post-treatment periods, or 1.
 #' @param seed seed
 #' @param gamma To generate the series \code{y_asym}, which has longer dynamics.
 #' Gamma is the coefficients for observations that were not treated (0) the previous period,
@@ -66,11 +67,17 @@
 #' felm(y~tr|unit+Time, data=dat_DiD_1)
 #'
 #' ## Long 2 x 2: two  groups, 5 before, 5 after
-#' dat_DiD_2 <- sim_dat_staggered(Time=10, timing_treatment=5)
-#' felm(y~tr|unit+Time, data=dat_DiD_2)
+#' dat_DiD_2 <- sim_dat_staggered(Time=10, timing_treatment=5, as_mdd = TRUE)
+#' dat_DiD_2
+#' mdd_DD_simple(dat_DiD_2)
 #'
-#' ## Did with variation in treatment
+#' ## DiD with variation in treatment
 #' dat_DiD_3 <- sim_dat_staggered(Time=10, timing_treatment=c(2, 10))
+#'
+#' ## DiD with dynamic effects post-treatment
+#' dyn_eff <- seq(1.1, by = 0.1, length.out = 5)
+#' dat_DiD_dyn <- sim_dat_common(N=10000, timing_treatment = 5, beta_dyn = dyn_eff, as_mdd = TRUE)
+#' mdd_event_study(dat_DiD_dyn)
 sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25, as_mdd = FALSE) {
 
   if(!is.null(seed)) set.seed(seed)
@@ -107,6 +114,7 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
 #' @rdname sim_dat
 #' @export
 sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1, seed=NULL, perc_treat = 0.25,
+                           beta_dyn = NULL,
                            as_mdd = FALSE) {
 
   if(!is.null(seed)) set.seed(seed)
@@ -134,6 +142,19 @@ sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1,
     mutate(y = beta* .data$tr + .data$unit_fe + .data$time_fe + error) %>%
     select("unit", "Time", "treat_group", "tr", "y")
 
+  ## eventually add dyn effects
+  if(!is.null(beta_dyn)){
+    timing_treatment_start <- min(timing_treatment)
+    T_post <- T_time-timing_treatment_start
+    if(!length(beta_dyn) %in% c(1, T_post)) stop(paste("`beta_dyn` should be of length 1 or ", T_post, "(number of post treatment periods"))
+    if(length(beta_dyn)==1) beta_dyn <- rep(beta_dyn, T_post)
+
+    dat_sim_1 <- dat_sim_1 %>%
+      mutate(time_post_treated = if_else(.data$treat_group=="treated" & Time >=timing_treatment_start, Time-timing_treatment_start, 0),
+             y= .data$y+ c(0, beta_dyn)[.data$time_post_treated+1]) ## all time_post_treated =0 become 1, selecting hence 0
+  }
+
+  ## eventually convert to mdd
   if(as_mdd){
     dat_sim_1 <- dat_sim_1 |>
       mdd_data_format()

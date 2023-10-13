@@ -23,6 +23,7 @@ sim_dat_common(
   beta = 1,
   seed = NULL,
   perc_treat = 0.25,
+  beta_dyn = NULL,
   as_mdd = FALSE
 )
 
@@ -59,6 +60,8 @@ while the standard beta will apply for values currently treated.}
 
 \item{timing_treatment}{\emph{Staggered:} In what periods can treatment start?}
 
+\item{beta_dyn}{optional coefficients for post-treatment periods in \code{sim_dat_common}. Its length should be equal to the number of post-treatment periods, or 1.}
+
 \item{perc_never, perc_always, perc_treat}{\emph{Staggered:} Percentage of (during-sample) treated, never and always}
 
 \item{trend_diff}{differential trend}
@@ -77,9 +80,15 @@ library(lfe)
 felm(y~tr|unit+Time, data=dat_DiD_1)
 
 ## Long 2 x 2: two  groups, 5 before, 5 after
-dat_DiD_2 <- sim_dat_staggered(Time=10, timing_treatment=5)
-felm(y~tr|unit+Time, data=dat_DiD_2)
+dat_DiD_2 <- sim_dat_staggered(Time=10, timing_treatment=5, as_mdd = TRUE)
+dat_DiD_2
+mdd_DD_simple(dat_DiD_2)
 
-## Did with variation in treatment
+## DiD with variation in treatment
 dat_DiD_3 <- sim_dat_staggered(Time=10, timing_treatment=c(2, 10))
+
+## DiD with dynamic effects post-treatment
+dyn_eff <- seq(1.1, by = 0.1, length.out = 5)
+dat_DiD_dyn <- sim_dat_common(N=10000, timing_treatment = 5, beta_dyn = dyn_eff, as_mdd = TRUE)
+mdd_event_study(dat_DiD_dyn)
 }
