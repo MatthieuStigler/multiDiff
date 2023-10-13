@@ -146,7 +146,7 @@ sim_dat_common <- function(N = 1000, Time=10, timing_treatment= 2:Time, beta =1,
   if(!is.null(beta_dyn)){
     timing_treatment_start <- min(timing_treatment)
     T_post <- T_time-timing_treatment_start
-    if(!length(beta_dyn) %in% c(1, T_post)) stop(paste("`beta_dyn` should be of length 1 or ", T_post, "(number of post treatment periods"))
+    if(!length(beta_dyn) %in% c(1, T_post)) stop(paste("`beta_dyn` should be of length 1 or", T_post, "(number of post treatment periods)"))
     if(length(beta_dyn)==1) beta_dyn <- rep(beta_dyn, T_post)
 
     dat_sim_1 <- dat_sim_1 %>%
