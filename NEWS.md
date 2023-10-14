@@ -3,6 +3,7 @@
 Published on 2023-10-13.
 
 * `sim_dat_common`: add dynamic effects with new argument `beta_dyn`
+* Handle case of cross-sectional regressions
 
 # multiDiff 0.2.8
 
