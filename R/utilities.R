@@ -52,7 +52,12 @@ if(FALSE){
 #' get_sequences(sim_dat())
 #' get_sequences(sim_dat()[-3,])
 #'@noRd
-get_sequences <- function(df, time.index = "Time", treat = "tr", unit.index="unit") {
+get_sequences <- function(df, time.index = "Time", treat = "tr", unit.index="unit", is_cross_sec=FALSE) {
+  ## In case is cross-section
+  if(is_cross_sec){
+    df <- df %>%
+      distinct(across(c(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat))))
+  }
   df %>%
     select(!!enquo(unit.index), !!enquo(time.index), !!enquo(treat)) %>%
     spread(!!enquo(time.index), !!enquo(treat)) %>%
@@ -100,30 +105,46 @@ if(FALSE){
 #'@examples
 #' library(multiDiff)
 #' dat <- sim_dat()
-#' intrnl_is_balanced_col(dat)
+#' intrnl_is_balanced_dplyr(dat)
+#' intrnl_is_balanced_clpse_distinct(dat)
+#' intrnl_is_balanced_clpse_nobs(dat)
+#'
 #' intrnl_is_balanced_col(dat[-3,])
 #' @noRd
 intrnl_is_balanced_dplyr <- function(df, unit.index="unit") {
-  co <- count(df, !!rlang::sym(unit.index)) %>%
-    count(n)
+  co <- count(df, !!rlang::sym(unit.index), name = "n_obs_by_unit") %>%
+    count(.data$n_obs_by_unit)
   if(nrow(co)>1) FALSE  else TRUE
 }
 
-intrnl_is_balanced_col <- function(df, unit.index="unit") {
-  collapse::fNdistinct(collapse::fNobs(df[[unit.index]],
+intrnl_is_balanced_clpse_distinct <- function(df, unit.index="unit") {
+  collapse::fndistinct(collapse::fndistinct(df[[unit.index]],
+                                            g=df[[unit.index]]))==1
+}
+
+intrnl_is_balanced_clpse_nobs <- function(df, unit.index="unit") {
+  collapse::fndistinct(collapse::fnobs(df[[unit.index]],
                                        g=df[[unit.index]]))==1
 }
 
-intrnl_is_balanced <- function(df, unit.index="unit") {
-  collapse::fNdistinct(collapse::fNdistinct(df[[unit.index]],
-                                            g=df[[unit.index]]))==1
+intrnl_n_obs_by_unit_by_time <- function(df, unit.index="unit", time.index="Time") {
+  unique(collapse::fnobs(df[[unit.index]],
+                         g=list(df[[unit.index]], df[[time.index]])))
+}
+
+intrnl_n_obs_by_unit <- function(df, unit.index="unit") {
+  unique(collapse::fnobs(df[[unit.index]],
+                         g=df[[unit.index]]))
 }
 
 if(FALSE){
   library(microbenchmark)
-  microbenchmark(dp = intrnl_is_balanced_dplyr(dat[-3,]),
-                 col=intrnl_is_balanced(dat[-3,]),
-                 col2=intrnl_is_balanced_col2(dat[-3,]))
+  microbenchmark(intrnl_is_balanced_dplyr = intrnl_is_balanced_dplyr(dat[-3,]),
+                 intrnl_is_balanced_clpse_nobs=intrnl_is_balanced_clpse_nobs(dat[-3,]),
+                 intrnl_is_balanced_clpse_distinct=intrnl_is_balanced_clpse_distinct(dat[-3,]),
+                 B_intrnl_is_balanced_dplyr = intrnl_is_balanced_dplyr(dat),
+                 B_intrnl_is_balanced_clpse_nobs=intrnl_is_balanced_clpse_nobs(dat),
+                 B_intrnl_is_balanced_clpse_distinct=intrnl_is_balanced_clpse_distinct(dat))
 }
 
 
