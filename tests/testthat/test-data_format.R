@@ -78,3 +78,33 @@ test_that("Check output of print", {
   expect_snapshot(dat_any)
   expect_snapshot(dat_stag)
 })
+
+################################
+#'## Cross sectional data
+################################
+
+df_raw <- sim_dat_common(Time=2, timing_treatment = 1, perc_treat = 0.5, seed = 45)
+df_cross <- df_raw |>
+  mutate(keep = rep(c(TRUE, FALSE, FALSE, TRUE), times =500)) |>
+  filter(keep) |>
+  select(-keep)
+
+## as mdd
+test_that("Warn when only 1 obs per unit", {
+  expect_warning(mdd_data_format(data = df_cross),
+               "Only one observation by unit? Might need to change argument `unit.index`?", fixed=TRUE)
+})
+
+test_that("Works for cross-sec regressions", {
+  expect_no_warning(mdd_data_format(data = df_cross, unit.index = "treat_group"))
+  expect_no_warning(mdd_DD_simple(mdd_data_format(data = df_cross, unit.index = "treat_group")))
+})
+
+test_that("Panel DiD with FE as group or unit gives same coef", {
+  FE_unit <- mdd_data_format(data = df_raw, unit.index = "unit")
+  FE_group <- mdd_data_format(data = df_raw, unit.index = "treat_group")
+  expect_equal(coef(mdd_DD_simple(FE_unit)),
+               coef(mdd_DD_simple(FE_group)))
+})
+
+

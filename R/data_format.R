@@ -14,9 +14,17 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
     stop("Variable(s): ", which_miss, " not in data?")
   }
 
+  ## check if cross-section?
+  T_periods <- n_distinct(data[[time.index]])
+  n_obs_by_unit_by_time <- intrnl_n_obs_by_unit_by_time(data, unit.index = unit.index, time.index = time.index)
+  n_obs_by_unit <- intrnl_n_obs_by_unit(data, unit.index = unit.index)
+  if(n_obs_by_unit==1) warning("Only one observation by unit? Might need to change argument `unit.index`?")
+  is_cross_sec <- n_obs_by_unit_by_time > 1
+
   ##
   sequences <- get_sequences(data, time.index = {{time.index}},
-                             treat = {{treat}}, unit.index = {{unit.index}}) %>%
+                             treat = {{treat}}, unit.index = {{unit.index}},
+                             is_cross_sec = is_cross_sec) %>%
     rename(.group="seq")
   seq_uniques <- unique(sequences$.group)
 
