@@ -56,7 +56,7 @@ Published on 2023-02-06.
 
 * fix issue#12: minor bug with weird data
 
-# multiDiff 
+
 * Add function `mdd_data_format`, with `plot` and `print` methods
 * Add function `sim_dat_common`
 * Add function `mdd_test_pre_trend_means`
