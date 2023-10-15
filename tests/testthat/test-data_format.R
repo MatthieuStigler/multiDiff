@@ -1,3 +1,4 @@
+library(dplyr, warn.conflicts = FALSE)
 library(multiDiff)
 
 dat_DiD_raw <- sim_dat_common()
@@ -84,20 +85,35 @@ test_that("Check output of print", {
 ################################
 
 df_raw <- sim_dat_common(Time=2, timing_treatment = 1, perc_treat = 0.5, seed = 45)
+
+## create cross-section of regressions
 df_cross <- df_raw |>
   mutate(keep = rep(c(TRUE, FALSE, FALSE, TRUE), times =500)) |>
   filter(keep) |>
   select(-keep)
 
+## same, but with unequal size groups
+df_cross_unequalN <- sim_dat_common(Time=2, timing_treatment = 1, perc_treat = 0.4, seed = 45) |>
+  mutate(keep = rep(c(TRUE, FALSE, FALSE, TRUE), times =500)) |>
+  filter(keep) |>
+  select(-keep)
+
+df_cross_unequalN |>
+  add_count(unit, name = "n_obs_by_unit") |>
+  count(n_obs_by_unit)
+
 ## as mdd
 test_that("Warn when only 1 obs per unit", {
   expect_warning(mdd_data_format(data = df_cross),
+               "Only one observation by unit? Might need to change argument `unit.index`?", fixed=TRUE)
+  expect_warning(mdd_data_format(data = df_cross_unequalN),
                "Only one observation by unit? Might need to change argument `unit.index`?", fixed=TRUE)
 })
 
 test_that("Works for cross-sec regressions", {
   expect_no_warning(mdd_data_format(data = df_cross, unit.index = "treat_group"))
   expect_no_warning(mdd_DD_simple(mdd_data_format(data = df_cross, unit.index = "treat_group")))
+  expect_no_warning(mdd_data_format(data = df_cross_unequalN, unit.index = "treat_group"))
 })
 
 test_that("Panel DiD with FE as group or unit gives same coef", {
