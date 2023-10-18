@@ -265,22 +265,31 @@ which_first <- function(x, no_1_value =0) {
 }
 
 #' @noRd
+#' @param scale_as_time_var should `treat_timing` be in the scale fo the time variable?
 #' @examples
 #' sim_dat_staggered(as_mdd = TRUE, Time=6) |>
-#'   intrnl_add_treat_time_mdd() |>
+#'   intrnl_add_treat_time_mdd(scale_as_time_var=TRUE) |>
 #'   multiDiff:::add_group() |>
 #'   distinct(.group, type, treat_timing) |>
 #'   arrange(treat_timing)
 intrnl_add_treat_time_mdd <- function(mdd_dat, name_var_out = "treat_timing",
-                                      keep_mdd = FALSE){
+                                      keep_mdd = FALSE, scale_as_time_var=FALSE){
 
   mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
 
+  ## apply `which_first` to each unit
   dat_out <- mdd_dat %>%
     group_by(across(!!sym(mdd_vars$unit.index))) %>%
     arrange(across(!!sym(mdd_vars$time.index))) %>%
     mutate(!!name_var_out := which_first(!!sym(mdd_vars$treat))) %>%
     ungroup()
+
+  ## eventually get results on the scale of the tiem variable
+  if(scale_as_time_var){
+    time_vals <- c(0, sort(unique(dat_out[[mdd_vars$time.index]])))
+    dat_out <- dat_out %>%
+      mutate(new = time_vals[!!sym(name_var_out) + 1])
+  }
 
   ## format out
   if(keep_mdd) dat_out <- intrnl_back_to_mdd(dat_out, mdd_vars)
