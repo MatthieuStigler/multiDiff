@@ -50,6 +50,7 @@ test_that("ES with rebase -2 is same as diffs in DD_manu: diff- diff[4]", {
 })
 
 
+
 ### Test more complicated relationships
 test_that("Trimming event study gives mean of trimmed coefs", {
   expect_equal(mean(tail(coef(ES),2)),
@@ -61,9 +62,13 @@ test_that("Trimming ES is equivalent to DiD", {
                coef(DiD)[[1]])
 })
 
-test_that("Trimming ES is equivalent to DiD 2", {
+test_that("Trimming negative ES is equivalent to DiD", {
   expect_equal(mean(coef(ES_trim_neg)),
                coef(DiD)[[1]])
 })
 
+test_that("ES coefs are equivalent to ES starting with subset data", {
+  expect_equal(tail(coef(ES), 3),
+               coef(mdd_event_study(mdd_dat=DID_dat_mdd %>% subset(Time>4))))
+})
 
