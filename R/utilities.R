@@ -273,7 +273,7 @@ which_first <- function(x, no_1_value =0) {
 #'   distinct(.group, type, treat_timing) |>
 #'   arrange(treat_timing)
 intrnl_add_treat_time_mdd <- function(mdd_dat, name_var_out = "treat_timing",
-                                      keep_mdd = FALSE, scale_as_time_var=FALSE){
+                                      keep_mdd = FALSE, scale_as_time_var=TRUE){
 
   mdd_vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
 
