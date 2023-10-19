@@ -78,7 +78,7 @@ print.mdd_dat <- function(x, ...){
 
   ## Printing of treated periods
   treated_periods_clean <- mdd_dat_slot$treated_periods
-  is_regular_seq <- length(unique(diff(treated_periods_clean)))==1
+  is_regular_seq <- all(diff(treated_periods_clean)==1)
   expected_seq <- min(treated_periods_clean):max(treated_periods_clean)
   if(is_regular_seq  && all(treated_periods_clean== expected_seq)) {
     treated_periods_print <- paste(range(treated_periods_clean), collapse = ":")
