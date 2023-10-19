@@ -2,7 +2,7 @@
 % Please edit documentation in R/estim_CS.R
 \name{mdd_CS}
 \alias{mdd_CS}
-\title{Apply CS estimate}
+\title{Apply Callaway and Sant'Anna (2021) estimate}
 \usage{
 mdd_CS(mdd_dat, ...)
 }
@@ -11,11 +11,18 @@ mdd_CS(mdd_dat, ...)
 
 \item{...}{further objects passed to \code{\link[did]{att_gt}}}
 }
+\value{
+Output of \code{\link[did]{att_gt}}, therefore of class \code{\link[did]{MP}}.
+}
 \description{
-Apply CS estimate
+Simple wrapper to function \code{\link[did]{att_gt}} from package did.
 }
 \examples{
-# example code
 dat <- sim_dat_staggered(as_mdd = TRUE, Time=6)
 mdd_CS(dat)
+
+## with a single treatment time, this is equivalent to mdd_event_study()
+dat_common <- sim_dat_common(as_mdd = TRUE, timing_treatment = 5:10)
+all.equal(unname(coef(mdd_event_study(dat_common))),
+          broom::tidy(mdd_CS(dat_common, base_period = "universal"))$estimate[-4])
 }

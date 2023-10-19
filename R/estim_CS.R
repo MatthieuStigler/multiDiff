@@ -5,14 +5,20 @@ if(FALSE){
 }
 
 
-#' Apply CS estimate
+#' Apply Callaway and Sant'Anna (2021) estimate
 #'
+#' Simple wrapper to function \code{\link[did]{att_gt}} from package did.
 #' @template param_mdd_dat
 #' @param ... further objects passed to \code{\link[did]{att_gt}}
+#' @returns Output of \code{\link[did]{att_gt}}, therefore of class \code{\link[did]{MP}}.
 #' @examples
-#' # example code
 #' dat <- sim_dat_staggered(as_mdd = TRUE, Time=6)
 #' mdd_CS(dat)
+#'
+#' ## with a single treatment time, this is equivalent to mdd_event_study()
+#' dat_common <- sim_dat_common(as_mdd = TRUE, timing_treatment = 5:10)
+#' all.equal(unname(coef(mdd_event_study(dat_common))),
+#'           broom::tidy(mdd_CS(dat_common, base_period = "universal"))$estimate[-4])
 #' @export
 mdd_CS <- function(mdd_dat, ...){
 

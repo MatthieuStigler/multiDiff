@@ -1,3 +1,9 @@
+# multiDiff 0.3.0
+
+Published on 2023-10-10.
+
+* Add new `mdd_CS` to use Callaway and Sant'Anna (2021)
+
 # multiDiff 0.2.9
 
 Published on 2023-10-13.
