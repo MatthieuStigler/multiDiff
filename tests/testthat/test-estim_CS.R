@@ -141,3 +141,51 @@ test_that("mdd_CS_manu gives same even when using unequal years", {
                  dplyr::select(term, group, time, estimate))
 })
 
+################################
+#'## cross-sections
+################################
+
+## create cross-section of regressions
+df_raw <- sim_dat_staggered(as_mdd = TRUE, Time=3, seed=123, perc_never=0.3,
+                            perc_treat=0.7) %>%
+  select(-c(unit_fe, time_fe, error, length_treat))
+
+## create group-wise ids
+df_ids <- df_raw%>%
+  as_tibble() %>%
+  distinct(unit, timing_treat) %>%
+  arrange(timing_treat) %>%
+  add_count(timing_treat) %>%
+  mutate(unit_new = 1:n(), .by=timing_treat) %>%
+  arrange(unit_new)
+
+## add group-wise ids
+df_raw_plus <- df_raw %>%
+  left_join(df_ids,by = join_by(unit, timing_treat))%>%
+  as.data.frame() %>%
+  filter((unit_new %in% 1:100 & Time==1)| (unit_new %in% 101:200 & Time==2)|(unit_new %in% 201:300 & Time==3)) %>%
+  as_tibble()
+
+
+test_that("mdd_CS_manu gives same results as did:: with unbalnced data", {
+
+  ## estimate mine
+  df_stag_md <- suppressWarnings(mdd_data_format(df_raw_plus))
+  my_CS_cross <- mdd_CS_manu(mdd_dat = df_stag_md, timing_treat_var="timing_treat")
+
+  ## estimate did CS
+  library(did)
+  CS_CS_cross <- did::att_gt(yname = "y", tname = "Time", idname = "unit",
+                             gname = "timing_treat",
+                             data = df_stag_md %>%
+                               as_tibble(),
+                             panel = FALSE)
+
+  ## compare
+  expect_equal(my_CS_cross%>%
+                 select(term, group, time, estimate) %>%
+                 as.data.frame(),
+               tidy(CS_CS_cross) %>%
+                 select(term, group, time, estimate))
+
+})

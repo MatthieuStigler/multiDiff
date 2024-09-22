@@ -36,10 +36,14 @@ mdd_CS <- function(mdd_dat, ...){
       mutate({{nam}} := utl_char_to_num(vars$unit.index))
   }
 
+  ## cross-section?
+  is_cross_sec <- intrnl_mdd_get_mdd_slot(mdd_dat)$is_cross_sec
+
   ## now run
   did::att_gt(yname = vars$y_var, tname = vars$time.index, idname = vars$unit.index,
               gname = "treat_timing",
               data = dat_did,
+              panel = !is_cross_sec,
               ...)
 }
 
@@ -55,7 +59,8 @@ if(FALSE){
 #'## Manual
 ################################
 
-mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated")){
+mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated"),
+                        timing_treat_var = NULL){
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -63,13 +68,21 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   if(mdd_dat_slot$DID_type!="staggered") warning("Not staggered?")
   control_group <- match.arg(control_group)
 
-  ## add treat_timing
-  data_with_treat_timing <- mdd_dat %>%
-    intrnl_add_treat_time_mdd() %>%
-    # mutate(across(c("treat_timing_num", "treat_timing"), ~if_else(.==0, Inf, .))) %>%
+  ## cross-section?
+  is_cross_sec <- intrnl_mdd_get_mdd_slot(mdd_dat)$is_cross_sec
+
+  ## add treat_timing if not there
+  if(is.null(timing_treat_var)) {
+    data_with_treat_timing <-  mdd_dat %>%
+      intrnl_add_treat_time_mdd()
+  } else {
+    data_with_treat_timing <- mdd_dat %>%
+      as_tibble() %>%
+      rename(treat_timing= !!sym(timing_treat_var)) %>%
+      mutate(treat_timing= if_else(treat_timing==Inf, 0, treat_timing))
+  }
+  data_with_treat_timing <- data_with_treat_timing %>%
     select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing")
-  # data_with_treat_timing %>%
-  #   distinct(treat_timing_num, treat_timing)
 
   ## get timings
   periods <- mdd_dat_slot$periods
@@ -79,13 +92,27 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   timing_df <- tidyr::expand_grid(group=treated_periods,
                                   time=tail(sort(periods),-1))
 
+  ## need to cast back to mdd, but with different style
+  back_to_md <- function(data, is_cross){
+    if(!is_cross_sec){
+      res <- intrnl_back_to_mdd(data, mdd_vars)
+    } else {
+      mdd_vars2 <- mdd_vars
+      mdd_vars2$unit.index <-"treat_timing"
+      res <- intrnl_back_to_mdd(data, mdd_vars2)
+    }
+    res
+  }
+
   ## test 1
-  # dat_TOY <- mdd_CS_manu_prep_1(data = data_with_treat_timing, group_treat = timing_df$group[[1]],
-  #                    time_treat = timing_df$time[[1]], mdd_dat_slot=mdd_dat_slot, keep_mdd = FALSE,
-  #                    control_group=control_group)
+  dat_TOY <- mdd_CS_manu_prep_1(data = data_with_treat_timing, group_treat = timing_df$group[[1]],
+                                time_treat = timing_df$time[[1]], mdd_dat_slot=mdd_dat_slot,
+                                keep_mdd = FALSE,
+                                control_group=control_group) %>%
+    back_to_md()
   #
-  # dat_TOY %>%
-  #   count(treat_timing, tr, Time)
+  dat_TOY %>%
+    mdd_DD_simple()
 
   ## run for each
   timing_df %>%
@@ -94,7 +121,9 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
                                                group_treat = .x,
                                                time_treat = .y,
                                                mdd_dat_slot=mdd_dat_slot,
-                                               control_group =control_group)),
+                                               control_group =control_group,
+                                               keep_mdd = FALSE) %>%
+                             back_to_md()),
            dd = map(.data$dat_here, mdd_DD_simple),
            dd_coef = map(.data$dd, tidy)) %>%
     tidyr::unnest("dd_coef") %>%
