@@ -1,3 +1,9 @@
+# multiDiff 0.3.1
+
+Published on 2024-09-22.
+
+* Add new `mdd_CS_manu` to replicate internally Callaway and Sant'Anna (2021)
+
 # multiDiff 0.3.0
 
 Published on 2023-10-10.
