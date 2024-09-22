@@ -124,3 +124,18 @@ test_that("Panel DiD with FE as group or unit gives same coef", {
 })
 
 
+test_that("cross-section", {
+  FE_unit <- mdd_data_format(data = df_raw, unit.index = "unit")
+  FE_group <- mdd_data_format(data = df_raw, unit.index = "treat_group")
+  df_cross_mdd <- suppressWarnings(mdd_data_format(data = df_cross))
+  df_cross_unequalN_mdd <- suppressWarnings(mdd_data_format(data = df_cross_unequalN))
+  is_cross <- function(x) attributes(x)$mdd_dat_slot$is_cross_sec
+
+  expect_true(is_cross(df_cross_mdd))
+  expect_true(is_cross(df_cross_unequalN_mdd))
+  expect_false(is_cross(FE_unit))
+  expect_false(is_cross(FE_group))
+  expect_false(all(purrr::map_lgl(dat_all, is_cross)))
+
+
+})

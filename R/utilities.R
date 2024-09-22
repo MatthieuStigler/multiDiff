@@ -136,6 +136,17 @@ intrnl_n_obs_by_unit <- function(df, unit.index="unit") {
                          g=df[[unit.index]]))
 }
 
+intrnl_n_time_by_unit <- function(df, unit.index="unit", time.index="Time") {
+  # unique(collapse::fnobs(df[[time.index]],
+  #                        g=df[[unit.index]]))
+  df %>%
+    distinct(!!sym(unit.index), !!sym(time.index)) %>%
+    count(!!sym(unit.index)) %>%
+    pull(n) %>%
+    unique()
+
+}
+
 if(FALSE){
   library(microbenchmark)
   microbenchmark(intrnl_is_balanced_dplyr = intrnl_is_balanced_dplyr(dat[-3,]),
