@@ -94,3 +94,50 @@ test_that("With staggered, CS is same as separate regs", {
   expect_true(unname(coef(ES_5_6))[5] !=filter(CS_stag2_notyet, group==5)$estimate[6])
 })
 
+################################
+#'## Check manu
+################################
+
+
+test_that("mdd_CS_manu gives same", {
+  dat_stag <- sim_dat_staggered(as_mdd = TRUE, Time=6)
+  CS_mine <- mdd_CS_manu(dat_stag)
+  CS_CS <- mdd_CS(dat_stag)
+
+  expect_equal(CS_mine |>
+                 dplyr::select(term, group, time, estimate)|>
+                 as.data.frame(),
+               tidy(CS_CS) |>
+                 dplyr::select(term, group, time, estimate))
+})
+
+test_that("mdd_CS_manu gives same with noyettreated", {
+  dat_stag <- sim_dat_staggered(as_mdd = TRUE, Time=6)
+  CS_mine_notYet <- mdd_CS_manu(dat_stag, control_group = "notyettreated") |>
+    dplyr::select(term, group, time, estimate)
+  CS_CS_notYet <- mdd_CS(dat_stag, control_group = "notyettreated") |>
+    tidy()|>
+    dplyr::select(term, group, time, estimate)
+
+  expect_equal(CS_mine_notYet|>
+                 as.data.frame(),
+               CS_CS_notYet)
+})
+
+test_that("mdd_CS_manu gives same even when using unequal years", {
+  dat_stag_raw <- sim_dat_staggered(as_mdd = FALSE, Time=6)
+  dat_stag <- dat_stag_raw |>
+    dplyr::left_join(tibble::tibble(Time=1:6, Year = c(2000, 2003, 2007:2010)), by="Time") |>
+    dplyr::select(unit, Year, tr, y)
+  dat_stag_mdd <- mdd_data_format(dat_stag, time.index = "Year")
+
+  CS_mine_Y <- mdd_CS_manu(dat_stag_mdd)
+  CS_CS_Y <- mdd_CS(dat_stag_mdd)
+
+  expect_equal(CS_mine_Y |>
+                 dplyr::select(term, group, time, estimate)|>
+                 as.data.frame(),
+               tidy(CS_CS_Y) |>
+                 dplyr::select(term, group, time, estimate))
+})
+

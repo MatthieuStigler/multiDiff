@@ -58,17 +58,17 @@ if(FALSE){
 mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated")){
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
-  mdd_dat_slot <- multiDiff:::intrnl_mdd_get_mdd_slot(mdd_dat)
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
   if(mdd_dat_slot$DID_type!="staggered") warning("Not staggered?")
   control_group <- match.arg(control_group)
 
   ## add treat_timing
-  data2 <- mdd_dat %>%
-    multiDiff:::intrnl_add_treat_time_mdd() %>%
+  data_with_treat_timing <- mdd_dat %>%
+    intrnl_add_treat_time_mdd() %>%
     # mutate(across(c("treat_timing_num", "treat_timing"), ~if_else(.==0, Inf, .))) %>%
     select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing")
-  # data2 %>%
+  # data_with_treat_timing %>%
   #   distinct(treat_timing_num, treat_timing)
 
   ## get timings
@@ -79,28 +79,31 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   timing_df <- tidyr::expand_grid(group=treated_periods,
                                   time=tail(sort(periods),-1))
 
+  ## test 1
+  # dat_TOY <- mdd_CS_manu_prep_1(data = data_with_treat_timing, group_treat = timing_df$group[[1]],
+  #                    time_treat = timing_df$time[[1]], mdd_dat_slot=mdd_dat_slot, keep_mdd = FALSE,
+  #                    control_group=control_group)
+  #
+  # dat_TOY %>%
+  #   count(treat_timing, tr, Time)
+
   ## run for each
-  data2 %>%
-    count(treat_timing)
-  dat_1 <- mdd_CS_manu_prep_1(data2, time_treat = 2003, group_treat = 2007,
-                              mdd_dat_slot=mdd_dat_slot)
-  mdd_DD_simple(dat_1)
-  dat_1 %>%
-    as.data.frame() %>%
-    count(tr, treat_timing, Year)
   timing_df %>%
-    # slice(6) %>%
-    mutate(dat_here = map2(group, time, ~mdd_CS_manu_prep_1(data2,
-                                                            group_treat = .x,
-                                                            time_treat = .y,
-                                                            mdd_dat_slot=mdd_dat_slot)),
-           dd = map(dat_here, mdd_DD_simple),
-           dd_coef = map(dd, tidy)) %>%
-    tidyr::unnest(dd_coef) %>%
-    select(-dat_here)
+    mutate(dat_here = map2(.data$group, .data$time,
+                           ~mdd_CS_manu_prep_1(data_with_treat_timing,
+                                               group_treat = .x,
+                                               time_treat = .y,
+                                               mdd_dat_slot=mdd_dat_slot,
+                                               control_group =control_group)),
+           dd = map(.data$dat_here, mdd_DD_simple),
+           dd_coef = map(.data$dd, tidy)) %>%
+    tidyr::unnest("dd_coef") %>%
+    select(-"dat_here") %>%
+    mutate(term = paste0("ATT(", .data$group, ",", .data$time, ")")) %>%
+    relocate("term")
 }
 
-mdd_CS_manu_prep_1 <- function(data, time_treat, group_treat,
+mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
                                mdd_dat_slot, time_var, treat_var,
                                control_group = c("nevertreated", "notyettreated"),
                                keep_mdd=TRUE){
@@ -110,24 +113,44 @@ mdd_CS_manu_prep_1 <- function(data, time_treat, group_treat,
   mdd_vars <- mdd_dat_slot$var_names
   periods <- mdd_dat_slot$periods
 
+  # determine type, this will influence control periods/groups
+  type <- if_else(group_treat<=time_treat, "effect", "placebo")
+
   ## select pre -period
-  if(group_treat<=time_treat){
+  if(type=="effect"){
     pre_period <- periods[which(periods==group_treat)-1]
   } else {
     ## for placebo
     pre_period <- periods[which(periods==time_treat)-1]
   }
 
-  dat_out <- data %>%
-    ## select periods
-    # filter(Year %in% c(time_treat, last_untreated)) %>%
-    filter(!!sym(mdd_vars$time.index) %in% c(time_treat, pre_period)) %>%
-    ## select group
-    filter(.data$treat_timing %in% c(group_treat, 0)) %>%
-    ## create dummy
-    mutate(!!sym(mdd_vars$treat) := if_else(.data$treat_timing==group_treat & !!sym(mdd_vars$time.index) ==time_treat, 1, 0))
+  ## select control groups
+  if(control_group=="nevertreated"){
+    control_group_here <- 0
+  } else{
+    all_groups <- unique(data_with_treat_timing$treat_timing)
+    ## use later groups, but only if not already treated
+    if(type=="effect"){
+      later_treated <- all_groups[all_groups>group_treat & all_groups >time_treat]
+    } else {
+      ## use all groups not treated
+      later_treated <- all_groups[all_groups>time_treat]
+    }
+    control_group_here <- c(0, later_treated)
+  }
 
-  if(keep_mdd) dat_out <- multiDiff:::intrnl_back_to_mdd(dat_out, mdd_dat_slot$var_names)
+
+  dat_out <- data_with_treat_timing %>%
+    ## select periods
+    filter(!!sym(mdd_vars$time.index) %in% c(time_treat, pre_period)) %>%
+    ## select groups
+    filter(.data$treat_timing %in% c(group_treat, control_group_here)) %>%
+    ## create dummy
+    mutate(!!sym(mdd_vars$treat) := if_else(.data$treat_timing==group_treat & !!sym(mdd_vars$time.index) ==time_treat,
+                                            1,
+                                            0))
+
+  if(keep_mdd) dat_out <- intrnl_back_to_mdd(dat_out, mdd_dat_slot$var_names)
   dat_out
 }
 
@@ -141,13 +164,18 @@ if(FALSE){
 
 
   environment(mdd_CS) <- environment(mdd_DD_simple)
+  environment(mdd_CS_manu) <- environment(mdd_DD_simple)
   CS_mine <- mdd_CS_manu(mdd_dat)
   CS_CS <- mdd_CS(mdd_dat)
 
+  CS_mine
+  tidy(CS_CS) %>% as_tibble()
+
+
   all.equal(CS_mine %>%
-              select(group, time, estimate),
+              select(term, group, time, estimate),
             tidy(CS_CS) %>%
-              select(group, time, estimate) %>%
+              select(term, group, time, estimate) %>%
               as_tibble())
 
 }
