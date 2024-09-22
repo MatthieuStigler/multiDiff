@@ -26,8 +26,8 @@ mdd_group_means <- function(mdd_dat, conf.int=FALSE, weights=NULL, by_treat_peri
 
   # add groups
   mdd_dat_add <- mdd_dat %>%
-    add_group(time.index = mdd_vars$time.index, treat = mdd_vars$treat,
-              unit.index = mdd_vars$unit.index, group_rename_maybe=TRUE)
+    add_group(time.index =!! mdd_vars$time.index, treat = !!mdd_vars$treat,
+              unit.index = !!mdd_vars$unit.index, group_rename_maybe=TRUE)
   index_time_here <-mdd_vars$time.index
 
   ## eventually change grouping variable: overwrite previous to keep same name

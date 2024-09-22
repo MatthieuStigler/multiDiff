@@ -28,8 +28,8 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
 
   ## prep data
   mdd_dat_add <- mdd_dat %>%
-    add_group(time.index = mdd_vars$time.index, treat = mdd_vars$treat,
-              unit.index = mdd_vars$unit.index, group_rename_maybe=TRUE) %>%
+    add_group(time.index = !!mdd_vars$time.index, treat = !!mdd_vars$treat,
+              unit.index = !!mdd_vars$unit.index, group_rename_maybe=TRUE) %>%
     rename(treat =".group",
            period = !!sym(mdd_vars$time.index),
            y= !!sym(mdd_vars$y_var)) %>%

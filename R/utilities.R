@@ -4,7 +4,8 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
 
   ## get 0-1 sequences for each unit
   groups <- get_sequences(df, time.index = {{time.index}},
-                          treat = {{treat}}, unit.index = {{unit.index}}) %>%
+                          treat = {{treat}},
+                          unit.index = {{unit.index}}) %>%
     rename(.group="seq")
 
   ## rename eventually
@@ -15,11 +16,9 @@ add_group <- function(df, time.index = "Time", treat = "tr", unit.index="unit",
   }
 
   ## add tot dat
-  # by_var <- {{unit.index}}
-  # if(rlang::is_quosure(by_var)) by_var <- rlang::as_name(by_var)
   df %>%
     left_join(groups %>%
-                select(all_of(unit.index), ".group"), by = unit.index)
+                select({{unit.index}}, ".group"), by = dplyr::join_by({{unit.index}}))
 }
 
 # add_treat_group_simple <- function(data, time.index = "Time", treat = "tr", unit.index="unit"){
@@ -40,8 +39,8 @@ if(FALSE){
   treat = quo("tr")
 
   unit.index_quo = quo("unit")
-  a <- add_group(DID_dat, unit.index=unit.index_quo)
-  a <- add_group(DID_dat, unit.index="unit")
+  a <- multiDiff:::add_group(DID_dat, unit.index=unit.index_quo)
+  a <- multiDiff:::add_group(DID_dat, unit.index="unit")
 
   add_group(df=DID_dat )|>
     dplyr::count(.group)

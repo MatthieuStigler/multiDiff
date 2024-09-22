@@ -41,3 +41,13 @@ test_that("intrnl_add_treat_time_mdd", {
   expect_equal(df, df_target)
 
 })
+
+test_that("add_group and get_sequences", {
+  DID_dat <- sim_dat_common()
+  wrap_group <- function(var) multiDiff:::add_group(DID_dat, unit.index={{var}})
+
+  expect_no_error(multiDiff:::get_sequences(DID_dat))
+  expect_no_error(multiDiff:::add_group(DID_dat, unit.index="unit"))
+  expect_no_error(wrap_group(var="unit"))
+  expect_no_error(wrap_group(var=unit))
+})
