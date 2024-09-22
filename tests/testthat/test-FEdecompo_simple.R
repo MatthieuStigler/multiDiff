@@ -30,6 +30,17 @@ reg_FE2_state_Time <- felm(y ~tr|state+Time, data = data_sim)
 reg_FE1_time_X <- felm(y ~tr + x|Time, data = data_sim)
 reg_FE1_unit_X <- felm(y ~tr + x|unit, data = data_sim)
 
+## multiple regs
+grouped_reg <- function(by_var, df = data_sim) {
+  df %>%
+    group_by({{by_var}}) %>%
+    dplyr::group_modify( ~data.frame(coef_indiv_manu=coef(lm(y ~tr, data = .))["tr"])) %>%
+    ungroup()
+}
+
+reg_indiv_by_T <- grouped_reg(by_var = Time)
+reg_indiv_by_N <- grouped_reg(by_var = unit)
+reg_indiv_by_S <- grouped_reg(by_var = state)
 
 ################################
 #'## Now with FE_decomp
@@ -57,6 +68,17 @@ coefs_FE1_byN <- FE_decompo(data=data_sim,
 test_that("FE decompo: time/unit/unit-state", {
   expect_true(intrnl_check(coefs_FE1_byN, reg_FE1_unit))
 })
+
+## compare FE dec with individual coefficients
+comp_FEdec_indiv <- function(df_FEdec, df_indiv, var){
+  join <- df_FEdec %>%
+    select({{var}}, coef_dec=treat_coef) %>%
+    dplyr::full_join(df_indiv, by = dplyr::join_by({{var}}))
+  all.equal(join$coef_dec, join$coef_indiv_manu)
+}
+
+comp_FEdec_indiv(coefs_FE1_byN, reg_indiv_by_N, var=unit)
+comp_FEdec_indiv(coefs_FE1_byY, reg_indiv_by_T, var=Time)
 
 ### Using state unit is redundant
 coefs_FE1_byNS <- FE_decompo(data=data_sim,
@@ -92,6 +114,7 @@ coefs_FE1_byS <- FE_decompo(data=data_sim,
                             time.index = "Time",
                             fixed_effects = "unit",
                             by = c("state"))
+comp_FEdec_indiv(coefs_FE1_byS, reg_indiv_by_S, var=state)
 test_that("FE decompo: time/unit/state", {
   expect_true(intrnl_check(coefs_FE1_byS, reg_FE1_unit))
 })
