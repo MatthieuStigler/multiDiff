@@ -31,7 +31,10 @@ FE_decompo <- function(data, y_var="y", time.index = "Time", treat = "tr", unit.
                        fixed_effects =c("time", "unit", "both"),
                        by = unit.index) {
   fixed_effects <-  match.arg(fixed_effects)
-  fixed_effects_index <- switch(fixed_effects, time=time.index, unit = unit.index, both = c(unit.index, time.index))
+  fixed_effects_index <- switch(fixed_effects,
+                                time=time.index,
+                                unit = unit.index,
+                                both = c(unit.index, time.index))
   # treat_quo <- rlang::ensym(treat)
   # y_var_quo <- rlang::ensym(y_var)
 
