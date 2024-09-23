@@ -11,6 +11,5 @@
 #' devtools::install_github("MatthieuStigler/multiDiff", upgrade = "never")
 #'
 #'
-#' @docType package
-#' @name multiDiff
-NULL
+#' @keywords internal
+"_PACKAGE"

@@ -9,6 +9,7 @@ if(FALSE){
 #'
 #' Simple wrapper to function \code{\link[did]{att_gt}} from package did.
 #' @template param_mdd_dat
+#' @param timing_treat_var variable indicating the timing to treat. Not necessary, unless the dataset is not balanced
 #' @param ... further objects passed to \code{\link[did]{att_gt}}
 #' @returns Output of \code{\link[did]{att_gt}}, therefore of class \code{\link[did]{MP}}.
 #' @examples
@@ -20,14 +21,21 @@ if(FALSE){
 #' all.equal(unname(coef(mdd_event_study(dat_common))),
 #'           broom::tidy(mdd_CS(dat_common, base_period = "universal"))$estimate[-4])
 #' @export
-mdd_CS <- function(mdd_dat, ...){
+mdd_CS <- function(mdd_dat, timing_treat_var=NULL, ...){
 
   requireNamespace("did")
   vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
 
   ## conv to did format
-  dat_did <- mdd_conv_mdd_to_did(mdd_dat)
-    # mutate(treat_timing2= if_else(.data$treat_timing>0, min(.[[vars$time.index]])+.data$treat_timing, 0))
+  ## add treat_timing if not there
+  if(is.null(timing_treat_var)) {
+    dat_did <- mdd_conv_mdd_to_did(mdd_dat)
+  } else {
+    dat_did <- mdd_dat %>%
+      as.data.frame() %>%
+      rename(treat_timing= !!sym(timing_treat_var)) %>%
+      mutate(treat_timing= if_else(.data$treat_timing==Inf, 0, .data$treat_timing))
+  }
 
   ## make unit.index (idname) numeric
   if(!is.numeric(dat_did[[vars$unit.index]])){
@@ -59,6 +67,7 @@ if(FALSE){
 #'## Manual
 ################################
 
+#' @noRd
 mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated"),
                         timing_treat_var = NULL){
 

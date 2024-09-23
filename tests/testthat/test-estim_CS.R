@@ -171,21 +171,31 @@ test_that("mdd_CS_manu gives same results as did:: with unbalnced data", {
 
   ## estimate mine
   df_stag_md <- suppressWarnings(mdd_data_format(df_raw_plus))
-  my_CS_cross <- mdd_CS_manu(mdd_dat = df_stag_md, timing_treat_var="timing_treat")
+  my_CS_cross <- multiDiff:::mdd_CS_manu(mdd_dat = df_stag_md, timing_treat_var="timing_treat")
+  set.seed(123)
+  CS_CS_cross <- mdd_CS(mdd_dat = df_stag_md, timing_treat_var="timing_treat")
 
   ## estimate did CS
   library(did)
-  CS_CS_cross <- did::att_gt(yname = "y", tname = "Time", idname = "unit",
-                             gname = "timing_treat",
-                             data = df_stag_md %>%
-                               as_tibble(),
-                             panel = FALSE)
+  set.seed(123)
+  did_CS_CS_cross <- did::att_gt(yname = "y", tname = "Time", idname = "unit",
+                                 gname = "timing_treat",
+                                 data = df_stag_md %>%
+                                   as_tibble(),
+                                 panel = FALSE)
 
   ## compare
   expect_equal(my_CS_cross%>%
                  select(term, group, time, estimate) %>%
                  as.data.frame(),
-               tidy(CS_CS_cross) %>%
+               tidy(did_CS_CS_cross) %>%
                  select(term, group, time, estimate))
+  expect_equal(tidy(CS_CS_cross),
+               tidy(did_CS_CS_cross))
 
+})
+
+test_that("mdd_CS/manu don't work with cross-section", {
+  expect_error(suppressWarnings(mdd_CS_manu(mdd_dat = df_stag_md)))
+  expect_error(suppressWarnings(mdd_CS(mdd_dat = df_stag_md)))
 })
