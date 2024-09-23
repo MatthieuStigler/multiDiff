@@ -79,7 +79,7 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
     data_with_treat_timing <- mdd_dat %>%
       as_tibble() %>%
       rename(treat_timing= !!sym(timing_treat_var)) %>%
-      mutate(treat_timing= if_else(treat_timing==Inf, 0, treat_timing))
+      mutate(treat_timing= if_else(.data$treat_timing==Inf, 0, .data$treat_timing))
   }
   data_with_treat_timing <- data_with_treat_timing %>%
     select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing")
@@ -105,7 +105,7 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   }
 
   ## test 1
-  dat_TOY <- mdd_CS_manu_prep_1(data = data_with_treat_timing, group_treat = timing_df$group[[1]],
+  dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing, group_treat = timing_df$group[[1]],
                                 time_treat = timing_df$time[[1]], mdd_dat_slot=mdd_dat_slot,
                                 keep_mdd = FALSE,
                                 control_group=control_group) %>%
