@@ -69,7 +69,7 @@ if(FALSE){
 
 #' @noRd
 mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated"),
-                        timing_treat_var = NULL){
+                        timing_treat_var = NULL, re_adj_group=FALSE){
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -91,37 +91,40 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
       mutate(treat_timing= if_else(.data$treat_timing==Inf, 0, .data$treat_timing))
   }
   data_with_treat_timing <- data_with_treat_timing %>%
-    select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing")
+    select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing") %>%
+    mutate(treat_timing = if_else(.data$treat_timing>max(!!mdd_vars$time.index), 0, .data$treat_timing))
 
   ## get timings
-  periods <- mdd_dat_slot$periods
-  treated_periods <- mdd_dat_slot$treated_periods
+  periods <- sort(mdd_dat_slot$periods)
+  treated_periods <- sort(mdd_dat_slot$treated_periods)
   untreated_periods <- periods[!periods%in% treated_periods]
+  if(length(untreated_periods)==0) untreated_periods <- NA
 
   timing_df <- tidyr::expand_grid(group=treated_periods,
-                                  time=tail(sort(periods),-1))
+                                  time=periods[!periods %in% min(untreated_periods)])
 
   ## need to cast back to mdd, but with different style
   back_to_md <- function(data, is_cross){
+    if(nrow(data)==0) return(NA)
     if(!is_cross_sec){
       res <- intrnl_back_to_mdd(data, mdd_vars)
     } else {
       mdd_vars2 <- mdd_vars
-      mdd_vars2$unit.index <-"treat_timing"
+      mdd_vars2$unit.index <-"group_treat_fe"
       res <- intrnl_back_to_mdd(data, mdd_vars2)
     }
     res
   }
 
   ## test 1
-  dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing, group_treat = timing_df$group[[1]],
-                                time_treat = timing_df$time[[1]], mdd_dat_slot=mdd_dat_slot,
-                                keep_mdd = FALSE,
-                                control_group=control_group) %>%
-    back_to_md()
+  # dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
+  #                               group_treat = timing_df$group[[7]],
+  #                               time_treat = timing_df$time[[7]],
+  #                               mdd_dat_slot=mdd_dat_slot,
+  #                               keep_mdd = FALSE,
+  #                               control_group=control_group) %>%
+  #   back_to_md()
   #
-  dat_TOY %>%
-    mdd_DD_simple()
 
   ## run for each
   timing_df %>%
@@ -131,9 +134,13 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
                                                time_treat = .y,
                                                mdd_dat_slot=mdd_dat_slot,
                                                control_group =control_group,
-                                               keep_mdd = FALSE) %>%
-                             back_to_md()),
-           dd = map(.data$dat_here, mdd_DD_simple),
+                                               keep_mdd = FALSE,
+                                               is_cross_sec=is_cross_sec) %>%
+                             back_to_md())) %>%
+    filter(!is.na(.data$dat_here)) %>%
+    ## remove non estimable DiDs
+    filter(purrr::map_lgl(.data$dat_here, \(x) length(attr(x, "mdd_dat_slot")$periods)>1 & length(attr(x, "mdd_dat_slot")$treated_periods)>0)) %>%
+    mutate(dd = map(.data$dat_here, mdd_DD_simple),
            dd_coef = map(.data$dd, tidy)) %>%
     tidyr::unnest("dd_coef") %>%
     select(-"dat_here") %>%
@@ -144,12 +151,12 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
 mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
                                mdd_dat_slot, time_var, treat_var,
                                control_group = c("nevertreated", "notyettreated"),
-                               keep_mdd=TRUE){
+                               keep_mdd=TRUE, is_cross_sec=FALSE){
 
   ## check args
   control_group <- match.arg(control_group)
   mdd_vars <- mdd_dat_slot$var_names
-  periods <- mdd_dat_slot$periods
+  periods <- sort(mdd_dat_slot$periods)
 
   # determine type, this will influence control periods/groups
   type <- if_else(group_treat<=time_treat, "effect", "placebo")
@@ -161,6 +168,7 @@ mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
     ## for placebo
     pre_period <- periods[which(periods==time_treat)-1]
   }
+  if(length(pre_period)==0) return(head(data_with_treat_timing,0))
 
   ## select control groups
   if(control_group=="nevertreated"){
@@ -188,6 +196,8 @@ mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
                                             1,
                                             0))
 
+  if(is_cross_sec) dat_out <- dat_out %>%
+    mutate(group_treat_fe = if_else(.data$treat_timing == group_treat, "treat", "ctrl"))
   if(keep_mdd) dat_out <- intrnl_back_to_mdd(dat_out, mdd_dat_slot$var_names)
   dat_out
 }

@@ -38,8 +38,8 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   n_seq <- length(seq_uniques)
   treated_periods_num <- map(str_split(seq_uniques, "_"), ~which(.=="1")) %>%
     unlist() %>% unique() %>% sort()
-  periods <- unique(pull(data, {{time.index}}))
-  treated_periods <- periods[treated_periods_num]
+  periods <- unique(pull(data, {{time.index}})) %>% sort()
+  treated_periods <- periods[treated_periods_num] %>% sort()
 
 
   ## classify time
