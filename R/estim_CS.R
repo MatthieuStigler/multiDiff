@@ -117,14 +117,18 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   }
 
   ## test 1
-  # dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
-  #                               group_treat = timing_df$group[[7]],
-  #                               time_treat = timing_df$time[[7]],
-  #                               mdd_dat_slot=mdd_dat_slot,
-  #                               keep_mdd = FALSE,
-  #                               control_group=control_group) %>%
-  #   back_to_md()
+  dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
+                                group_treat = timing_df$group[[1]],
+                                time_treat = timing_df$time[[1]],
+                                mdd_dat_slot=mdd_dat_slot,
+                                keep_mdd = FALSE,
+                                is_cross_sec=is_cross_sec,
+                                control_group=control_group) %>%
+    back_to_md()
   #
+  # dat_TOY %>% as_tibble() %>% count(Time, treat_timing, tr)
+
+
 
   ## run for each
   timing_df %>%
@@ -138,8 +142,7 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
                                                is_cross_sec=is_cross_sec) %>%
                              back_to_md())) %>%
     filter(!is.na(.data$dat_here)) %>%
-    ## remove non estimable DiDs
-    filter(purrr::map_lgl(.data$dat_here, \(x) length(attr(x, "mdd_dat_slot")$periods)>1 & length(attr(x, "mdd_dat_slot")$treated_periods)>0)) %>%
+    # filter(purrr::map_lgl(.data$dat_here, \(x) length(attr(x, "mdd_dat_slot")$periods)>1 & length(attr(x, "mdd_dat_slot")$treated_periods)>0)) %>%
     mutate(dd = map(.data$dat_here, mdd_DD_simple),
            dd_coef = map(.data$dd, tidy)) %>%
     tidyr::unnest("dd_coef") %>%
@@ -195,6 +198,14 @@ mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
     mutate(!!sym(mdd_vars$treat) := if_else(.data$treat_timing==group_treat & !!sym(mdd_vars$time.index) ==time_treat,
                                             1,
                                             0))
+
+
+  ## make sure estimable!?
+  gr_count <- dat_out %>%
+    count(.data$treat_timing, !!sym(mdd_vars$treat), !!sym(mdd_vars$time.index))
+  treated_has_2 <- n_distinct(filter(gr_count, .data$treat_timing==group_treat) %>% pull(!!sym(mdd_vars$time.index)))==2
+  control_has_2 <- n_distinct(filter(gr_count, .data$treat_timing!=group_treat)%>% pull(!!sym(mdd_vars$time.index)))==2
+  if(!treated_has_2|!control_has_2) return(head(dat_out, 0))
 
   if(is_cross_sec) dat_out <- dat_out %>%
     mutate(group_treat_fe = if_else(.data$treat_timing == group_treat, "treat", "ctrl"))

@@ -98,7 +98,7 @@ test_that("With staggered, CS is same as separate regs", {
 #'## Check manu
 ################################
 
-
+mdd_CS_manu <- multiDiff:::mdd_CS_manu
 test_that("mdd_CS_manu gives same", {
   dat_stag <- sim_dat_staggered(as_mdd = TRUE, Time=6)
   CS_mine <- mdd_CS_manu(dat_stag)
@@ -146,8 +146,8 @@ test_that("mdd_CS_manu gives same even when using unequal years", {
 ################################
 
 ## create cross-section of regressions
-df_raw <- sim_dat_staggered(as_mdd = TRUE, Time=3, seed=123, perc_never=0.3,
-                            perc_treat=0.7) %>%
+df_raw <- sim_dat_staggered(as_mdd = TRUE, Time=4, seed=123, perc_never=0.3,
+                            perc_treat=0.7, N=1600) %>%
   select(-c(unit_fe, time_fe, error, length_treat))
 
 ## create group-wise ids
@@ -163,8 +163,13 @@ df_ids <- df_raw%>%
 df_raw_plus <- df_raw %>%
   left_join(df_ids,by = join_by(unit, timing_treat))%>%
   as.data.frame() %>%
-  filter((unit_new %in% 1:100 & Time==1)| (unit_new %in% 101:200 & Time==2)|(unit_new %in% 201:300 & Time==3)) %>%
+  filter((unit_new %in% 1:100 & Time==1)| (unit_new %in% 101:200 & Time==2)|(unit_new %in% 201:300 & Time==3)|
+           (unit_new %in% 301:400 & Time==4)) %>%
   as_tibble()
+
+df_raw_plus %>%
+  count(Time, timing_treat) %>%
+  tidyr::spread(Time, n)
 
 
 test_that("mdd_CS_manu gives same results as did:: with unbalnced data", {
@@ -198,4 +203,64 @@ test_that("mdd_CS_manu gives same results as did:: with unbalnced data", {
 test_that("mdd_CS/manu don't work with cross-section", {
   expect_error(suppressWarnings(mdd_CS_manu(mdd_dat = df_stag_md)))
   expect_error(suppressWarnings(mdd_CS(mdd_dat = df_stag_md)))
+})
+
+################################
+#'## Harder: data with empty cells
+################################
+
+df_raw_plus %>%
+  count(Time, timing_treat) %>%
+  tidyr::spread(Time, n)
+
+df_raw_plus_plus <- df_raw_plus %>%
+  filter(!(timing_treat==Inf & Time==2) &
+           !(timing_treat==3 & Time==2) & Time!=4) #control_group="notyettreated"
+
+df_raw_plus_plus %>%
+  count(Time, timing_treat) %>%
+  tidyr::spread(Time, n)
+
+did_to_tidy <- function(x) tidy(x) %>% select(term, group, time, estimate) %>% filter(!is.na(estimate)) %>% as_tibble()
+
+test_that("mdd_CS_manu gives same results as did:: with unbalanced data and empty cells", {
+
+  ## estimate mine
+  df_stag_plus_md <- suppressWarnings(mdd_data_format(df_raw_plus_plus))
+  my_CS_cross2_never <- mdd_CS_manu(mdd_dat = df_stag_plus_md, timing_treat_var="timing_treat", control_group="nevertreated")
+  my_CS_cross2_notYet <- mdd_CS_manu(mdd_dat = df_stag_plus_md, timing_treat_var="timing_treat", control_group="notyettreated")
+
+  set.seed(123)
+  CS_CS_cross2_never <- suppressWarnings(mdd_CS(mdd_dat = df_stag_plus_md, timing_treat_var="timing_treat",
+                                               control_group="nevertreated")) %>% did_to_tidy
+  CS_CS_cross2_notYet <- suppressWarnings(mdd_CS(mdd_dat = df_stag_plus_md, timing_treat_var="timing_treat",
+                                                control_group="notyettreated")) %>% did_to_tidy
+
+  ## estimate did CS
+  library(did)
+  set.seed(123)
+  did_CS_CS_cross2_never <- suppressWarnings(did::att_gt(yname = "y", tname = "Time", idname = "unit",
+                                                         gname = "timing_treat",
+                                                         data = df_raw_plus_plus,
+                                                         panel = FALSE)) %>% did_to_tidy
+  did_CS_CS_cross2_notYet <- suppressWarnings(did::att_gt(yname = "y", tname = "Time", idname = "unit",
+                                                          gname = "timing_treat",
+                                                          data = df_raw_plus_plus,
+                                                          control_group="notyettreated",
+                                                          panel = FALSE))%>% did_to_tidy
+  ## compare
+  my_CS_cross2_never
+  CS_CS_cross2_never
+  did_CS_CS_cross2_never
+
+  my_CS_cross2_notYet
+  CS_CS_cross2_notYet
+  did_CS_CS_cross2_notYet
+
+  # expect_equal(my_CS_cross2_never, did_CS_CS_cross2_never) ## NO!
+  expect_equal(CS_CS_cross2_never, did_CS_CS_cross2_never)
+
+  expect_equal(CS_CS_cross2_notYet, my_CS_cross2_notYet %>% select(term, group, time, estimate))
+  expect_equal(CS_CS_cross2_notYet, did_CS_CS_cross2_notYet)
+
 })
