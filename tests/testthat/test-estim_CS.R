@@ -249,15 +249,7 @@ test_that("mdd_CS_manu gives same results as did:: with unbalanced data and empt
                                                           control_group="notyettreated",
                                                           panel = FALSE))%>% did_to_tidy
   ## compare
-  my_CS_cross2_never
-  CS_CS_cross2_never
-  did_CS_CS_cross2_never
-
-  my_CS_cross2_notYet
-  CS_CS_cross2_notYet
-  did_CS_CS_cross2_notYet
-
-  # expect_equal(my_CS_cross2_never, did_CS_CS_cross2_never) ## NO!
+  expect_equal(did_CS_CS_cross2_never, my_CS_cross2_never %>% select(term, group, time, estimate))
   expect_equal(CS_CS_cross2_never, did_CS_CS_cross2_never)
 
   expect_equal(CS_CS_cross2_notYet, my_CS_cross2_notYet %>% select(term, group, time, estimate))

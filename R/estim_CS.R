@@ -69,7 +69,7 @@ if(FALSE){
 
 #' @noRd
 mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated"),
-                        timing_treat_var = NULL, re_adj_group=FALSE){
+                        timing_treat_var = NULL){
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -92,11 +92,13 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   }
   data_with_treat_timing <- data_with_treat_timing %>%
     select(!!mdd_vars$y_var, !!mdd_vars$time.index, !!mdd_vars$unit.index, "treat_timing") %>%
-    mutate(treat_timing = if_else(.data$treat_timing>max(!!mdd_vars$time.index), 0, .data$treat_timing))
+    ## groups with treatment timing larger than max time considered as never treated
+    mutate(treat_timing = if_else(.data$treat_timing>max(!!sym(mdd_vars$time.index)), 0, .data$treat_timing))
 
   ## get timings
   periods <- sort(mdd_dat_slot$periods)
-  treated_periods <- sort(mdd_dat_slot$treated_periods)
+  treated_periods <- sort(unique(c(mdd_dat_slot$treated_periods, unique(data_with_treat_timing$treat_timing))))
+  treated_periods <- treated_periods[treated_periods!=0 & treated_periods>min(periods)]
   untreated_periods <- periods[!periods%in% treated_periods]
   if(length(untreated_periods)==0) untreated_periods <- NA
 
@@ -118,8 +120,8 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
 
   ## test 1
   dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
-                                group_treat = timing_df$group[[1]],
-                                time_treat = timing_df$time[[1]],
+                                group_treat = timing_df$group[[3]],
+                                time_treat = timing_df$time[[3]],
                                 mdd_dat_slot=mdd_dat_slot,
                                 keep_mdd = FALSE,
                                 is_cross_sec=is_cross_sec,
@@ -164,14 +166,15 @@ mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
   # determine type, this will influence control periods/groups
   type <- if_else(group_treat<=time_treat, "effect", "placebo")
 
-  ## select pre -period
+  ## select last pre-period
   if(type=="effect"){
-    pre_period <- periods[which(periods==group_treat)-1]
+    ## for effect: last pre-period before group's treatment time
+    pre_period <- periods[which(periods<group_treat) %>% tail(1)]
   } else {
-    ## for placebo
-    pre_period <- periods[which(periods==time_treat)-1]
+    ## for placebo: last pre-period before desired time
+    pre_period <- periods[which(periods<time_treat) %>% tail(1)]
   }
-  if(length(pre_period)==0) return(head(data_with_treat_timing,0))
+  # if(length(pre_period)==0) return(head(data_with_treat_timing,0))
 
   ## select control groups
   if(control_group=="nevertreated"){
