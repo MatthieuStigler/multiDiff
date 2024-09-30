@@ -1,8 +1,10 @@
-#' Run synthetic diff-diff
+#' Run synthetic diff-diff by Arkhangelsky et al (2019)
 #'
+#' @description Simple wrapper for the package synthdid
+#' @details Note that the package should be downloaded from github, see \url{https://synth-inference.github.io/synthdid/}
 #' @template param_mdd_dat
 #' @param add_weights return the weights?
-#'
+#' @seealso \link{mdd_gsynth} for the Generalized Synthetic Control Method by Xu (2017)
 #' @examples
 #' if(require(synthdid)){
 #'   data('california_prop99')

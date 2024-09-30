@@ -1,6 +1,6 @@
 #' Estimate DiD 2x2 means
 #'
-#' Estimate juste the before/after treated/control means, and conduct inference on the various diffs
+#' Estimate just the before/after treated/control means, and conduct inference on the various diffs
 #' @template param_mdd_dat
 #' @param add_tests compute also tests?
 #' @returns An object of class lm (wrapped into mdd_DD_means22),

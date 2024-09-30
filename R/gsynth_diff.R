@@ -1,8 +1,10 @@
-#' Run generalized synthetic diff-diff from XXX
+#' Run Generalized Synthetic Control Method (Xu 2017)
 #'
+#' @description Simple wrapper for  \link[gsynth]{gsynth}, see help file there
+#' @details Note that package gsynth is not imported, only suggested.
 #' @template param_mdd_dat
-#' @param ... Further argumetns passed to
-#'
+#' @param ... Further arguments passed to \link[gsynth]{gsynth}
+#' @seealso \link{mdd_synthdid} for the synthetic diff-diff by Arkhangelsky et al (2019).
 #' @examples
 #' if(require(gsynth)){
 #'  data(gsynth)

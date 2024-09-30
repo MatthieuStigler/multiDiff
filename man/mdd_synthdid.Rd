@@ -2,7 +2,7 @@
 % Please edit documentation in R/synth_diff.R
 \name{mdd_synthdid}
 \alias{mdd_synthdid}
-\title{Run synthetic diff-diff}
+\title{Run synthetic diff-diff by Arkhangelsky et al (2019)}
 \usage{
 mdd_synthdid(mdd_dat, add_weights = FALSE)
 }
@@ -12,7 +12,10 @@ mdd_synthdid(mdd_dat, add_weights = FALSE)
 \item{add_weights}{return the weights?}
 }
 \description{
-Run synthetic diff-diff
+Simple wrapper for the package synthdid
+}
+\details{
+Note that the package should be downloaded from github, see \url{https://synth-inference.github.io/synthdid/}
 }
 \examples{
 if(require(synthdid)){
@@ -22,4 +25,7 @@ if(require(synthdid)){
                                            treat = "treated", unit.index = "State")
   mdd_synthdid(mdd_dat=mdd_california_prop99)
 }
+}
+\seealso{
+\link{mdd_gsynth} for the Generalized Synthetic Control Method by Xu (2017)
 }

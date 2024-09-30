@@ -23,7 +23,7 @@ An object of class lm (wrapped into mdd_DD_means22),
 with the slot \code{mdd_dat_slot} which contains the output of the tests under \code{DiD_manu_tests}
 }
 \description{
-Estimate juste the before/after treated/control means, and conduct inference on the various diffs
+Estimate just the before/after treated/control means, and conduct inference on the various diffs
 }
 \examples{
 dat_sim_mdd <- sim_dat_common(timing_treatment = 6:10,  as_mdd=TRUE)

@@ -2,17 +2,20 @@
 % Please edit documentation in R/gsynth_diff.R
 \name{mdd_gsynth}
 \alias{mdd_gsynth}
-\title{Run generalized synthetic diff-diff from XXX}
+\title{Run Generalized Synthetic Control Method (Xu 2017)}
 \usage{
 mdd_gsynth(mdd_dat, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
-\item{...}{Further argumetns passed to}
+\item{...}{Further arguments passed to \link[gsynth]{gsynth}}
 }
 \description{
-Run generalized synthetic diff-diff from XXX
+Simple wrapper for  \link[gsynth]{gsynth}, see help file there
+}
+\details{
+Note that package gsynth is not imported, only suggested.
 }
 \examples{
 if(require(gsynth)){
@@ -22,4 +25,7 @@ if(require(gsynth)){
                                    treat = "D", unit.index = "id")
  res <- mdd_gsynth(mdd_dat=mdd_simdata_gs)
 }
+}
+\seealso{
+\link{mdd_synthdid} for the synthetic diff-diff by Arkhangelsky et al (2019).
 }
