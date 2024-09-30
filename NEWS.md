@@ -1,3 +1,9 @@
+# multiDiff 0.3.2
+
+Published on 2024-09-30.
+
+* Add new `mdd_gsynth` to run the Generalized Synthetic Control Method (Xu 2017)
+
 # multiDiff 0.3.1
 
 Published on 2024-09-22.
