@@ -9,20 +9,22 @@
 #'  mdd_simdata_gs <- mdd_data_format(simdata,
 #'                                    y_var = "Y",time.index = "time",
 #'                                    treat = "D", unit.index = "id")
-#'  res <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
+#'  res <- mdd_gsynth(mdd_dat=mdd_simdata_gs)
 #' }
 #' @export
 mdd_gsynth <- function(mdd_dat, ...){
 
+  if(!rlang::is_installed("gsynth")) stop("Please install package 'gsynth' from CRAN")
+
   ## prep data
-  mdd_dat_slot <- multiDiff:::intrnl_mdd_get_mdd_slot(mdd_dat)
+  mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
   mdd_vars <- mdd_dat_slot$var_names
   formu <- as.formula(paste(mdd_vars$y_var, "~", mdd_vars$treat))
 
   ## run
-  res <- gsynth(formu, data = as.data.frame(mdd_dat),
-                index = c(mdd_vars$unit.index, mdd_vars$time.index),
-                ...)
+  res <- gsynth::gsynth(formu, data = as.data.frame(mdd_dat),
+                        index = c(mdd_vars$unit.index, mdd_vars$time.index),
+                        ...)
 
 
   ##
@@ -38,22 +40,23 @@ tidy.gsynth <- function(x, type = c("time", "average"), ...){
     co <- x$est.att %>%
       as.data.frame() %>%
       mutate(term=rownames(.)) |>
-      dplyr::rename(estimate=ATT)
+      dplyr::rename(estimate=.data$ATT)
   } else if(type=="average"){
+    # small bug: described as est.att.avg but actually est.avg !?
     co <- x$est.avg %>%
       as.data.frame() %>%
       mutate(term="Average ATT") |>
-      dplyr::rename(estimate=Estimate)
+      dplyr::rename(estimate=.data$Estimate)
   }
 
   out <-  co |>
     tibble::as_tibble() |>
-    dplyr::relocate(term,
+    dplyr::relocate(.data$term,
                     tidyselect::any_of("n.Treated")) |>
-    dplyr::relocate(p.value, .after =S.E.) |>
-    dplyr::rename(std.error = S.E.,
-                  conf.low=CI.lower,
-                  conf.high =CI.upper)
+    dplyr::relocate(.data$p.value, .after =.data$S.E.) |>
+    dplyr::rename(std.error = .data$S.E.,
+                  conf.low = .data$CI.lower,
+                  conf.high = .data$CI.upper)
 
   out
 }
@@ -62,7 +65,7 @@ tidy.gsynth <- function(x, type = c("time", "average"), ...){
 if(FALSE){
   require(multiDiff)
   require(gsynth)
-  data(gsynth)
+  # data(gsynth)
   mdd_simdata_gs <- mdd_data_format(simdata,
                                  y_var = "Y",time.index = "time",
                                  treat = "D", unit.index = "id")

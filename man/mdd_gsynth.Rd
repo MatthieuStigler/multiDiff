@@ -20,6 +20,6 @@ if(require(gsynth)){
  mdd_simdata_gs <- mdd_data_format(simdata,
                                    y_var = "Y",time.index = "time",
                                    treat = "D", unit.index = "id")
- res <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
+ res <- mdd_gsynth(mdd_dat=mdd_simdata_gs)
 }
 }

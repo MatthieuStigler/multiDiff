@@ -34,6 +34,7 @@ Imports:
     generics
 Suggests: 
     did,
+    gsynth,
     synthdid,
     testthat (>= 3.0.0),
     tidyverse
