@@ -1,7 +1,7 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.3.2
-Date: 2024-09-30
+Version: 0.3.3
+Date: 2024-10-03
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",

@@ -1,3 +1,9 @@
+# multiDiff 0.3.3
+
+Published on 2024-10-03.
+
+* Minor: add argument `panel` to `mdd_CS`
+
 # multiDiff 0.3.2
 
 Published on 2024-09-30.
