@@ -4,12 +4,14 @@
 \alias{mdd_CS}
 \title{Apply Callaway and Sant'Anna (2021) estimate}
 \usage{
-mdd_CS(mdd_dat, timing_treat_var = NULL, ...)
+mdd_CS(mdd_dat, timing_treat_var = NULL, panel = NULL, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{timing_treat_var}{variable indicating the timing to treat. Not necessary, unless the dataset is not balanced}
+
+\item{panel}{Argument \code{panel} to \code{\link[did]{att_gt}}. If not specified, will try to guess.}
 
 \item{...}{further objects passed to \code{\link[did]{att_gt}}}
 }

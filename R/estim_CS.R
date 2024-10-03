@@ -10,6 +10,7 @@ if(FALSE){
 #' Simple wrapper to function \code{\link[did]{att_gt}} from package did.
 #' @template param_mdd_dat
 #' @param timing_treat_var variable indicating the timing to treat. Not necessary, unless the dataset is not balanced
+#' @param panel Argument \code{panel} to \code{\link[did]{att_gt}}. If not specified, will try to guess.
 #' @param ... further objects passed to \code{\link[did]{att_gt}}
 #' @returns Output of \code{\link[did]{att_gt}}, therefore of class \code{\link[did]{MP}}.
 #' @examples
@@ -21,7 +22,7 @@ if(FALSE){
 #' all.equal(unname(coef(mdd_event_study(dat_common))),
 #'           broom::tidy(mdd_CS(dat_common, base_period = "universal"))$estimate[-4])
 #' @export
-mdd_CS <- function(mdd_dat, timing_treat_var=NULL, ...){
+mdd_CS <- function(mdd_dat, timing_treat_var=NULL, panel=NULL, ...){
 
   requireNamespace("did")
   vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
@@ -45,13 +46,16 @@ mdd_CS <- function(mdd_dat, timing_treat_var=NULL, ...){
   }
 
   ## cross-section?
-  is_cross_sec <- intrnl_mdd_get_mdd_slot(mdd_dat)$is_cross_sec
+  if(is.null(panel)){
+    is_cross_sec <- intrnl_mdd_get_mdd_slot(mdd_dat)$is_cross_sec
+    panel <- !is_cross_sec
+  }
 
   ## now run
   did::att_gt(yname = vars$y_var, tname = vars$time.index, idname = vars$unit.index,
               gname = "treat_timing",
               data = dat_did,
-              panel = !is_cross_sec,
+              panel = panel,
               ...)
 }
 
@@ -69,7 +73,7 @@ if(FALSE){
 
 #' @noRd
 mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreated"),
-                        timing_treat_var = NULL){
+                        timing_treat_var = NULL, keep_raw_data=FALSE, cluster=NULL){
 
   if(!inherits(mdd_dat, "mdd_dat")) stop("Data should be formatted with 'mdd_data_format' first ")
   mdd_dat_slot <- intrnl_mdd_get_mdd_slot(mdd_dat)
@@ -119,22 +123,22 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
   }
 
   ## test 1
-  dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
-                                group_treat = timing_df$group[[3]],
-                                time_treat = timing_df$time[[3]],
-                                mdd_dat_slot=mdd_dat_slot,
-                                keep_mdd = FALSE,
-                                is_cross_sec=is_cross_sec,
-                                control_group=control_group) %>%
-    back_to_md()
+  # dat_TOY <- mdd_CS_manu_prep_1(data_with_treat_timing,
+  #                               group_treat = timing_df$group[[3]],
+  #                               time_treat = timing_df$time[[3]],
+  #                               mdd_dat_slot=mdd_dat_slot,
+  #                               keep_mdd = FALSE,
+  #                               is_cross_sec=is_cross_sec,
+  #                               control_group=control_group) %>%
+  #   back_to_md()
   #
   # dat_TOY %>% as_tibble() %>% count(Time, treat_timing, tr)
 
 
 
   ## run for each
-  timing_df %>%
-    mutate(dat_here = map2(.data$group, .data$time,
+  res <- timing_df %>%
+    mutate(data_mdd = map2(.data$group, .data$time,
                            ~mdd_CS_manu_prep_1(data_with_treat_timing,
                                                group_treat = .x,
                                                time_treat = .y,
@@ -143,14 +147,21 @@ mdd_CS_manu <- function(mdd_dat, control_group = c("nevertreated", "notyettreate
                                                keep_mdd = FALSE,
                                                is_cross_sec=is_cross_sec) %>%
                              back_to_md())) %>%
-    filter(!is.na(.data$dat_here)) %>%
-    # filter(purrr::map_lgl(.data$dat_here, \(x) length(attr(x, "mdd_dat_slot")$periods)>1 & length(attr(x, "mdd_dat_slot")$treated_periods)>0)) %>%
-    mutate(dd = map(.data$dat_here, mdd_DD_simple),
+    ## remove data not fit for estimation
+    filter(!is.na(.data$data_mdd)) %>%
+    ## estimate now
+    mutate(dd = map(.data$data_mdd, ~mdd_DD_simple(., cluster=cluster)),
            dd_coef = map(.data$dd, tidy)) %>%
     tidyr::unnest("dd_coef") %>%
-    select(-"dat_here") %>%
     mutate(term = paste0("ATT(", .data$group, ",", .data$time, ")")) %>%
     relocate("term")
+
+  ## remove raw data
+  if(!keep_raw_data){
+    res <- res %>%
+      select(-"data_mdd")
+  }
+  res
 }
 
 mdd_CS_manu_prep_1 <- function(data_with_treat_timing, time_treat, group_treat,
