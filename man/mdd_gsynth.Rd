@@ -4,12 +4,14 @@
 \alias{mdd_gsynth}
 \title{Run Generalized Synthetic Control Method (Xu 2017)}
 \usage{
-mdd_gsynth(mdd_dat, echo = TRUE, ...)
+mdd_gsynth(mdd_dat, echo = FALSE, parallel = FALSE, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{echo}{Whether to print the messages of gsynth or not. Default to TRUE}
+
+\item{parallel}{Argument passed to \link[gsynth]{gsynth}, default is FALSE.}
 
 \item{...}{Further arguments passed to \link[gsynth]{gsynth}}
 }

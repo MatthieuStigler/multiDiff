@@ -4,6 +4,7 @@
 #' @details Note that package gsynth is not imported, only suggested.
 #' @template param_mdd_dat
 #' @param echo Whether to print the messages of gsynth or not. Default to TRUE
+#' @param parallel Argument passed to \link[gsynth]{gsynth}, default is FALSE.
 #' @param ... Further arguments passed to \link[gsynth]{gsynth}
 #' @seealso \link{mdd_synthdid} for the synthetic diff-diff by Arkhangelsky et al (2019).
 #' @examples
@@ -15,7 +16,7 @@
 #'  res <- mdd_gsynth(mdd_dat=mdd_simdata_gs)
 #' }
 #' @export
-mdd_gsynth <- function(mdd_dat, echo=TRUE, ...){
+mdd_gsynth <- function(mdd_dat, echo=FALSE, parallel=FALSE, ...){
 
   if(!rlang::is_installed("gsynth")) stop("Please install package 'gsynth' from CRAN")
 
@@ -28,6 +29,7 @@ mdd_gsynth <- function(mdd_dat, echo=TRUE, ...){
   if(!echo) sink(tempfile())  # Redirect output to a temporary file
   res <- gsynth::gsynth(formu, data = as.data.frame(mdd_dat),
                         index = c(mdd_vars$unit.index, mdd_vars$time.index),
+                        parallel=parallel,
                         ...)
   if(!echo) sink()  # Restore output to the console
 
