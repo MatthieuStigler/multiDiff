@@ -41,7 +41,7 @@ mdd_gsynth <- function(mdd_dat, echo=FALSE, parallel=FALSE, ...){
 }
 
 #' @export
-coef.gsynth <- function(object, type = c("time", "average"), ...){
+coef.gsynth <- function(object, type = c("average", "time"), ...){
   co <- switch(match.arg(type),
                "time"=object$att,
                "average"= object$att.avg)
@@ -49,7 +49,7 @@ coef.gsynth <- function(object, type = c("time", "average"), ...){
 }
 
 #' @export
-tidy.gsynth <- function(x, type = c("time", "average"), ...){
+tidy.gsynth <- function(x, type = c("average", "time"), ...){
 
   type <- match.arg(type)
   if(type=="time"){

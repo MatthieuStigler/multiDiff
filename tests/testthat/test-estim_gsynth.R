@@ -55,9 +55,9 @@ test_that("Relationship with FE: with r=0 and force = 'two-way'", {
   DD_ES_post <- mdd_event_study(mdd_simdata_gs, trim_low = -1)
 
   ## average is same as DiD
-  expect_equal(gs_FE2_only$att.avg,
+  expect_equal(coef(gs_FE2_only),
                coef(DD_simple)[[1]])
   ## average is same as DiD
-  expect_equal(gs_FE2_only$att[21:30],
+  expect_equal(coef(gs_FE2_only, type="time")[21:30],
                coef(DD_ES_post), ignore_attr="names")
   })
