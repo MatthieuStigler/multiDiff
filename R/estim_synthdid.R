@@ -4,6 +4,7 @@
 #' @details Note that the package should be downloaded from github, see \url{https://synth-inference.github.io/synthdid/}
 #' @template param_mdd_dat
 #' @param add_weights return the weights?
+#' @param ... Further argumetns pased to synthdid::synthdid_estimate
 #' @seealso \link{mdd_gsynth} for the Generalized Synthetic Control Method by Xu (2017)
 #' @examples
 #' if(require(synthdid)){
@@ -14,7 +15,7 @@
 #'   mdd_synthdid(mdd_dat=mdd_california_prop99)
 #' }
 #' @export
-mdd_synthdid <- function(mdd_dat, add_weights=FALSE){
+mdd_synthdid <- function(mdd_dat, add_weights=FALSE, ...){
 
   if(!requireNamespace("synthdid", quietly = TRUE)) stop("Please install `synthdid`")
 
@@ -32,7 +33,7 @@ mdd_synthdid <- function(mdd_dat, add_weights=FALSE){
                                     treatment = mdd_vars$treat)
 
   ## estimate
-  res <- synthdid::synthdid_estimate(setup$Y, setup$N0, setup$T0)
+  res <- synthdid::synthdid_estimate(setup$Y, setup$N0, setup$T0, ...)
 
   ## re-estimate?
   if(add_weights){

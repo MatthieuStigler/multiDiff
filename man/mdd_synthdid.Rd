@@ -4,12 +4,14 @@
 \alias{mdd_synthdid}
 \title{Run synthetic diff-diff by Arkhangelsky et al (2019)}
 \usage{
-mdd_synthdid(mdd_dat, add_weights = FALSE)
+mdd_synthdid(mdd_dat, add_weights = FALSE, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
 
 \item{add_weights}{return the weights?}
+
+\item{...}{Further argumetns pased to synthdid::synthdid_estimate}
 }
 \description{
 Simple wrapper for the package synthdid
