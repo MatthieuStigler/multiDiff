@@ -177,30 +177,10 @@ mdd_texreg_export <- function() {
 ################################
 
 if(FALSE){
-  library(multiDiff)
-  library(synthdid)
-  library(gsynth)
-  library(texreg)
+ test_that("Output from DD is same as from DD_manu_many", {
+  expect_warning(DD(data=data3),
+                 "No variation in treatment found!?")
+})
 
-  mdd_data <- sim_dat_common(as_mdd = TRUE, Time = 20, timing_treatment = 15:20)
-
-  mdd_DD <- mdd_DD_simple(mdd_data)
-  mdd_synthDD <- mdd_synthdid(mdd_data)
-  mdd_gs <- mdd_gsynth(mdd_data, echo=FALSE, se=TRUE, r=0:3)
-  mdd_gs_mc <- mdd_gsynth(mdd_data, echo=FALSE, estimator="mc", se=FALSE)
-
-  all <- list(mdd_DD=mdd_DD, mdd_synthDD=mdd_synthDD, mdd_gs=mdd_gs, mdd_gs_mc=mdd_gs_mc)
-  # extr_dd_here <- extract_mdd_DiD
-  # extr_sdd_here <- extract.synthdid
-  # extr_gdd_here <- extract.gsynth
-
-  extr_dd_here <- multiDiff:::extract_mdd_DiD
-  extr_sdd_here <- multiDiff:::extract.synthdid
-  extr_gdd_here <- multiDiff:::extract.gsynth
-  setMethod("extract", signature = className("mdd_DiD", "multiDiff"), definition = extr_dd_here) # see https://github.com/leifeld/texreg/issues/200
-  setMethod("extract", signature = className("synthdid_estimate", "multiDiff"), definition = extr_sdd_here)
-  setMethod("extract", signature = className("gsynth", "multiDiff"), definition = extr_gdd_here)
-  # environment(extract_mdd_DiD) <- environment(mdd_data_format)
-  screenreg(all)
 
 }
