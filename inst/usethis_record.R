@@ -30,6 +30,7 @@ use_package("fixest", "Imports")
 use_package("tidyverse", "Suggests")
 use_package("gsynth", "Suggests")
 use_package("synthdid", "Suggests")
+use_package("texreg", "Suggests")
 use_package("did", "Suggests")
 # tidyselect
 

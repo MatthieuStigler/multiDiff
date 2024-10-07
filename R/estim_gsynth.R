@@ -34,6 +34,7 @@ mdd_gsynth <- function(mdd_dat, echo=TRUE, ...){
 
   ##
   attr(res, "mdd_dat_slot") <- mdd_dat_slot
+  class(res) <- c(class(res), "mdd_gsynth")
   res
 }
 

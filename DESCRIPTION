@@ -37,6 +37,7 @@ Suggests:
     gsynth,
     synthdid,
     testthat (>= 3.0.0),
+    texreg,
     tidyverse
 Depends: 
     R (>= 2.10)
