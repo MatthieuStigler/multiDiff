@@ -9,7 +9,8 @@ extract_mdd_DiD <- function(model, add_para_test = FALSE, include.n_treated=TRUE
                             ...) {
 
   ## call fixest method
-  extr_out <- texreg:::extract.fixest(model,
+  texreg_extract.fixest <- get("extract.fixest", envir = asNamespace("texreg"))
+  extr_out <- texreg_extract.fixest(model,
                                       include.rsquared =include.rsquared,
                                       include.adjrs = include.adjrs,
                                       include.deviance=include.deviance,
