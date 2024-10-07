@@ -1,5 +1,5 @@
 ################################
-#'## Did here
+### Did here
 ################################
 
 extract_mdd_DiD <- function(model, add_para_test = FALSE, include.n_treated=TRUE,
@@ -49,7 +49,7 @@ extract_mdd_DiD <- function(model, add_para_test = FALSE, include.n_treated=TRUE
 
 
 ################################
-#'## gsynth
+### gsynth
 ################################
 
 extract.gsynth <- function(model, type = c("average", "time"),
@@ -119,7 +119,7 @@ extract.gsynth <- function(model, type = c("average", "time"),
 
 
 ################################
-#'## synthdid
+### synthdid
 ################################
 
 extract.synthdid <- function(model, ...) {
@@ -143,44 +143,20 @@ extract.synthdid <- function(model, ...) {
   return(tr)
 }
 
-#' Export texreg functions
-#'
-#' @examples
-#' mdd_texreg_export()
-#' if(require(gsynth)){
-#'   data(gsynth)
-#'   mdd_simdata_gs <- mdd_data_format(simdata,
-#'                                y_var = "Y",time.index = "time",
-#'                             treat = "D", unit.index = "id")
-#'   res <- mdd_gsynth(mdd_dat=mdd_simdata_gs, echo=FALSE, se=TRUE)
-#'   res_MC <- mdd_gsynth(mdd_dat=mdd_simdata_gs, echo=FALSE, se=FALSE, estimator="mc")
-#' }
-#' if(require(texreg)) {
-#'   setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
-#'   screenreg(res)
-#'   screenreg(l=res_MC)
-#' }
-#'
-#'@noRd
+
 mdd_texreg_export <- function() {
   # if(require(texreg)) {
-    # setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
-    cat('setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)\n')
+  # setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
+  cat('setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)\n')
   cat('setMethod("extract", signature = className("synthdid_estimate", "multiDiff"), definition = multiDiff:::extract.synthdid)\n')
   # }
 }
-## mdd_texreg_export()
-
-
-################################
-#'## test
-################################
 
 if(FALSE){
- test_that("Output from DD is same as from DD_manu_many", {
-  expect_warning(DD(data=data3),
-                 "No variation in treatment found!?")
-})
-
+ mdd_texreg_export()
+  setMethod("extract", signature = className("mdd_DiD", "multiDiff"), definition = multiDiff:::extract_mdd_DiD) # see https://github.com/leifeld/texreg/issues/200
+  setMethod("extract", signature = className("synthdid_estimate", "multiDiff"), definition = multiDiff:::extract.synthdid)
+  setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
 
 }
+

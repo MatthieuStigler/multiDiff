@@ -4,13 +4,15 @@ suppressPackageStartupMessages(library(gsynth))
 suppressPackageStartupMessages(library(texreg))
 
 ## data
-mdd_data <- sim_dat_common(as_mdd = TRUE, Time = 20, timing_treatment = 15:20, seed=3746)
+mdd_data <- sim_dat_common(as_mdd = TRUE, Time = 20, timing_treatment = 15:20, seed=3746, N=500)
 
 ## models
 mdd_DD <- mdd_DD_simple(mdd_data)
-mdd_synthDD <- mdd_synthdid(mdd_data)
-mdd_gs <- mdd_gsynth(mdd_data, echo=FALSE, se=TRUE, k=0:2, nboots=10, seed=263754, inference="parametric")
-mdd_gs_mc <- mdd_gsynth(mdd_data, echo=FALSE, estimator="mc", se=FALSE, seed=83475)
+mdd_synthDD <- mdd_synthdid(mdd_data, max.iter = 1000)
+mdd_gs <- mdd_gsynth(mdd_data, echo=TRUE, se=TRUE, k=1, nboots=10, seed=263754, inference="parametric", CV=FALSE,
+                     parallel=FALSE)
+mdd_gs_mc <- mdd_gsynth(mdd_data, echo=TRUE, estimator="mc", se=FALSE, seed=83475, parallel=FALSE, lambda=0.1778279,
+                        CV=FALSE)
 
 all <- list(mdd_DD=mdd_DD, mdd_synthDD=mdd_synthDD, mdd_gs=mdd_gs, mdd_gs_mc=mdd_gs_mc)
 
