@@ -18,6 +18,7 @@ extract.gsynth <- function(model, type = c("average", "time"),
 
   ### gof
   hyper <-  model$r.cv
+  if(is.null(hyper)) hyper <- model$lambda.cv
   gof <- c(hyper)
   gof.names <- c("N factors:")
   gof.decimal <- FALSE
@@ -46,6 +47,31 @@ extract.gsynth <- function(model, type = c("average", "time"),
 }
 
 
+################################
+#'## synthdid
+################################
+
+extract.synthdid <- function(model, ...) {
+
+  ## this has more slots, but much slower
+  # s <- summary(model)
+  # names <- rownames(s$coef)
+
+  ## simple way
+  out <- tidy(model)
+  co <- out$estimate
+  se <- out$std.error
+  pval <- out$p.value
+
+  tr <- createTexreg(
+    coef.names = "treat_status",
+    coef = co,
+    se = se,
+    pvalues = pval,
+  )
+  return(tr)
+}
+
 #' Export texreg functions
 #'
 #' @examples
@@ -56,15 +82,20 @@ extract.gsynth <- function(model, type = c("average", "time"),
 #'                                y_var = "Y",time.index = "time",
 #'                             treat = "D", unit.index = "id")
 #'   res <- mdd_gsynth(mdd_dat=mdd_simdata_gs, echo=FALSE, se=TRUE)
+#'   res_MC <- mdd_gsynth(mdd_dat=mdd_simdata_gs, echo=FALSE, se=FALSE, estimator="mc")
 #' }
 #' if(require(texreg)) {
+#'   setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
 #'   screenreg(res)
+#'   screenreg(l=res_MC)
 #' }
 #'
 #'@noRd
 mdd_texreg_export <- function() {
   # if(require(texreg)) {
     # setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)
-    cat('setMethod("extract", signature = "gsynth", definition = multiDiff:::extract.gsynth)')
+    cat('setMethod("extract", signature = className("gsynth", "multiDiff"), definition = multiDiff:::extract.gsynth)\n')
+    cat('setMethod("extract", signature = className("synthdid_estimate", "multiDiff"), definition = multiDiff:::extract.synthdid)\n')
   # }
 }
+## mdd_texreg_export()
