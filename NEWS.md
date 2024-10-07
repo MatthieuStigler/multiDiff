@@ -1,3 +1,11 @@
+# multiDiff 0.3.4
+
+Published on 2024-10-07.
+
+* First extract: Add unexported multiDiff:::extract.gsynth
+* Suggests texreg
+* Fix issues #25 and #26
+
 # multiDiff 0.3.3
 
 Published on 2024-10-03.
