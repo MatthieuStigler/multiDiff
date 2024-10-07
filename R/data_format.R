@@ -23,6 +23,11 @@ mdd_data_format <-  function(data, y_var="y", time.index = "Time", treat = "tr",
   has_higher_FE <- all(n_obs_by_unit_by_time > 1) # OLD
   is_cross_sec <- all(n_time_by_unit == 1)
 
+  ## make tr numeric
+  if(is.logical(pull(data, {{treat}}))) {
+    data <- mutate(data, {{treat}} := as.numeric(!!sym(treat)))
+  }
+
   ##
   sequences <- get_sequences(data, time.index = {{time.index}},
                              treat = {{treat}}, unit.index = {{unit.index}},
