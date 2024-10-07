@@ -1,5 +1,5 @@
 extract.gsynth <- function(model, type = c("average", "time"),
-                           include.n_treated=TRUE) {
+                           include.n_treated=TRUE, ...) {
 
   type <- match.arg(type)
   has_se <- !is.null(model$est.att)
