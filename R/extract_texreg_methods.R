@@ -134,12 +134,10 @@ extract.synthdid <- function(model, ...) {
   se <- out$std.error
   pval <- out$p.value
 
-  tr <- createTexreg(
-    coef.names = "Treatment",
-    coef = co,
-    se = se,
-    pvalues = pval,
-  )
+  tr <- texreg::createTexreg(coef.names = "Treatment",
+                             coef = co,
+                             se = se,
+                             pvalues = pval)
   return(tr)
 }
 
