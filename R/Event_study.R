@@ -49,6 +49,8 @@ mdd_event_study <-  function(mdd_dat,
 
   if(is.character(cluster)) cluster <- as.formula(paste0("~", cluster))
 
+  if(!is.null(trim_low) && trim_low> -1) stop("Argument 'trim_low' should be <= -1")
+
   # y_var=quo(y)
   # time.index = quo(Time)
   # treat = quo(tr)
