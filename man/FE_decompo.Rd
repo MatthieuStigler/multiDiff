@@ -16,7 +16,7 @@ FE_decompo(
 )
 }
 \arguments{
-\item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
+\item{data}{A data frame containing the variables of interest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
 \code{unit.index}}
 
 \item{y_var}{The name of the y variable}

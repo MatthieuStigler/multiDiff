@@ -1,4 +1,4 @@
-#' @param data A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
+#' @param data A data frame containing the variables of interest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
 #' \code{unit.index}
 #' @param time.index The name of the variable describing the time index (date, year, etc)
 #' @param unit.index The name of the units (individual, county, household, etc).

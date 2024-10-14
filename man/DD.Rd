@@ -17,7 +17,7 @@ DD(
 \arguments{
 \item{y_var}{The name of the y variable}
 
-\item{data}{A data frame containing the variables of itnerest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
+\item{data}{A data frame containing the variables of interest, should have names  \code{y_var}, \code{treat}, \code{time.index} and
 \code{unit.index}}
 
 \item{time.index}{The name of the variable describing the time index (date, year, etc)}
