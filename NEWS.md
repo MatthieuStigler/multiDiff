@@ -1,3 +1,10 @@
+# multiDiff 0.3.5
+
+Published on 2024-10-14.
+
+* Add new wrapper for Chaisemartin Haultfeuille
+
+
 # multiDiff 0.3.4
 
 Published on 2024-10-07.
