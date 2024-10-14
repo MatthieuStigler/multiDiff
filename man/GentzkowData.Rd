@@ -3,7 +3,7 @@
 \docType{data}
 \name{GentzkowData}
 \alias{GentzkowData}
-\title{Dataset from Gentzkwow et al (2011)}
+\title{Dataset from Gentzkow et al (2011)}
 \format{
 A data-frame
 }

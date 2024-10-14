@@ -1,4 +1,4 @@
-#' Dataset from Gentzkwow et al (2011)
+#' Dataset from Gentzkow et al (2011)
 #'
 #' This is the replication dataset put by Reed (2019)
 #'

@@ -12,7 +12,7 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
   rlang::ensym(this_var)
 }
 
-#' Weights from Chaisemartin and Hautefeuille
+#' Weights from Chaisemartin and Hautefeuille (2020)
 #'
 #'@template param_all
 #'@param return_details Return additional details on weights?
@@ -22,12 +22,31 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'   \item{weight}{The weight w multiplied by \code{obs_weight}. They sum to 1.}
 #'   \item{obs_weight}{The ratio \eqn{N_{g,t}/N_1}, eventually including also the treatment intensity.}
 #'}
+#' @references de Chaisemartin and D'Haultfoeuille (2020), Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects
+#' American Economic Review , Vol. 110, No. 9
 #'@examples
+#'## example from page 2970 in Chaisemartin and Hautefeuille (2020)
 #'examp_df <- data.frame(unit = rep(c(1, 2), each=3),
-#'                       time = rep(1:3, 2),
+#'                       Time = rep(1:3, 2),
 #'                       treat = c(0, 0, 1, 0, 1, 1))
-#'mDid_weights_CH(examp_df, treat = "treat",
-#'                time.index = "time")
+#' w_df <- mDid_weights_CH(examp_df, treat = "treat",
+#'                         time.index = "Time")
+#' w_df
+#' ## the three weights shown in the beta^FE equation:
+#' subset(as.data.frame(w_df), treat==1, "weight")
+#'
+#' ## replicate application B of Gentzkow, Shapiro, and Sinkinson (2011)
+#' data(GentzkowData)
+#' @seealso \code{\link{GentzkowData}}
+#' data_W_CH <- mDid_weights_CH(data=GentzkowData,
+#'                              y_var="prestout",
+#'                              time.index = "year",
+#'                              treat = "numdailies",
+#'                              unit.index="cnty90")
+#' ## results are a bit different compared to the paper:
+#' data_W_CH
+#' plot(data_W_CH, by = "unit")
+#' plot(data_W_CH, by = "time")
 #'@export
 mDid_weights_CH <- function(data, y_var="y", time.index = "Time",
                             treat = "tr", unit.index="unit",
@@ -95,7 +114,7 @@ print.FE_weights_CH <- function(x, ...) {
   if(smry["n_treat_zero"]>0) cat(smry["n_treat_zero"], "Treated cases have 0 weights (saturated FEs?)\n")
   cat("The sum of the negative weights is equal to", smry["w_neg_mean"], ".\n")
 
-  cat("\nOverview of data:\n")
+  cat("\nOverview of data (run as.data.frame() or as_tibble() to extract the data:\n")
   x <-  head(as_tibble(x))
   NextMethod()
   # print(x)

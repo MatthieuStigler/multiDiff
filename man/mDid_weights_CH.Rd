@@ -5,7 +5,7 @@
 \alias{print.FE_weights_CH}
 \alias{plot.FE_weights_CH}
 \alias{weights_CH_smry}
-\title{Weights from Chaisemartin and Hautefeuille}
+\title{Weights from Chaisemartin and Hautefeuille (2020)}
 \usage{
 mDid_weights_CH(
   data,
@@ -51,12 +51,37 @@ A enhanced \code{tibble} of class \emph{FE_weights_CH}
 }
 }
 \description{
-Weights from Chaisemartin and Hautefeuille
+Weights from Chaisemartin and Hautefeuille (2020)
 }
 \examples{
+## example from page 2970 in Chaisemartin and Hautefeuille (2020)
 examp_df <- data.frame(unit = rep(c(1, 2), each=3),
-                      time = rep(1:3, 2),
+                      Time = rep(1:3, 2),
                       treat = c(0, 0, 1, 0, 1, 1))
-mDid_weights_CH(examp_df, treat = "treat",
-               time.index = "time")
+w_df <- mDid_weights_CH(examp_df, treat = "treat",
+                        time.index = "Time")
+w_df
+## the three weights shown in the beta^FE equation:
+subset(as.data.frame(w_df), treat==1, "weight")
+
+## replicate application B of Gentzkow, Shapiro, and Sinkinson (2011)
+data(GentzkowData)
+}
+\references{
+de Chaisemartin and D'Haultfoeuille (2020), Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects
+American Economic Review , Vol. 110, No. 9
+}
+\seealso{
+\code{\link{GentzkowData}}
+data_W_CH <- mDid_weights_CH(data=GentzkowData,
+y_var="prestout",
+time.index = "year",
+treat = "numdailies",
+unit.index="cnty90")
+\subsection{results are a bit different compared to the paper:}{
+
+data_W_CH
+plot(data_W_CH, by = "unit")
+plot(data_W_CH, by = "time")
+}
 }
