@@ -66,22 +66,20 @@ subset(as.data.frame(w_df), treat==1, "weight")
 
 ## replicate application B of Gentzkow, Shapiro, and Sinkinson (2011)
 data(GentzkowData)
+data_W_CH <- mDid_weights_CH(data=GentzkowData,
+                             y_var="prestout",
+                             time.index = "year",
+                             treat = "numdailies",
+                             unit.index="cnty90")
+## results are a bit different compared to the paper:
+data_W_CH
+plot(data_W_CH, by = "unit")
+plot(data_W_CH, by = "time")
 }
 \references{
 de Chaisemartin and D'Haultfoeuille (2020), Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects
 American Economic Review , Vol. 110, No. 9
 }
 \seealso{
-\code{\link{GentzkowData}}
-data_W_CH <- mDid_weights_CH(data=GentzkowData,
-y_var="prestout",
-time.index = "year",
-treat = "numdailies",
-unit.index="cnty90")
-\subsection{results are a bit different compared to the paper:}{
-
-data_W_CH
-plot(data_W_CH, by = "unit")
-plot(data_W_CH, by = "time")
-}
+\code{\link{mdd_estim_CH}} for the CH estimators and \code{\link{GentzkowData}} for a presentation of the Gentzkow datasets
 }

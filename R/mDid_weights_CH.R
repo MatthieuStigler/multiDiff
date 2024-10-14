@@ -24,6 +24,7 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'}
 #' @references de Chaisemartin and D'Haultfoeuille (2020), Two-Way Fixed Effects Estimators with Heterogeneous Treatment Effects
 #' American Economic Review , Vol. 110, No. 9
+#' @seealso \code{\link{mdd_estim_CH}} for the CH estimators and \code{\link{GentzkowData}} for a presentation of the Gentzkow datasets
 #'@examples
 #'## example from page 2970 in Chaisemartin and Hautefeuille (2020)
 #'examp_df <- data.frame(unit = rep(c(1, 2), each=3),
@@ -37,7 +38,6 @@ intrnl_attr_to_quo <- function(data, att, check=FALSE) {
 #'
 #' ## replicate application B of Gentzkow, Shapiro, and Sinkinson (2011)
 #' data(GentzkowData)
-#' @seealso \code{\link{GentzkowData}}
 #' data_W_CH <- mDid_weights_CH(data=GentzkowData,
 #'                              y_var="prestout",
 #'                              time.index = "year",
