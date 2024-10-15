@@ -52,11 +52,15 @@ mdd_estim_fect <- function(mdd_dat, echo=FALSE, parallel=FALSE, ...){
   formu <- as.formula(paste(mdd_vars$y_var, "~", mdd_vars$treat))
 
   ## run
+  run_with_message <- function(x, echo=TRUE) {
+    if(!echo) return(suppressMessages(x))
+    x
+  }
   if(!echo) sink(tempfile())  # Redirect output to a temporary file
-  res <- fect::fect(formu, data = as.data.frame(mdd_dat),
-                    index = c(mdd_vars$unit.index, mdd_vars$time.index),
-                    parallel=parallel,
-                    ...)
+  res <- run_with_message(fect::fect(formu, data = as.data.frame(mdd_dat),
+                                     index = c(mdd_vars$unit.index, mdd_vars$time.index),
+                                     parallel=parallel,
+                                     ...), echo=echo)
   if(!echo) sink()  # Restore output to the console
 
 
@@ -112,7 +116,7 @@ tidy.gsynth <- function(x, type = c("average", "time"), ...){
                     tidyselect::any_of("n.Treated"))
   if(!is.null(x$est.avg)){
     out <- out %>%
-      dplyr::relocate(.data$p.value, .after =.data$S.E.) |>
+      dplyr::relocate("p.value", .after ="S.E.") |>
       dplyr::rename(std.error = "S.E.",
                     conf.low = "CI.lower",
                     conf.high = "CI.upper")
@@ -122,9 +126,12 @@ tidy.gsynth <- function(x, type = c("average", "time"), ...){
 }
 
 #' @export
-tidy.fect <- function(x, type = c("average", "time"), ...){
+tidy.fect <- function(x, type = c("average-obs", "average-unit", "time"), ...){
 
-  type <- match.arg(type)
+  type <- match.arg(type, choices = c("average-obs", "average-unit", "average", "time"))
+  ## allow
+  if(type=="average") type <- "average-obs"
+
   if(type=="time"){
     if(is.null(x$est.att)){
       co <- data.frame(estimate=x$att,
@@ -135,18 +142,20 @@ tidy.fect <- function(x, type = c("average", "time"), ...){
         mutate(term=rownames(.)) |>
         dplyr::rename(estimate="ATT")
     }
-  } else if(type=="average"){
-    names_att_avg <- c("Average ATT (by obs)", "Average ATT (by unit)")
+  } else if(type%in% c("average-obs", "average-unit")){
+    names_att_avg <- switch(type,
+                           "average-obs"="Average ATT (by obs)",
+                           "average-unit"="Average ATT (by unit)")
     if(is.null(x$est.avg)){
-      co <- data.frame(estimate=c(x$att.avg, x$att.avg.unit),
+      coefs_here <- ifelse(type=="average-obs", x$att.avg,x$att.avg.unit)
+      co <- data.frame(estimate=coefs_here,
                        term= names_att_avg)
     } else {
       # small bug: described as est.att.avg but actually est.avg !?
-      co <- as.data.frame(x$est.avg) %>%
-        rbind(as.data.frame(x$est.avg.unit) %>%
-                dplyr::rename(ATT.avg="ATT.avg.unit")) %>%
+      co_M <- if(type=="average-obs")  x$est.avg else x$est.avg.unit
+      co <- as.data.frame(co_M) %>%
         mutate(term=names_att_avg) |>
-        dplyr::rename(estimate="ATT.avg")
+        dplyr::rename_with(~str_replace(., "ATT\\..+", "estimate"))
     }
   }
 
@@ -156,7 +165,7 @@ tidy.fect <- function(x, type = c("average", "time"), ...){
                     tidyselect::any_of("n.Treated"))
   if(!is.null(x$est.avg)){
     out <- out %>%
-      dplyr::relocate(.data$p.value, .after =.data$S.E.) |>
+      dplyr::relocate("p.value", .after ="S.E.") |>
       dplyr::rename(std.error = "S.E.",
                     conf.low = "CI.lower",
                     conf.high = "CI.upper")
@@ -165,9 +174,6 @@ tidy.fect <- function(x, type = c("average", "time"), ...){
   out
 }
 
-# tidy.fect <- function(x, type = c("average", "time"), ...){
-  # tidy.gsynth(x=x, type=type, ...)
-# }
 
 
 if(FALSE){

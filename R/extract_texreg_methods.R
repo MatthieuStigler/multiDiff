@@ -119,6 +119,15 @@ extract.gsynth <- function(model, type = c("average", "time"),
 }
 
 
+extract.fect <- function(model, type = c("average-obs", "average-unit", "time"),
+                           include.n_treated=TRUE, include.nobs = TRUE,
+                           include.hyper =TRUE, ...) {
+
+  extract.gsynth(model=model, type=type,
+                 include.n_treated=include.n_treated, include.nobs=include.nobs,
+                 include.hyper=include.hyper, ...)
+}
+
 ################################
 ### synthdid
 ################################
