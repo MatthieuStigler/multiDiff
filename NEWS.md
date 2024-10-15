@@ -1,9 +1,14 @@
+# multiDiff 0.3.6
+
+Published on 2024-10-15.
+
+* Add new wrapper `mdd_estim_fect()` for the fect apckage
+
 # multiDiff 0.3.5
 
 Published on 2024-10-14.
 
-* Add new wrapper for Chaisemartin Haultfeuille
-
+* Add new wrapper `mdd_estim_CH()` for Chaisemartin Haultfeuille
 
 # multiDiff 0.3.4
 
