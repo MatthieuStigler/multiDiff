@@ -2,9 +2,12 @@
 % Please edit documentation in R/estim_gsynth.R
 \name{mdd_gsynth}
 \alias{mdd_gsynth}
+\alias{mdd_estim_fect}
 \title{Run Generalized Synthetic Control Method (Xu 2017)}
 \usage{
 mdd_gsynth(mdd_dat, echo = FALSE, parallel = FALSE, ...)
+
+mdd_estim_fect(mdd_dat, echo = FALSE, parallel = FALSE, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}

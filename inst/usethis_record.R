@@ -28,12 +28,13 @@ use_package("car", "Imports")
 use_package("fixest", "Imports")
 
 use_package("tidyverse", "Suggests")
-use_package("gsynth", "Suggests")
-use_package("DIDmultiplegt", "Suggests")
-use_package("synthdid", "Suggests")
 use_package("texreg", "Suggests")
 use_package("did", "Suggests")
-# tidyselect
+use_package("synthdid", "Suggests")
+use_package("gsynth", "Suggests")
+use_package("DIDmultiplegt", "Suggests")
+use_package("fect", "Suggests")
+
 
 ## broom
 usethis::use_package("generics", "Imports")

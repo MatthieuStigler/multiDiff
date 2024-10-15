@@ -35,6 +35,7 @@ Imports:
 Suggests: 
     did,
     DIDmultiplegt,
+    fect,
     gsynth,
     synthdid,
     testthat (>= 3.0.0),
