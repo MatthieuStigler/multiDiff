@@ -19,10 +19,10 @@ mdd_estim_fect(mdd_dat, echo = FALSE, parallel = FALSE, ...)
 \item{...}{Further arguments passed to \link[gsynth]{gsynth}}
 }
 \description{
-Simple wrapper for  \link[gsynth]{gsynth}, see help file there
+Simple wrapper for  \code{\link[gsynth]{gsynth}} or \code{\link[fect]{fect}}, see help files there.
 }
 \details{
-Note that package gsynth is not imported, only suggested.
+Note that packages gsynth/fect are not imported, only suggested.
 }
 \examples{
 if(require(gsynth)){
@@ -34,5 +34,5 @@ if(require(gsynth)){
 }
 }
 \seealso{
-\link{mdd_synthdid} for the synthetic diff-diff by Arkhangelsky et al (2019).
+\code{\link{mdd_synthdid}} for the synthetic diff-diff by Arkhangelsky et al (2019).
 }

@@ -16,32 +16,53 @@ test_that("mdd_gsynth works", {
   )
 })
 
-test_that("tidy works", {
-  res_se <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
-                      force = "two-way",
-                      CV = FALSE, r = 2, se = TRUE,
-                      inference = "parametric", nboots = 10,
-                      parallel = FALSE)
-  expect_no_error(tidy(x=res_se, type ="time"))
-  expect_no_error(tidy(x=res_se, type ="average"))
+## estimate models
+res_gs_noSE <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
+                          force = "two-way",
+                          CV = FALSE, r = 2, se = FALSE)
+res_gs_se <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
+                        force = "two-way",
+                        CV = FALSE, r = 2, se = TRUE,
+                        inference = "parametric", nboots = 10)
+res_fect_se <- mdd_estim_fect(mdd_dat=mdd_simdata_gs, method="gsynth",
+                              force = "two-way", nboots = 10,
+                              CV = FALSE, r = 2, se = TRUE)
+res_fect_noSE <- mdd_estim_fect(mdd_dat=mdd_simdata_gs,
+                                force = "two-way", method="gsynth",
+                                CV = FALSE, r = 2, se = FALSE)
+
+
+test_that("coef() on gsynth/fect gives same result", {
+  expect_equal(coef(res_gs_se, type ="average"),
+               coef(res_fect_se, type ="average"))
+  expect_equal(coef(res_gs_noSE, type ="average"),
+               coef(res_fect_noSE, type ="average"))
+  expect_equal(coef(res_gs_se, type ="time"),
+               coef(res_fect_se, type ="time"), ignore_attr=TRUE)
+  expect_equal(coef(res_gs_noSE, type ="time"),
+               coef(res_fect_noSE, type ="time"), ignore_attr=TRUE)
 })
 
-test_that("tidy works without se", {
-  res_noSE <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
-                       force = "two-way",
-                       CV = FALSE, r = 2, se = FALSE,
-                       inference = "parametric", nboots = 10,
-                       parallel = FALSE)
-  expect_no_error(tidy(x=res_noSE, type ="time"))
-  expect_no_error(tidy(x=res_noSE, type ="average"))
+test_that("tidy() works on gsynth/fect WITH se", {
+  expect_no_error(tidy(x=res_gs_se, type ="time"))
+  expect_no_error(tidy(x=res_gs_se, type ="average"))
+  expect_no_error(tidy(x=res_fect_se, type ="time"))
+  expect_no_error(tidy(x=res_fect_se, type ="average"))
+})
+
+test_that("tidy() works on gsynth/fect WITHOUT se", {
+  expect_no_error(tidy(x=res_gs_noSE, type ="time"))
+  expect_no_error(tidy(x=res_gs_noSE, type ="average"))
+  expect_no_error(tidy(x=res_fect_noSE, type ="time"))
+  expect_no_error(tidy(x=res_fect_noSE, type ="average"))
 })
 
 test_that("tidy works with MC", {
   res_mc <- mdd_gsynth(mdd_dat=mdd_simdata_gs,
-                         force = "none", lambda=1,
-                         CV = FALSE, r = 2, se = FALSE,
-                         inference = "nonparametric", nboots = 200,
-                         parallel = FALSE, estimator="mc")
+                       force = "none", lambda=1,
+                       CV = FALSE, r = 2, se = FALSE,
+                       inference = "nonparametric", nboots = 200,
+                       estimator="mc")
   expect_no_error(tidy(x=res_mc, type ="time"))
   expect_no_error(tidy(x=res_mc, type ="average"))
 })

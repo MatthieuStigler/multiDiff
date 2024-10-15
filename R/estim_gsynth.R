@@ -1,12 +1,12 @@
 #' Run Generalized Synthetic Control Method (Xu 2017)
 #'
-#' @description Simple wrapper for  \link[gsynth]{gsynth}, see help file there
-#' @details Note that package gsynth is not imported, only suggested.
+#' @description Simple wrapper for  \code{\link[gsynth]{gsynth}} or \code{\link[fect]{fect}}, see help files there.
+#' @details Note that packages gsynth/fect are not imported, only suggested.
 #' @template param_mdd_dat
 #' @param echo Whether to print the messages of gsynth or not. Default to TRUE
 #' @param parallel Argument passed to \link[gsynth]{gsynth}, default is FALSE.
 #' @param ... Further arguments passed to \link[gsynth]{gsynth}
-#' @seealso \link{mdd_synthdid} for the synthetic diff-diff by Arkhangelsky et al (2019).
+#' @seealso \code{\link{mdd_synthdid}} for the synthetic diff-diff by Arkhangelsky et al (2019).
 #' @examples
 #' if(require(gsynth)){
 #'  data(gsynth)
