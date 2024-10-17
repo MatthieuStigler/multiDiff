@@ -6,8 +6,7 @@
 #' @template param_cluster
 #' @examples
 #' ## simulate and format data
-#' DID_dat_raw <- sim_dat_common(timing_treatment = 5:10)
-#' DID_dat <- mdd_data_format(DID_dat_raw)
+#' DID_dat <- sim_dat_common(timing_treatment = 5:10, as_mdd=TRUE)
 #'
 #' ## Estimate DiD
 #' mdd_DD_simple(DID_dat)
@@ -38,6 +37,12 @@ mdd_DD_simple <-  function(mdd_dat, weights = NULL, cluster = NULL){
   class(res) <- c("mdd_DiD", class(res))
   attr(res, "mdd_dat_slot") <- mdd_dat_slot
   res
+}
+
+#'@export
+tidy.mdd_DiD <- function(x, conf.int = FALSE, conf.level = 0.95, ...){
+  tidyhere <- utils::getFromNamespace("tidy.fixest", "broom")
+  tidyhere(x=x, conf.int=conf.int, conf.level=conf.level, ...)
 }
 
 if(FALSE){
