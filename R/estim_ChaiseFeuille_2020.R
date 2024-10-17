@@ -7,11 +7,12 @@ mdd_estim_CH_2020 <- function(mdd_dat, ...){
   vars <- intrnl_mdd_get_mdd_slot(mdd_dat)$var_names
 
 
-  DIDmultiplegt::did_multiplegt_old(as.data.frame(mdd_dat),
-                                    Y=vars$y_var, G=vars$unit.index, T=vars$time.index,
-                                    D=vars$treat,
-                                    ...)
-
+  out <- DIDmultiplegt::did_multiplegt_old(as.data.frame(mdd_dat),
+                                           Y=vars$y_var, G=vars$unit.index, T=vars$time.index,
+                                           D=vars$treat,
+                                           ...)
+  class(out) <- c("did_multiplegt_old", class(out))
+  out
 }
 
 #' de Chaisemartin and d'Haufeuille estimators
@@ -39,6 +40,7 @@ mdd_estim_CH <- function(mdd_dat, mode = c("dyn", "had", "old"), ...){
     res <- DIDmultiplegt::did_multiplegt_old(as.data.frame(mdd_dat),
                                              Y=vars$y_var, G=vars$unit.index, T=vars$time.index,
                                              D=vars$treat, ...)
+    class(res) <- c("did_multiplegt_old", class(res))
   } else {
     res <- DIDmultiplegt::did_multiplegt(df=as.data.frame(mdd_dat),
                                          outcome=vars$y_var, group=vars$unit.index, time=vars$time.index,
@@ -71,8 +73,49 @@ tidy.did_multiplegt_dyn <- function(x, conf.int=TRUE, ...){
   res
 }
 
+#'@export
+coef.did_multiplegt_old <- function(object, ...){
+  out <- object$effect
+  names(out) <- "ATT"
+  out
+}
+
+#'@export
+vcov.did_multiplegt_old <- function(object, ...){
+  has_se <- "se_effect" %in% names(object)
+  if(!has_se) return(NA)
+  M <- matrix(object$se_effect^2)
+  rownames(M) <- colnames(M) <- "ATT"
+  M
+}
+
+#'@export
+tidy.did_multiplegt_old <- function(x, conf.int=TRUE, conf.level = 0.95, ...){
+  has_se <- "se_effect" %in% names(x)
+  coef <- x$effect
+
+  if(!has_se){
+    df <- data.frame(term = "ATT",
+                     estimate=coef)
+  } else {
+    se <- x$se_effect
+    df <- data.frame(term = "ATT",
+                     estimate=coef,
+                     std.error=se,
+                     statistic = coef/se,
+                     p.value=2 * stats::pnorm(abs(coef/se), lower.tail = FALSE))
+    if(conf.int){
+    CI <- confint(x, level = conf.level)
+    df <- cbind(df,
+                conf.low = CI[1,1],
+                conf.high = CI[1,2])
+    }
+  }
+  df
+}
 
 if(FALSE){
+  library(multiDiff)
   # data(GentzkowData)
   GentzkowData_md <- mdd_data_format(GentzkowData,
                                      y_var="prestout",
@@ -81,7 +124,12 @@ if(FALSE){
                                      unit.index="cnty90" )
   # CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md, brep=10, covariance=FALSE)
   CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md)
-  CH_2020_out
+  CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md, brep=2)
+  tidy(CH_2020_out)
+  tidy(CH_2020_out, conf.int = FALSE)
+  coef(object=CH_2020_out)
+  vcov(CH_2020_out)
+  confint(CH_2020_out)
 
   CH_2024_out <- mdd_estim_CH(mdd_dat = GentzkowData_md)
   CH_2024_out
