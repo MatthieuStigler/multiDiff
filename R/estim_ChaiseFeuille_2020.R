@@ -53,25 +53,59 @@ mdd_estim_CH <- function(mdd_dat, mode = c("dyn", "had", "old"), ...){
 }
 
 #' @export
-tidy.did_multiplegt_dyn <- function(x, conf.int=TRUE, ...){
+tidy.did_multiplegt_dyn <- function(x, conf.int=TRUE, type = c("ATE", "Effects", "Placebos", "All"), ...){
 
-  # term <- attr(x, "mdd_dat_slot")$var_names$treat
-  # if(is.null(term)) term <- NA_character_
-  eff <- x$results$Effects
-  coef <- eff[1,"Estimate"]
-  se <- eff[1,"SE"]
-  res <- data.frame(term = "Estimation of treatment effects: Event-study effects",
+  type <- match.arg(type)
+
+  get_if_there <- function(x, slot){
+    if(slot %in% names(x)) return(x[[slot]]) else return(NULL)
+  }
+  out <- switch(type,
+                Effects=x$results$Effects,
+                ATE = x$results$ATE,
+                All = rbind(get_if_there(x$results, "ATE"),
+                            get_if_there(x$results, "Effects"),
+                            get_if_there(x$results, "Placebos")))
+  coef <- out[,"Estimate"]
+  se <- out[,"SE"]
+  res <- data.frame(term = rownames(out),
                     estimate = coef,
                     std.error =se,
                     statistic =coef/se,
                     p.value =2 * stats::pnorm(abs(coef/se), lower.tail = FALSE))
   if(conf.int) {
     res <- cbind(res,
-                 data.frame(conf.low = eff[1,"LB CI"],
-                            conf.high =eff[1,"UB CI"]))
+                 data.frame(conf.low = out[,"LB CI"],
+                            conf.high =out[,"UB CI"]))
   }
+  rownames(res) <- NULL
   res
 }
+
+#'@export
+coef.did_multiplegt_dyn <- function(object, type = c("ATE", "Effects"), ...){
+  type <- match.arg(type)
+  if(type=="ATE"){
+    co <- object$results$ATE[,"Estimate"]
+    names(co) <- rownames(object$results$ATE)
+  } else {
+    co <- object$coef$b
+  }
+  co
+}
+
+#'@export
+vcov.did_multiplegt_dyn <- function(object, type = c("ATE", "Effects"), ...){
+  type <- match.arg(type)
+  if(type=="ATE"){
+    vc <- as.matrix(object$results$ATE[,"SE", drop=FALSE])
+    colnames(vc) <- rownames(vc)
+  } else {
+    vc <- object$coef$vcov
+  }
+  vc
+}
+
 
 #'@export
 coef.did_multiplegt_old <- function(object, ...){
@@ -105,7 +139,7 @@ tidy.did_multiplegt_old <- function(x, conf.int=TRUE, conf.level = 0.95, ...){
                      statistic = coef/se,
                      p.value=2 * stats::pnorm(abs(coef/se), lower.tail = FALSE))
     if(conf.int){
-    CI <- confint(x, level = conf.level)
+    CI <- stats::confint(x, level = conf.level)
     df <- cbind(df,
                 conf.low = CI[1,1],
                 conf.high = CI[1,2])
@@ -124,15 +158,27 @@ if(FALSE){
                                      unit.index="cnty90" )
   # CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md, brep=10, covariance=FALSE)
   CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md)
-  CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md, brep=2)
+  CH_2020_out <- mdd_estim_CH_2020(mdd_dat = GentzkowData_md, brep=2, dynamic = 2, placebo=2)
   tidy(CH_2020_out)
   tidy(CH_2020_out, conf.int = FALSE)
   coef(object=CH_2020_out)
   vcov(CH_2020_out)
   confint(CH_2020_out)
 
-  CH_2024_out <- mdd_estim_CH(mdd_dat = GentzkowData_md)
-  CH_2024_out
+  CH_2024_out <- mdd_estim_CH(mdd_dat = GentzkowData_md, effects =2, placebo=2)
+  CH_2024_out_0 <- mdd_estim_CH(mdd_dat = GentzkowData_md, effects =1, placebo=0)
+  coef(CH_2024_out)
+  vcov(CH_2024_out)
+  confint(CH_2024_out)
+
+  tidy(CH_2024_out)
+  tidy(CH_2024_out, type="Effect")
+  tidy(CH_2024_out, type="All")
+
+  tidy(CH_2024_out, conf.int=TRUE)
+  coef(CH_2024_out, type="Effect") %>% {mean(.[1:2])}
+  coef(CH_2024_out, type="Effect") %>% mean()
+  vcov(CH_2024_out, type="Effect")
   tidy(CH_2024_out)
 
   DIDmultiplegtDYN:::print.did_multiplegt_dyn
