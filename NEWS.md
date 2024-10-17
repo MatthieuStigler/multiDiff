@@ -1,8 +1,14 @@
+# multiDiff 0.3.7
+
+Published on 2024-10-17.
+
+* Create/Improve `coef`, `vcov` and `tidy` for CF estimators
+
 # multiDiff 0.3.6
 
 Published on 2024-10-15.
 
-* Add new wrapper `mdd_estim_fect()` for the fect apckage
+* Add new wrapper `mdd_estim_fect()` for the `fect` package
 
 # multiDiff 0.3.5
 
