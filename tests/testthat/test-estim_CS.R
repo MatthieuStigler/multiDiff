@@ -52,6 +52,26 @@ test_that("With T=10 and common shock, CS gives same as did::aggte", {
 
 
 ################################
+#'## Convert char unit id
+################################
+
+result <- c(Reduce(function(x, y) outer(x, y, paste, sep=""), list(letters, letters, letters)))
+
+dat_stag2 <- dat_stag |>
+  as_tibble() |>
+  distinct(unit) |>
+  mutate(unit_id_char=result[1:n()]) |>
+  right_join(dat_stag, by ="unit") |>
+  mdd_data_format(unit.index = "unit_id_char")
+
+dat_stag2
+
+test_that("Works with char id", {
+  expect_no_error(mdd_CS(dat_stag2))
+
+})
+
+################################
 #'## Compare simple staggered
 ################################
 
@@ -256,3 +276,4 @@ test_that("mdd_CS_manu gives same results as did:: with unbalanced data and empt
   expect_equal(CS_CS_cross2_notYet, did_CS_CS_cross2_notYet)
 
 })
+

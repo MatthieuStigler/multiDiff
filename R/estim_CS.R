@@ -40,9 +40,10 @@ mdd_CS <- function(mdd_dat, timing_treat_var=NULL, panel=NULL, ...){
 
   ## make unit.index (idname) numeric
   if(!is.numeric(dat_did[[vars$unit.index]])){
-    nam <- vars$unit.index
+    # nam <- vars$unit.index
+    # dat_did <- dat_did %>% mutate({{nam}} := utl_char_to_num(vars$unit.index))
     dat_did <- dat_did %>%
-      mutate({{nam}} := utl_char_to_num(vars$unit.index))
+      mutate(across(all_of(vars$unit.index), utl_char_to_num))
   }
 
   ## cross-section?
