@@ -1,0 +1,109 @@
+---
+title: "Event_study_vs_Callaway_vs_Chaisemartin"
+output: rmarkdown::html_vignette
+vignette: >
+  %\VignetteIndexEntry{Event_study_vs_Callaway_vs_Chaisemartin}
+  %\VignetteEngine{knitr::rmarkdown}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r, include = FALSE}
+knitr::opts_chunk$set(
+  collapse = TRUE,
+  comment = "#>"
+)
+```
+
+```{r setup}
+library(multiDiff)
+```
+
+# Comparing DiD, event-study, Callaway Sant'Anna and Chaisemartin and Haultfeuille estimates
+
+In summary, in a *non-staggered* case:
+
+1. a DiD estimate the average _post_ periods against all _pre_ periods
+2. An event study (ES) estimates individual _post_ periods against a single _pre_ period
+3. The Callaway Sant'Anna (CS) gives the same estimates as an ES when using `base_period = "universal"`
+4. The CS `did::aggte` function gives the average of the _post_ periods against a single _pre_ periods
+5. Therefore, the link between DiD and ES/CS is:
+  - a full DiD is equal to the average ES when the ES is computed against all _pre_ periods (argument `trim_low`)
+  - a truncated DiD is equal to the average ES when the DiD's input contains only one _pre_ period
+5. The Chaisemartin and Haultfeuille (2023) gives the ES coefficients (against the -1 period) BUT:
+  - coefficients are rounded to `digits=5`
+  - for some reason, it does not allow to estimate all effects K, but K-1
+6. The CS ATE is therefore equal to the EC/CS coefficients when removing the last coefficient at K.
+
+
+## example
+
+Simulate data with common treatment (= non-staggered). Treatment happens at T=5.
+```{r}
+dat_common <- sim_dat_common(timing_treatment = 5:10, as_mdd = TRUE, seed=123)
+```
+
+Estimate the standard DiD, and a truncated DiD, where we remove all pre-treatment periods except the last one
+
+```{r}
+reg_DD <- mdd_DD_simple(dat_common)
+reg_DD_trunc <- mdd_DD_simple(dat_common |>subset(Time>=4))
+```
+
+Estimate the ES coefficents
+
+```{r}
+reg_ES <- mdd_event_study(dat_common)
+reg_ES_trunc <- mdd_event_study(dat_common, trim_low = -1)
+```
+
+Estimate the CS coefficients
+
+```{r}
+reg_CS <- mdd_CS(dat_common, base_period = "universal")
+```
+
+Estimate the CH coefficient
+
+```{r}
+reg_CH_24_effct_1 <- mdd_estim_CH(mdd_dat = dat_common, graph_off=TRUE)
+reg_CH_24_effct_5 <- mdd_estim_CH(mdd_dat = dat_common, effects =5, placebo=3, graph_off=TRUE)
+```
+
+## verify the relationships
+
+
+### The full DiD is the same as the mean ES which considers all pre-periods (`trim_low = -1`)
+
+```{r}
+all.equal(coef(reg_DD)[[1]],
+          mean(coef(reg_ES_trunc)))
+```
+
+### a truncated DiD is the same as the mean ES
+
+```{r}
+all.equal(coef(reg_DD_trunc)[[1]],
+          mean(coef(reg_ES)[4:9]))
+```
+
+### a truncated DiD is also the same as the `aggte(CS)`
+
+```{r}
+all.equal(coef(reg_DD_trunc)[[1]],
+          suppressWarnings(did::aggte(reg_CS)$overall.att))
+```
+
+### Individual ES are equal to individual CS when using `base_period = "universal"`
+
+```{r}
+all.equal(coef(reg_ES)[4:9],
+          reg_CS$att[5:10], check.attributes = FALSE)
+```
+
+### Individual ES are equal to individual CS except for the last one (missing in CH)
+
+```{r}
+all.equal(round(coef(reg_ES)[4:8],5),
+          reg_CH_24_effct_5$results$Effects[,"Estimate"], check.attributes = FALSE)
+
+```
