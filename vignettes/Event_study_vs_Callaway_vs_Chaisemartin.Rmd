@@ -111,6 +111,6 @@ all.equal(round(coef(reg_ES)[4:9],5),
 
 ~~~{=comment}
 ## render locally with: 
-rmarkdown::render('vignettes/Event_study_vs_Callaway_vs_Chaisemartin.Rmd')
+rmarkdown::render('vignettes/Event_study_vs_Callaway_vs_Chaisemartin.Rmd', output_format="md_document")
 ~~~
 
