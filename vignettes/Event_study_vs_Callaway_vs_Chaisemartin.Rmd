@@ -31,8 +31,7 @@ In summary, in a *non-staggered* case:
   - a truncated DiD is equal to the average ES when the DiD's input contains only one _pre_ period
 5. The Chaisemartin and Haultfeuille (2023) gives the ES coefficients (against the -1 period) BUT:
   - coefficients are rounded to `digits=5`
-  - for some reason, it does not allow to estimate all effects K, but K-1
-6. The CS ATE is therefore equal to the EC/CS coefficients when removing the last coefficient at K.
+6. The CH ATE is therefore equal to the EC/CS coefficients.
 
 
 ## example
@@ -66,7 +65,7 @@ Estimate the CH coefficient
 
 ```{r}
 reg_CH_24_effct_1 <- mdd_estim_CH(mdd_dat = dat_common, graph_off=TRUE)
-reg_CH_24_effct_5 <- mdd_estim_CH(mdd_dat = dat_common, effects =5, placebo=3, graph_off=TRUE)
+reg_CH_24_effct_6 <- mdd_estim_CH(mdd_dat = dat_common, effects =6, placebo=3, graph_off=TRUE)
 ```
 
 ## verify the relationships
@@ -100,10 +99,10 @@ all.equal(coef(reg_ES)[4:9],
           reg_CS$att[5:10], check.attributes = FALSE)
 ```
 
-### Individual ES are equal to individual CS except for the last one (missing in CH)
+### Individual ES are equal to individual CS
 
 ```{r}
-all.equal(round(coef(reg_ES)[4:8],5),
-          reg_CH_24_effct_5$results$Effects[,"Estimate"], check.attributes = FALSE)
+all.equal(round(coef(reg_ES)[4:9],5),
+          reg_CH_24_effct_6$results$Effects[,"Estimate"], check.attributes = FALSE)
 
 ```
