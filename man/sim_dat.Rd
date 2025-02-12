@@ -13,7 +13,8 @@ sim_dat(
   gamma = 0.7,
   seed = NULL,
   prob_treat = 0.25,
-  as_mdd = FALSE
+  as_mdd = FALSE,
+  timing_treatment = 1:Time
 )
 
 sim_dat_common(

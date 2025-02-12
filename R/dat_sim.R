@@ -78,7 +78,8 @@
 #' dyn_eff <- seq(1.1, by = 0.1, length.out = 5)
 #' dat_DiD_dyn <- sim_dat_common(N=10000, timing_treatment = 5, beta_dyn = dyn_eff, as_mdd = TRUE)
 #' mdd_event_study(dat_DiD_dyn)
-sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25, as_mdd = FALSE) {
+sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_treat = 0.25, as_mdd = FALSE,
+                    timing_treatment = 1:Time) {
 
   if(!is.null(seed)) set.seed(seed)
 
@@ -91,7 +92,9 @@ sim_dat <- function(N = 1000, Time = 15, beta =1, gamma = 0.7, seed=NULL, prob_t
                       Time = rep(1:Time, times=N),
                       unit_fe = ind_fe,
                       time_fe = time_fe,
-                      tr = rbinom(N*Time, size = 1, prob_treat),
+                      tr = if_else(Time %in%timing_treatment,
+                                   rbinom(N*Time, size = 1, prob_treat),
+                                   0),
                       err = rnorm(N*Time)) %>%
     group_by(.data$unit) %>%
     mutate(lag_1 =dplyr::lag(.data$tr),
