@@ -18,6 +18,8 @@ knitr::opts_chunk$set(
 library(multiDiff)
 ```
 
+Preview this file with: [link](https://htmlpreview.github.io/?https://github.com/MatthieuStigler/multiDiff/blob/master/vignettes/Event_study_vs_Callaway_vs_Chaisemartin.html)
+
 # Comparing DiD, event-study, Callaway Sant'Anna and Chaisemartin and Haultfeuille estimates
 
 In summary, in a *non-staggered* case:
@@ -106,3 +108,9 @@ all.equal(round(coef(reg_ES)[4:9],5),
           reg_CH_24_effct_6$results$Effects[,"Estimate"], check.attributes = FALSE)
 
 ```
+
+~~~{=comment}
+## render locally with: 
+rmarkdown::render('vignettes/Event_study_vs_Callaway_vs_Chaisemartin.Rmd')
+~~~
+
