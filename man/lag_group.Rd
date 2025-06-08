@@ -24,7 +24,7 @@ lag_group(
 \item{time_var}{The time variable.
 This is necessary as the function makes sure there are no missing years.}
 
-\item{lagamount}{The amount of lag}
+\item{lagamount}{The value of the lag(s). Negative values indicate leads.}
 
 \item{complete_time}{Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.}
 
