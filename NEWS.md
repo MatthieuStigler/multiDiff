@@ -1,3 +1,9 @@
+# multiDiff 0.3.8
+
+Published on 2025-08-04.
+
+* Increase required R version to 4.1 due to use of pipre
+
 # multiDiff 0.3.7
 
 Published on 2024-10-17.

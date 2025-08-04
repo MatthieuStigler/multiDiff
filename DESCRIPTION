@@ -1,7 +1,7 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.3.7
-Date: 2024-10-17
+Version: 0.3.8
+Date: 2025-08-04
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",
@@ -44,7 +44,7 @@ Suggests:
     texreg,
     tidyverse
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 RdMacros: lifecycle
 Config/testthat/edition: 3
 VignetteBuilder: knitr
