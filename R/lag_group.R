@@ -21,7 +21,7 @@ lag_group_old <- function(df, group_var, time_var, lag_var, lagamount=1){
 #' @param time_var The time variable.
 #' This is necessary as the function makes sure there are no missing years.
 #' @param value_var The variable to lag over
-#' @param lagamount The amount of lag
+#' @param lagamount The value of the lag(s). Negative values indicate leads.
 #' @param complete_time Sequence to use for 'completing' df, making sure implicit NAs are turned into explicit ones.
 #' @param default Default value for missing? NA by default.
 #' @export
