@@ -23,8 +23,8 @@ setMethod("extract", signature = className("gsynth", "multiDiff"), definition = 
 
 
 
-test_that("One issue", {
-  expect_error(suppressWarnings(screenreg(mdd_gs_mc)))
+test_that("Works now with single coefs", {
+  expect_no_error(suppressWarnings(screenreg(mdd_gs_mc)))
 })
 
 test_that("Work when run together", {
