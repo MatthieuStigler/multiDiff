@@ -1,5 +1,12 @@
 # multiDiff 0.3.7
 
+Published on 2026-01-13.
+
+* Add argument `vcov_fix` to `mdd_test_pre_trend_event()`, to avoid fixest to try to fix. Works only with fixest >= 0.12.0.
+* Add dependency to texreg (>= 1.39.5), as it solves issue https://github.com/leifeld/texreg/issues/209
+
+# multiDiff 0.3.7
+
 Published on 2024-10-17.
 
 * Create/Improve `coef`, `vcov` and `tidy` for CF estimators

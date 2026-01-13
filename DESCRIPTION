@@ -1,7 +1,7 @@
 Package: multiDiff
 Title: Multi-year diff-diff and FE decompositions
-Version: 0.3.7
-Date: 2024-10-17
+Version: 0.3.8
+Date: 2026-01-13
 Authors@R: 
     person(given = "Matthieu",
            family = "Stigler",
@@ -13,7 +13,7 @@ License: MIT + file LICENSE
 Encoding: UTF-8
 LazyData: true
 Roxygen: list(markdown = TRUE)
-RoxygenNote: 7.3.2
+RoxygenNote: 7.3.3
 Imports: 
     tidyr,
     broom,
@@ -41,10 +41,10 @@ Suggests:
     rmarkdown,
     synthdid,
     testthat (>= 3.0.0),
-    texreg,
+    texreg (>= 1.39.5),
     tidyverse
 Depends: 
-    R (>= 2.10)
+    R (>= 4.1.0)
 RdMacros: lifecycle
 Config/testthat/edition: 3
 VignetteBuilder: knitr
