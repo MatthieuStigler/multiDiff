@@ -84,10 +84,11 @@ mdd_test_pre_trend_means <- function(mdd_dat, cluster=NULL, time_ref = NULL){
 }
 
 #'@param ... Further arguments passed to \code{\link{mdd_event_study}}
+#'@param vcov_fix argument passed to vcov, in case it is applied to a fixest object
 #'@seealso \code{\link{mdd_event_study}} to estimate the event study.
 #'@export
 #'@rdname mdd_test_pre_trend_means
-mdd_test_pre_trend_event <- function(mdd_dat, ...){
+mdd_test_pre_trend_event <- function(mdd_dat, vcov_fix=FALSE,...){
 
   ## mdd formatting
   if(!inherits(mdd_dat, c("mdd_dat", "mdd_event_study"))) {
@@ -110,8 +111,8 @@ mdd_test_pre_trend_event <- function(mdd_dat, ...){
   }
 
   ## hypo
-  test_joint <- my_wald(mdd_dat, H_mat)
-  test_indiv <- purrr::map_dfr(1:K_before, \(i) my_wald(mdd_dat, H_mat[i,,drop=FALSE]))
+  test_joint <- my_wald(mdd_dat, H_mat, vcov_fix=vcov_fix)
+  test_indiv <- purrr::map_dfr(1:K_before, \(i) my_wald(mdd_dat, H_mat[i,,drop=FALSE], vcov_fix=vcov_fix))
 
   ## tidy res  assemble
   rbind(test_joint,
@@ -201,12 +202,12 @@ if(FALSE){
 #' @param H Hypo matrix, N col shold be same aas N coef
 #'
 #' @noRd
-my_wald <- function(object, H){
+my_wald <- function(object, H, vcov_fix=FALSE){
 
 
   B <- coef(object)
   R <- H %*% B
-  SIG <- H%*% stats::vcov(object) %*% t(H)
+  SIG <- H%*% stats::vcov(object, vcov_fix=vcov_fix) %*% t(H)
 
   ## Try to inverse
   S_inv <- try(solve(SIG), silent = TRUE)

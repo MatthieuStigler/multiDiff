@@ -7,7 +7,7 @@
 \usage{
 mdd_test_pre_trend_means(mdd_dat, cluster = NULL, time_ref = NULL)
 
-mdd_test_pre_trend_event(mdd_dat, ...)
+mdd_test_pre_trend_event(mdd_dat, vcov_fix = FALSE, ...)
 }
 \arguments{
 \item{mdd_dat}{An object of class mdd_dat created by \code{\link{mdd_data_format}}}
@@ -15,6 +15,8 @@ mdd_test_pre_trend_event(mdd_dat, ...)
 \item{cluster}{argument passed to \code{feols(..., cluster=)}}
 
 \item{time_ref}{the reference time period against which to test, By default, the first pre-period}
+
+\item{vcov_fix}{argument passed to vcov, in case it is applied to a fixest object}
 
 \item{...}{Further arguments passed to \code{\link{mdd_event_study}}}
 }
