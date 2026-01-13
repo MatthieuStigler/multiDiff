@@ -1,5 +1,5 @@
 library(multiDiff)
-library(gsynth)
+suppressPackageStartupMessages(library(gsynth))
 
 data(gsynth)
 mdd_simdata_gs <- mdd_data_format(simdata,
